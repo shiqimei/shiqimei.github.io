@@ -1,5 +1,12 @@
 [
   {
+    "type": "gist",
+    "title": "Prevent Mac from Sleeping",
+    "excerpt": "Keep your Mac awake (display, disk, system): caffeinate -dimsu &",
+    "date": "Jan 3, 2026",
+    "url": "gists.html#caffeinate-prevent-sleep"
+  },
+  {
     "type": "post",
     "title": "Removing Rounded Corners and Window Borders on macOS",
     "excerpt": "A deep dive into modifying macOS system assets to achieve square window corners and remove the 1px window border.",
