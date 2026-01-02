@@ -27,7 +27,7 @@
               <circle cx="11" cy="11" r="8"></circle>
               <path d="M21 21l-4.35-4.35"></path>
             </svg>
-            <input type="text" class="search-input" id="searchInput" placeholder="Search posts..." autocomplete="off">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search..." autocomplete="off">
             <kbd class="search-kbd">ESC</kbd>
           </div>
           <div class="search-results" id="searchResults"></div>
@@ -41,42 +41,25 @@
     results = document.getElementById('searchResults');
   }
 
-  // Build search index from timeline items and gists
+  // Build search index from global JSON file
   function buildIndex() {
-    // Index blog posts
-    const posts = document.querySelectorAll('.timeline-item');
-    posts.forEach(item => {
-      const titleEl = item.querySelector('.timeline-title a');
-      const excerptEl = item.querySelector('.timeline-excerpt');
-      const dateEl = item.querySelector('.timeline-date');
+    // Determine base path (handle posts/ subdirectory)
+    const isInSubdir = window.location.pathname.includes('/posts/');
+    const basePath = isInSubdir ? '../' : '';
 
-      if (titleEl) {
-        searchIndex.push({
-          title: titleEl.textContent.trim(),
-          excerpt: excerptEl ? excerptEl.textContent.trim() : '',
-          date: dateEl ? dateEl.textContent.trim() : '',
-          url: titleEl.getAttribute('href')
+    fetch(basePath + 'search-index.json')
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(item => {
+          searchIndex.push({
+            title: item.title,
+            excerpt: item.excerpt,
+            date: item.date,
+            url: basePath + item.url
+          });
         });
-      }
-    });
-
-    // Index gists
-    const gists = document.querySelectorAll('.gist');
-    gists.forEach(item => {
-      const titleEl = item.querySelector('.gist-title');
-      const contentEl = item.querySelector('.gist-content');
-      const dateEl = item.querySelector('.gist-date');
-      const id = item.getAttribute('id');
-
-      if (titleEl) {
-        searchIndex.push({
-          title: titleEl.textContent.trim(),
-          excerpt: contentEl ? contentEl.textContent.trim().slice(0, 150) : '',
-          date: dateEl ? dateEl.textContent.trim() : '',
-          url: 'gists.html' + (id ? '#' + id : '')
-        });
-      }
-    });
+      })
+      .catch(err => console.error('Failed to load search index:', err));
   }
 
   // Bind keyboard and click events

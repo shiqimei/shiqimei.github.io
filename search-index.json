@@ -1,0 +1,51 @@
+[
+  {
+    "type": "post",
+    "title": "Removing Rounded Corners and Window Borders on macOS",
+    "excerpt": "A deep dive into modifying macOS system assets to achieve square window corners and remove the 1px window border.",
+    "date": "Jan 3, 2026",
+    "url": "posts/macos-square-corners.html"
+  },
+  {
+    "type": "post",
+    "title": "AI Agents and the New Tool Paradigm: Code as the Universal Interface",
+    "excerpt": "On knowledge alignment, context engineering, HITL limitations, and why code is becoming the universal tool for machine intelligence.",
+    "date": "Aug 7, 2025",
+    "url": "posts/ai-agents-code-universal-tool.html"
+  },
+  {
+    "type": "post",
+    "title": "Information Distribution, Deep Thinking, and Building Cognition",
+    "excerpt": "Information quality determines decision quality. Your cognition - built from deep thinking about the information you acquire - shapes every decision you make.",
+    "date": "Nov 29, 2023",
+    "url": "posts/information-distribution-cognition.html"
+  },
+  {
+    "type": "post",
+    "title": "How to Add Karabiner Elements Advanced Mapping Rules",
+    "excerpt": "Create conditional key remapping rules that exclude specific applications using Karabiner Elements' Complex Modifications.",
+    "date": "Nov 3, 2021",
+    "url": "posts/karabiner-elements-advanced-rules.html"
+  },
+  {
+    "type": "post",
+    "title": "Fixing Boot Issues: A Deep Dive into MBR, PBR, and BCD",
+    "excerpt": "Understanding and repairing Windows boot failures after removing a Linux dual-boot partition.",
+    "date": "Feb 21, 2018",
+    "url": "posts/fixing-boot-issues-mbr-pbr-bcd.html"
+  },
+  {
+    "type": "post",
+    "title": "Deepin Boot Maker Not Recognizing USB Drive",
+    "excerpt": "Why PE tools cause USB drives to be misidentified as local disks, and how to work around it.",
+    "date": "Feb 21, 2018",
+    "url": "posts/deepin-boot-maker-usb-not-recognized.html"
+  },
+  {
+    "type": "gist",
+    "title": "Get iPhone Hotspot Gateway IP",
+    "excerpt": "When using an iPhone as a hotspot, get the gateway IP: route -n get default | grep gateway",
+    "date": "Jan 3, 2026",
+    "url": "gists.html#iphone-hotspot-ip"
+  }
+]
