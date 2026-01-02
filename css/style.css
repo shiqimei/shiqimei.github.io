@@ -238,6 +238,57 @@ a:hover {
   font-family: inherit;
 }
 
+/* Code block with copy button */
+.code-block {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.code-block .shiki {
+  margin-bottom: 0;
+}
+
+.copy-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: #111;
+  border: 1px solid var(--border);
+  color: var(--gray);
+  font-family: inherit;
+  font-size: 0.7rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.code-block:hover .copy-btn {
+  opacity: 1;
+}
+
+.copy-btn:hover {
+  color: var(--fg);
+  border-color: var(--fg);
+}
+
+.copy-btn.copied {
+  color: var(--fg);
+}
+
+.copy-icon {
+  width: 12px;
+  height: 12px;
+}
+
+.copy-text {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .post-content blockquote {
   border-left: 2px solid var(--fg);
   padding-left: 1rem;
