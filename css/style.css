@@ -618,6 +618,13 @@ a:hover {
 .search-result-item mark {
   background: transparent;
   color: var(--fg);
+}
+
+.search-result-title mark {
+  font-weight: 800;
+}
+
+.search-result-excerpt mark {
   font-weight: 700;
 }
 

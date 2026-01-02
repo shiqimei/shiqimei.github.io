@@ -41,10 +41,11 @@
     results = document.getElementById('searchResults');
   }
 
-  // Build search index from timeline items
+  // Build search index from timeline items and gists
   function buildIndex() {
-    const items = document.querySelectorAll('.timeline-item');
-    items.forEach(item => {
+    // Index blog posts
+    const posts = document.querySelectorAll('.timeline-item');
+    posts.forEach(item => {
       const titleEl = item.querySelector('.timeline-title a');
       const excerptEl = item.querySelector('.timeline-excerpt');
       const dateEl = item.querySelector('.timeline-date');
@@ -55,6 +56,24 @@
           excerpt: excerptEl ? excerptEl.textContent.trim() : '',
           date: dateEl ? dateEl.textContent.trim() : '',
           url: titleEl.getAttribute('href')
+        });
+      }
+    });
+
+    // Index gists
+    const gists = document.querySelectorAll('.gist');
+    gists.forEach(item => {
+      const titleEl = item.querySelector('.gist-title');
+      const contentEl = item.querySelector('.gist-content');
+      const dateEl = item.querySelector('.gist-date');
+      const id = item.getAttribute('id');
+
+      if (titleEl) {
+        searchIndex.push({
+          title: titleEl.textContent.trim(),
+          excerpt: contentEl ? contentEl.textContent.trim().slice(0, 150) : '',
+          date: dateEl ? dateEl.textContent.trim() : '',
+          url: 'gists.html' + (id ? '#' + id : '')
         });
       }
     });
