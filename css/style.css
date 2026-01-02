@@ -597,6 +597,7 @@ a:hover {
 .search-result-title {
   font-weight: 600;
   margin-bottom: 0.25rem;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .search-result-excerpt {
@@ -622,6 +623,7 @@ a:hover {
 
 .search-result-title mark {
   font-weight: 800;
+  color: #fff;
 }
 
 .search-result-excerpt mark {
