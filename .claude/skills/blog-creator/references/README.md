@@ -13,7 +13,7 @@ Create new blog posts for the Shiqi Mei blog (shiqimei.github.io). This static s
 ## Blog Structure
 
 ```
-/Users/smei/repos/pages/
+./
 ├── index.html           # Homepage with timeline
 ├── css/style.css        # Shared styles
 └── posts/
@@ -75,7 +75,6 @@ Add entry to `index.html` inside `<main class="timeline">`, newest first:
 ### Step 3: Commit and Push
 
 ```bash
-cd /Users/smei/repos/pages
 git add -A && git commit -m "Add post: POST_TITLE" && git push
 ```
 
