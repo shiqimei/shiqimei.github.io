@@ -45,7 +45,7 @@
 
         <p>Window appearance is controlled by assets in:</p>
 
-        <pre><code>/System/Library/CoreServices/SystemAppearance.bundle/Contents/Resources/Aqua.car</code></pre>
+        <pre><code class="language-text">/System/Library/CoreServices/SystemAppearance.bundle/Contents/Resources/Aqua.car</code></pre>
 
         <p>The key assets for window corners are:</p>
 
@@ -76,7 +76,7 @@
 
         <h3>Step 1: Backup the Original</h3>
 
-        <pre><code>cp /System/Library/CoreServices/SystemAppearance.bundle/Contents/Resources/Aqua.car ~/Downloads/Aqua.car</code></pre>
+        <pre><code class="language-bash">cp /System/Library/CoreServices/SystemAppearance.bundle/Contents/Resources/Aqua.car ~/Downloads/Aqua.car</code></pre>
 
         <h3>Step 2: Open in ThemeEngine</h3>
 
@@ -93,7 +93,7 @@
 
         <p>To create square corners, fill the entire image with the corner color. Using ImageMagick:</p>
 
-        <pre><code># For shape images (fill with corner color)
+        <pre><code class="language-bash"># For shape images (fill with corner color)
 magick -size 54x54 xc:'graya(255,0.54902)' output.png
 
 # For base images (make fully transparent)
@@ -107,7 +107,7 @@ magick -size 54x54 xc:'rgba(0,0,0,0)' output.png</code></pre>
 
         <p>With SIP and Authenticated Root disabled:</p>
 
-        <pre><code># 1. Backup current system file
+        <pre><code class="language-bash"># 1. Backup current system file
 sudo cp /System/Library/CoreServices/SystemAppearance.bundle/Contents/Resources/Aqua.car ~/Documents/Aqua.car.backup
 
 # 2. Find and mount the root disk
@@ -129,7 +129,7 @@ sudo shutdown -r now</code></pre>
 
         <p>To restore the original appearance:</p>
 
-        <pre><code># Copy backup back
+        <pre><code class="language-bash"># Copy backup back
 sudo cp ~/Documents/Aqua.car.backup ~/live_disk_mnt/System/Library/CoreServices/SystemAppearance.bundle/Contents/Resources/Aqua.car
 
 # Re-bless and restart
@@ -142,7 +142,7 @@ sudo shutdown -r now</code></pre>
 
         <p>For a less invasive approach, <a href="https://github.com/FelixKratz/JankyBorders">JankyBorders</a> can add custom window borders (but cannot remove the native border):</p>
 
-        <pre><code>brew install FelixKratz/formulae/borders
+        <pre><code class="language-bash">brew install FelixKratz/formulae/borders
 borders style=square active_color=0xff000000 width=2.0</code></pre>
 
         <h2>References</h2>
@@ -159,5 +159,6 @@ borders style=square active_color=0xff000000 width=2.0</code></pre>
       <p>&copy; 2026 Shiqi Mei</p>
     </footer>
   </div>
+  <script type="module" src="../js/highlight.js"></script>
 </body>
 </html>
