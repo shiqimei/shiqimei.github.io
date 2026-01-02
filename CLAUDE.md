@@ -9,6 +9,8 @@ Static blog site for Shiqi Mei hosted at https://shiqimei.github.io
 ```
 ./
 ├── index.html           # Homepage with timeline
+├── gists.html           # Gists (micro blog notes)
+├── search-index.json    # Global search index
 ├── css/style.css        # Shared styles (B&W theme)
 ├── js/search.js         # Command palette search
 ├── posts/*.html         # Blog posts
@@ -41,6 +43,13 @@ Static blog site for Shiqi Mei hosted at https://shiqimei.github.io
 
 1. Create `posts/<slug>.html` using template in `.claude/skills/blog-creator/assets/`
 2. Add timeline entry to `index.html` (newest first)
+3. Add entry to `search-index.json` (newest first)
+4. Commit and push
+
+## Adding Gists
+
+1. Add gist entry to `gists.html` (newest first, with unique id)
+2. Add entry to `search-index.json` (newest first)
 3. Commit and push
 
 ## Skills
@@ -54,3 +63,5 @@ Static blog site for Shiqi Mei hosted at https://shiqimei.github.io
 | `css/style.css` | All styles, edit here for theme changes |
 | `js/search.js` | Search functionality (⌘K) |
 | `index.html` | Homepage, timeline entries go here |
+| `gists.html` | Gists page, add gist entries here |
+| `search-index.json` | Global search index, update when adding content |
