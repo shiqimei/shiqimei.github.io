@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixing Boot Issues: A Deep Dive into MBR, PBR, and BCD - Shiqi Mei</title>
+  <link rel="icon" type="image/png" href="../avatar.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">&larr; back</a>
+
+    <article>
+      <header class="post-header">
+        <h1 class="post-title">Fixing Boot Issues: A Deep Dive into MBR, PBR, and BCD</h1>
+        <p class="post-meta">Feb 21, 2018</p>
+      </header>
+
+      <div class="post-content">
+        <p>I was recently dual-booting Windows 10 and Linux. When I decided to remove Linux, I simply formatted the Linux partition from Windows PE. Bad idea. After reboot, I was greeted with <code>grub rescue&gt;</code>. Time to learn how boot systems actually work.</p>
+
+        <h2>The Problem</h2>
+
+        <p>When you install Linux alongside Windows, GRUB (the Linux bootloader) takes over the MBR. GRUB stores part of itself in the MBR and its configuration files in the Linux partition at <code>/boot/grub/</code>. When you delete the Linux partition, you're deleting GRUB's configuration files, but GRUB is still in the MBR trying to load them.</p>
+
+        <h2>Understanding the Boot Process</h2>
+
+        <h3>Key Concepts</h3>
+
+        <p><strong>MBR (Master Boot Record)</strong></p>
+        <p>The first 512 bytes of a hard disk, containing:</p>
+        <ul>
+          <li><strong>Boot Loader</strong> (446 bytes): Initial boot code</li>
+          <li><strong>DPT - Disk Partition Table</strong> (64 bytes): Partition information (max 4 primary partitions)</li>
+          <li><strong>Magic Number</strong> (2 bytes): Boot signature <code>55 AA</code></li>
+        </ul>
+
+        <p><strong>PBR (Partition Boot Record)</strong></p>
+        <p>Located at the start of each bootable partition. Contains code to load the OS bootloader (like <code>bootmgr</code> for Windows).</p>
+
+        <p><strong>BCD (Boot Configuration Data)</strong></p>
+        <p>Windows boot configuration file, replacing the old <code>boot.ini</code>. Located at <code>\boot\bcd</code> on the system partition.</p>
+
+        <h3>Windows Boot Sequence</h3>
+
+<pre><code class="language-text">BIOS → MBR → PBR → bootmgr → BCD → winload.exe → Windows Kernel</code></pre>
+
+        <h3>Linux Boot Sequence</h3>
+
+<pre><code class="language-text">BIOS → MBR (GRUB Stage 1) → PBR → GRUB Stage 2 → grub.cfg → Linux Kernel</code></pre>
+
+        <h3>How GRUB Boots Windows</h3>
+
+        <p>When dual-booting, GRUB chainloads Windows by handing control to <code>bootmgr</code>:</p>
+
+<pre><code class="language-text">BIOS → MBR (GRUB) → PBR → bootmgr → BCD → Windows</code></pre>
+
+        <h2>Attempting Recovery from grub rescue</h2>
+
+        <p>First, I tried recovering from the <code>grub rescue&gt;</code> prompt:</p>
+
+<pre><code class="language-bash"># List all partitions
+ls
+# Output: (hd0)(hd0,msdos1)(hd1)(hd1,msdos3)(hd1,msdos2)(hd1,msdos1)
+
+# Find the partition with GRUB files
+ls (hd0,msdos1)/boot/grub
+ls (hd1,msdos1)/boot/grub
+# Looking for a partition that doesn't return "error:unknown filesystem"
+
+# If found, set root and boot
+set root=(hd1,msdos1)/boot/grub
+set prefix=(hd1,msdos1)/boot/grub
+insmod normal
+normal</code></pre>
+
+        <p>This didn't work for me - all partitions returned <code>error:unknown filesystem</code> because the Linux partition was gone.</p>
+
+        <h2>The Solution: Rebuild the Boot Chain</h2>
+
+        <p>I booted into Windows PE and used these tools (commonly included in PE environments):</p>
+
+        <ul>
+          <li><strong>DiskGenius</strong>: Rebuild MBR</li>
+          <li><strong>BCDrepair</strong>: Fix BCD files</li>
+          <li><strong>Bootice</strong>: Rebuild MBR, PBR, edit BCD</li>
+          <li><strong>NTBoot</strong>: Automatic boot repair</li>
+        </ul>
+
+        <h3>Step 1: Rewrite MBR with Bootice</h3>
+
+        <p>Open Bootice, select your disk, click "Process MBR", and choose "Windows NT 5.x/6.x MBR". This replaces GRUB with the Windows MBR.</p>
+
+        <h3>Step 2: Rewrite PBR with Bootice</h3>
+
+        <p>In Bootice, select your Windows partition, click "Process PBR", and choose "BOOTMGR boot record". This ensures the PBR points to <code>bootmgr</code>.</p>
+
+        <h3>Step 3: Repair BCD with BCDrepair</h3>
+
+        <p>Run BCDrepair and let it automatically fix the BCD file. This ensures Windows knows where to find <code>winload.exe</code>.</p>
+
+        <h2>Summary</h2>
+
+        <p>The Windows boot chain has three critical components:</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Component</th>
+              <th>Location</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>MBR</td>
+              <td>First 512 bytes of disk</td>
+              <td>Find and load PBR</td>
+            </tr>
+            <tr>
+              <td>PBR</td>
+              <td>Start of system partition</td>
+              <td>Load bootmgr</td>
+            </tr>
+            <tr>
+              <td>BCD</td>
+              <td>\boot\bcd</td>
+              <td>Configure boot options</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>When removing a Linux dual-boot, always restore the Windows MBR first, or use the Windows installation media's repair option to avoid these issues entirely.</p>
+      </div>
+    </article>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Shiqi Mei</p>
+    </footer>
+  </div>
+  <script type="module" src="../js/highlight.js"></script>
+</body>
+</html>
