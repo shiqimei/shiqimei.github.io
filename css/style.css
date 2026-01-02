@@ -251,6 +251,12 @@ a:hover {
   margin: 1.5rem 0;
 }
 
+.post-content img.post-hero {
+  width: 100%;
+  margin: 0 0 2rem 0;
+  border: 1px solid var(--border);
+}
+
 .post-content table {
   width: 100%;
   border-collapse: collapse;
