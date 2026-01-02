@@ -1,0 +1,269 @@
+/*
+ * Sharp Black & White Theme
+ * Minimal, high-contrast design
+ */
+
+:root {
+  --bg: #000;
+  --fg: #fff;
+  --gray: #888;
+  --border: #333;
+  --accent: #fff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-family: 'SF Mono', 'JetBrains Mono', 'Fira Code', monospace;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--fg);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+  transition: border-color 0.2s;
+}
+
+a:hover {
+  border-color: var(--fg);
+}
+
+/* Layout */
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+/* Header */
+.site-header {
+  margin-bottom: 4rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.site-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.site-title a {
+  border: none;
+}
+
+.site-description {
+  color: var(--gray);
+  font-size: 0.875rem;
+}
+
+/* Timeline */
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 3rem;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -2rem;
+  top: 0.5rem;
+  width: 7px;
+  height: 7px;
+  background: var(--fg);
+  transform: translateX(-3px);
+}
+
+.timeline-date {
+  font-size: 0.75rem;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.timeline-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.timeline-excerpt {
+  color: var(--gray);
+  font-size: 0.875rem;
+}
+
+/* Post */
+.post-header {
+  margin-bottom: 3rem;
+}
+
+.post-title {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.post-meta {
+  font-size: 0.75rem;
+  color: var(--gray);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.post-content {
+  font-size: 1rem;
+}
+
+.post-content h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 2.5rem 0 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.post-content h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 2rem 0 0.75rem;
+}
+
+.post-content p {
+  margin-bottom: 1.5rem;
+}
+
+.post-content ul,
+.post-content ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.post-content li {
+  margin-bottom: 0.5rem;
+}
+
+.post-content code {
+  font-family: inherit;
+  background: var(--border);
+  padding: 0.15em 0.4em;
+  font-size: 0.9em;
+}
+
+.post-content pre {
+  background: #111;
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.post-content pre code {
+  background: none;
+  padding: 0;
+}
+
+.post-content blockquote {
+  border-left: 2px solid var(--fg);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  color: var(--gray);
+  font-style: italic;
+}
+
+.post-content img {
+  max-width: 100%;
+  margin: 1.5rem 0;
+}
+
+.post-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+.post-content th,
+.post-content td {
+  border: 1px solid var(--border);
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.post-content th {
+  background: #111;
+}
+
+/* Back link */
+.back-link {
+  display: inline-block;
+  margin-bottom: 2rem;
+  font-size: 0.875rem;
+  color: var(--gray);
+  border-color: var(--border);
+}
+
+.back-link:hover {
+  color: var(--fg);
+}
+
+/* Footer */
+.site-footer {
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem;
+  color: var(--gray);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .container {
+    padding: 2rem 1rem;
+  }
+
+  .post-title {
+    font-size: 1.5rem;
+  }
+
+  .timeline {
+    padding-left: 1.5rem;
+  }
+
+  .timeline-item::before {
+    left: -1.5rem;
+  }
+}
