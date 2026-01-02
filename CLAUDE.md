@@ -35,6 +35,7 @@ Static blog site for Shiqi Mei hosted at https://shiqimei.github.io
 ### Git Workflow
 - Always commit and push immediately after making changes
 - Concise commit messages
+- After pushing, provide the Actions link: https://github.com/shiqimei/shiqimei.github.io/actions
 
 ## Adding Posts
 
