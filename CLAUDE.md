@@ -33,7 +33,7 @@ Static blog site for Shiqi Mei hosted at https://shiqimei.github.io
 - Lowercase, hyphenated: `macos-square-corners.html`
 
 ### Git Workflow
-- Commit and push after changes
+- Always commit and push immediately after making changes
 - Concise commit messages
 
 ## Adding Posts
