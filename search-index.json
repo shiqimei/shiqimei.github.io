@@ -1,6 +1,13 @@
 [
   {
     "type": "gist",
+    "title": "Disable Input Method Switch Animation",
+    "excerpt": "Disable the slow input source popup on macOS Sonoma+: defaults write kCFPreferencesAnyApplication TSMLanguageIndicatorEnabled 0",
+    "date": "Jan 4, 2026",
+    "url": "gists.html#disable-input-switch-animation"
+  },
+  {
+    "type": "gist",
     "title": "Prevent Mac from Sleeping",
     "excerpt": "Keep your Mac awake (display, disk, system): caffeinate -dimsu &",
     "date": "Jan 3, 2026",

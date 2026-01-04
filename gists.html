@@ -30,6 +30,18 @@
     </header>
 
     <main class="gists">
+      <article class="gist" id="disable-input-switch-animation">
+        <header class="gist-header">
+          <h2 class="gist-title">Disable Input Method Switch Animation</h2>
+          <time class="gist-date">Jan 4, 2026</time>
+        </header>
+        <div class="gist-content">
+          <p>Disable the slow input source popup on macOS Sonoma+:</p>
+          <pre><code class="language-bash">defaults write kCFPreferencesAnyApplication TSMLanguageIndicatorEnabled 0</code></pre>
+          <p>Restart to apply. To revert, delete the key or set to 1.</p>
+        </div>
+      </article>
+
       <article class="gist" id="caffeinate-prevent-sleep">
         <header class="gist-header">
           <h2 class="gist-title">Prevent Mac from Sleeping</h2>
