@@ -1,6 +1,13 @@
 [
   {
     "type": "gist",
+    "title": "Set Default Tmux Pane Title",
+    "excerpt": "Stop tmux from showing hostname as pane title using session-created hook",
+    "date": "Jan 4, 2026",
+    "url": "gists.html#tmux-pane-title"
+  },
+  {
+    "type": "gist",
     "title": "Disable Input Method Switch Animation",
     "excerpt": "Disable the slow input source popup on macOS Sonoma+: defaults write kCFPreferencesAnyApplication TSMLanguageIndicatorEnabled 0",
     "date": "Jan 4, 2026",

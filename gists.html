@@ -30,6 +30,19 @@
     </header>
 
     <main class="gists">
+      <article class="gist" id="tmux-pane-title">
+        <header class="gist-header">
+          <h2 class="gist-title">Set Default Tmux Pane Title</h2>
+          <time class="gist-date">Jan 4, 2026</time>
+        </header>
+        <div class="gist-content">
+          <p>Stop tmux from showing hostname as pane title:</p>
+          <pre><code class="language-bash">set-hook -g session-created 'select-pane -T "tmux"'
+set-hook -g after-new-window 'select-pane -T "tmux"'
+set-hook -g after-split-window 'select-pane -T "tmux"'</code></pre>
+        </div>
+      </article>
+
       <article class="gist" id="disable-input-switch-animation">
         <header class="gist-header">
           <h2 class="gist-title">Disable Input Method Switch Animation</h2>
