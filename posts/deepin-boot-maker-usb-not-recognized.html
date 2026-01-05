@@ -18,49 +18,34 @@
       </header>
 
       <div class="post-content">
-        <p>After using a Windows PE tool to create a bootable USB drive, I found that the Deepin Boot Maker could no longer detect my USB drive. Formatting the drive, restarting the computer - nothing worked. Here's what was happening and how to fix it.</p>
-
-        <h2>The Problem</h2>
-
-        <p>When you create a PE bootable drive with certain tools, Windows may start recognizing your USB drive as a "Local Disk" instead of a "Removable Disk". The Deepin Boot Maker (and many other Linux boot disk creators) intentionally ignore local disks to prevent accidentally overwriting your system drive.</p>
-
-        <p>You can verify this in Windows Disk Management (<kbd>Win+X</kbd> → Disk Management). If your USB drive shows as "Basic" disk instead of "Removable", that's the issue.</p>
-
-        <h2>Why This Happens</h2>
-
-        <p>USB drives can operate in two modes:</p>
-
-        <ul>
-          <li><strong>Removable Media Mode</strong>: Normal USB drive behavior, recognized as removable storage</li>
-          <li><strong>Fixed Disk Mode</strong>: Drive behaves like an internal hard disk</li>
-        </ul>
-
-        <p>Some PE creation tools modify the USB drive's mode to Fixed Disk to support features like multiple partitions. Once in this mode, Windows treats it as a local disk.</p>
-
-        <h2>The Solution</h2>
-
-        <p>The workaround is to run Deepin Boot Maker from within a PE environment, where the disk filtering behavior is different:</p>
-
-        <ol>
-          <li>Download Deepin Boot Maker for PE environments</li>
-          <li>Create a bootable PE drive using your preferred PE tool (the same one that caused the issue works fine)</li>
-          <li>Boot into the PE environment</li>
-          <li>Run <code>deepin-boot-maker.exe</code> from within PE</li>
-          <li>The USB drive should now be visible and selectable</li>
-        </ol>
-
-        <h2>Important Notes</h2>
-
-        <ul>
-          <li>This solution only applies when the USB was previously converted to Fixed Disk mode by PE creation tools</li>
-          <li>Some USB drives (notably certain SanDisk models) ship in Fixed Disk mode by default - these may not work with Deepin Boot Maker at all</li>
-          <li>If your USB drive isn't recognized even in PE, the drive may be defective or permanently configured as a fixed disk</li>
-        </ul>
-
-        <h2>Alternative: Reset USB to Removable Mode</h2>
-
-        <p>On some USB drives, you can reset to removable mode using the <code>diskpart</code> command, though this doesn't work on all drives:</p>
-
+        <p>After using a Windows PE tool to create a bootable USB drive, I found that the Deepin Boot Maker could no longer detect my USB drive. Formatting the drive, restarting the computer - nothing worked. Here&#39;s what was happening and how to fix it.</p>
+<h2>The Problem</h2>
+<p>When you create a PE bootable drive with certain tools, Windows may start recognizing your USB drive as a &quot;Local Disk&quot; instead of a &quot;Removable Disk&quot;. The Deepin Boot Maker (and many other Linux boot disk creators) intentionally ignore local disks to prevent accidentally overwriting your system drive.</p>
+<p>You can verify this in Windows Disk Management (Win+X → Disk Management). If your USB drive shows as &quot;Basic&quot; disk instead of &quot;Removable&quot;, that&#39;s the issue.</p>
+<h2>Why This Happens</h2>
+<p>USB drives can operate in two modes:</p>
+<ul>
+<li><strong>Removable Media Mode</strong>: Normal USB drive behavior, recognized as removable storage</li>
+<li><strong>Fixed Disk Mode</strong>: Drive behaves like an internal hard disk</li>
+</ul>
+<p>Some PE creation tools modify the USB drive&#39;s mode to Fixed Disk to support features like multiple partitions. Once in this mode, Windows treats it as a local disk.</p>
+<h2>The Solution</h2>
+<p>The workaround is to run Deepin Boot Maker from within a PE environment, where the disk filtering behavior is different:</p>
+<ol>
+<li>Download Deepin Boot Maker for PE environments</li>
+<li>Create a bootable PE drive using your preferred PE tool (the same one that caused the issue works fine)</li>
+<li>Boot into the PE environment</li>
+<li>Run <code>deepin-boot-maker.exe</code> from within PE</li>
+<li>The USB drive should now be visible and selectable</li>
+</ol>
+<h2>Important Notes</h2>
+<ul>
+<li>This solution only applies when the USB was previously converted to Fixed Disk mode by PE creation tools</li>
+<li>Some USB drives (notably certain SanDisk models) ship in Fixed Disk mode by default - these may not work with Deepin Boot Maker at all</li>
+<li>If your USB drive isn&#39;t recognized even in PE, the drive may be defective or permanently configured as a fixed disk</li>
+</ul>
+<h2>Alternative: Reset USB to Removable Mode</h2>
+<p>On some USB drives, you can reset to removable mode using the <code>diskpart</code> command, though this doesn&#39;t work on all drives:</p>
 <pre><code class="language-bash"># Run as Administrator
 diskpart
 list disk
@@ -68,9 +53,8 @@ select disk X    # Replace X with your USB disk number
 clean
 create partition primary
 format fs=fat32 quick
-exit</code></pre>
+exit</code></pre><p>If the drive still shows as &quot;Basic&quot; instead of &quot;Removable&quot; after this, the PE environment workaround is your best option.</p>
 
-        <p>If the drive still shows as "Basic" instead of "Removable" after this, the PE environment workaround is your best option.</p>
       </div>
     </article>
 

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shiqi Mei</title>
+  <link rel="icon" type="image/png" href="avatar.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <header class="site-header">
+      <div class="site-header-content">
+        <h1 class="site-title"><a href="/">Shiqi Mei</a></h1>
+        <p class="site-description">notes on software, systems, and tools</p>
+        <nav class="site-nav">
+          <a href="/" class="nav-link active">Blog</a>
+          <a href="gists.html" class="nav-link">Gists</a>
+          <a href="projects.html" class="nav-link">Projects</a>
+          <a href="about.html" class="nav-link">About</a>
+        </nav>
+      </div>
+      <button class="search-btn" id="searchBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="M21 21l-4.35-4.35"></path>
+        </svg>
+        <span>Search</span>
+        <kbd>⌘K</kbd>
+      </button>
+    </header>
+
+    <main class="timeline">
+{{TIMELINE}}
+    </main>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Shiqi Mei</p>
+    </footer>
+  </div>
+  <script src="js/search.js"></script>
+</body>
+</html>

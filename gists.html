@@ -31,19 +31,6 @@
     </header>
 
     <main class="gists">
-      <article class="gist" id="tmux-pane-title">
-        <header class="gist-header">
-          <h2 class="gist-title">Set Default Tmux Pane Title</h2>
-          <time class="gist-date">Jan 4, 2026</time>
-        </header>
-        <div class="gist-content">
-          <p>Stop tmux from showing hostname as pane title:</p>
-          <pre><code class="language-bash">set-hook -g session-created 'select-pane -T "tmux"'
-set-hook -g after-new-window 'select-pane -T "tmux"'
-set-hook -g after-split-window 'select-pane -T "tmux"'</code></pre>
-        </div>
-      </article>
-
       <article class="gist" id="disable-input-switch-animation">
         <header class="gist-header">
           <h2 class="gist-title">Disable Input Method Switch Animation</h2>
@@ -51,8 +38,21 @@ set-hook -g after-split-window 'select-pane -T "tmux"'</code></pre>
         </header>
         <div class="gist-content">
           <p>Disable the slow input source popup on macOS Sonoma+:</p>
-          <pre><code class="language-bash">defaults write kCFPreferencesAnyApplication TSMLanguageIndicatorEnabled 0</code></pre>
-          <p>Restart to apply. To revert, delete the key or set to 1.</p>
+<pre><code class="language-bash">defaults write kCFPreferencesAnyApplication TSMLanguageIndicatorEnabled 0</code></pre><p>Restart to apply. To revert, delete the key or set to 1.</p>
+
+        </div>
+      </article>
+
+      <article class="gist" id="tmux-pane-title">
+        <header class="gist-header">
+          <h2 class="gist-title">Set Default Tmux Pane Title</h2>
+          <time class="gist-date">Jan 4, 2026</time>
+        </header>
+        <div class="gist-content">
+          <p>Stop tmux from showing hostname as pane title:</p>
+<pre><code class="language-bash">set-hook -g session-created &#039;select-pane -T &quot;tmux&quot;&#039;
+set-hook -g after-new-window &#039;select-pane -T &quot;tmux&quot;&#039;
+set-hook -g after-split-window &#039;select-pane -T &quot;tmux&quot;&#039;</code></pre>
         </div>
       </article>
 
@@ -63,7 +63,7 @@ set-hook -g after-split-window 'select-pane -T "tmux"'</code></pre>
         </header>
         <div class="gist-content">
           <p>Keep your Mac awake (display, disk, system):</p>
-          <pre><code class="language-bash">caffeinate -dimsu &</code></pre>
+<pre><code class="language-bash">caffeinate -dimsu &amp;</code></pre>
         </div>
       </article>
 
@@ -74,9 +74,8 @@ set-hook -g after-split-window 'select-pane -T "tmux"'</code></pre>
         </header>
         <div class="gist-content">
           <p>When using an iPhone as a hotspot, get the gateway IP:</p>
-          <pre><code class="language-bash">route -n get default | grep gateway</code></pre>
-          <p>Output:</p>
-          <pre><code class="language-text">    gateway: 192.168.3.37</code></pre>
+<pre><code class="language-bash">route -n get default | grep gateway</code></pre><p>Output:</p>
+<pre><code class="language-text">    gateway: 192.168.3.37</code></pre>
         </div>
       </article>
     </main>

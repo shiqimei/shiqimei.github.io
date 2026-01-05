@@ -2,7 +2,7 @@
   {
     "type": "project",
     "title": "LinguaCoach",
-    "excerpt": "Interactive English language tutor that talks with you. Built with OpenAI Realtime API, TalkingHead, and Pipecat.",
+    "excerpt": "Interactive English language tutor that talks with you",
     "date": "Jan 5, 2026",
     "url": "projects.html#linguacoach"
   },
@@ -15,24 +15,17 @@
   },
   {
     "type": "gist",
-    "title": "Set Default Tmux Pane Title",
-    "excerpt": "Stop tmux from showing hostname as pane title using session-created hook",
-    "date": "Jan 4, 2026",
-    "url": "gists.html#tmux-pane-title"
-  },
-  {
-    "type": "gist",
     "title": "Disable Input Method Switch Animation",
-    "excerpt": "Disable the slow input source popup on macOS Sonoma+: defaults write kCFPreferencesAnyApplication TSMLanguageIndicatorEnabled 0",
+    "excerpt": "Disable the slow input source popup on macOS Sonoma+",
     "date": "Jan 4, 2026",
     "url": "gists.html#disable-input-switch-animation"
   },
   {
     "type": "gist",
-    "title": "Prevent Mac from Sleeping",
-    "excerpt": "Keep your Mac awake (display, disk, system): caffeinate -dimsu &",
-    "date": "Jan 3, 2026",
-    "url": "gists.html#caffeinate-prevent-sleep"
+    "title": "Set Default Tmux Pane Title",
+    "excerpt": "Stop tmux from showing hostname as pane title using session-created hook",
+    "date": "Jan 4, 2026",
+    "url": "gists.html#tmux-pane-title"
   },
   {
     "type": "post",
@@ -40,6 +33,20 @@
     "excerpt": "A deep dive into modifying macOS system assets to achieve square window corners and remove the 1px window border.",
     "date": "Jan 3, 2026",
     "url": "posts/macos-square-corners.html"
+  },
+  {
+    "type": "gist",
+    "title": "Prevent Mac from Sleeping",
+    "excerpt": "Keep your Mac awake (display, disk, system)",
+    "date": "Jan 3, 2026",
+    "url": "gists.html#caffeinate-prevent-sleep"
+  },
+  {
+    "type": "gist",
+    "title": "Get iPhone Hotspot Gateway IP",
+    "excerpt": "Get the gateway IP when using an iPhone as a hotspot",
+    "date": "Jan 3, 2026",
+    "url": "gists.html#iphone-hotspot-ip"
   },
   {
     "type": "post",
@@ -64,23 +71,16 @@
   },
   {
     "type": "post",
-    "title": "Fixing Boot Issues: A Deep Dive into MBR, PBR, and BCD",
-    "excerpt": "Understanding and repairing Windows boot failures after removing a Linux dual-boot partition.",
-    "date": "Feb 21, 2018",
-    "url": "posts/fixing-boot-issues-mbr-pbr-bcd.html"
-  },
-  {
-    "type": "post",
     "title": "Deepin Boot Maker Not Recognizing USB Drive",
     "excerpt": "Why PE tools cause USB drives to be misidentified as local disks, and how to work around it.",
     "date": "Feb 21, 2018",
     "url": "posts/deepin-boot-maker-usb-not-recognized.html"
   },
   {
-    "type": "gist",
-    "title": "Get iPhone Hotspot Gateway IP",
-    "excerpt": "When using an iPhone as a hotspot, get the gateway IP: route -n get default | grep gateway",
-    "date": "Jan 3, 2026",
-    "url": "gists.html#iphone-hotspot-ip"
+    "type": "post",
+    "title": "Fixing Boot Issues: A Deep Dive into MBR, PBR, and BCD",
+    "excerpt": "Understanding and repairing Windows boot failures after removing a Linux dual-boot partition.",
+    "date": "Feb 21, 2018",
+    "url": "posts/fixing-boot-issues-mbr-pbr-bcd.html"
   }
 ]

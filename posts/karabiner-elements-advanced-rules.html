@@ -18,145 +18,122 @@
       </header>
 
       <div class="post-content">
-        <p>I've been using <a href="https://karabiner-elements.pqrs.org/">Karabiner Elements</a> as my Mac's key remapping tool. My personal preference is to swap <kbd>left-command</kbd> and <kbd>left-control</kbd>, which works well for most applications. However, there are some applications where I don't want this swap to happen. This is where Karabiner Elements' advanced rules come in.</p>
-
-        <h2>The Problem</h2>
-
-        <p>Simple key remapping works globally across all applications. But what if you need:</p>
-
-        <ul>
-          <li>Different mappings for specific applications</li>
-          <li>Exclude certain apps from your remapping rules</li>
-          <li>Complex conditional key behaviors</li>
-        </ul>
-
-        <p>Karabiner Elements solves this with Complex Modifications - JSON configuration files that define advanced remapping rules with conditions.</p>
-
-        <h2>Creating Complex Modifications</h2>
-
-        <p>You can use the online editor <a href="https://genesy.github.io/karabiner-complex-rules-generator/">Karabiner Complex Modification Generator</a> to create complex configurations. Here's an example that swaps <kbd>left-command</kbd> and <kbd>left-control</kbd>, but excludes specific applications:</p>
-
+        <p>I&#39;ve been using <a href="https://karabiner-elements.pqrs.org/">Karabiner Elements</a> as my Mac&#39;s key remapping tool. My personal preference is to swap left-command and left-control, which works well for most applications. However, there are some applications where I don&#39;t want this swap to happen. This is where Karabiner Elements&#39; advanced rules come in.</p>
+<h2>The Problem</h2>
+<p>Simple key remapping works globally across all applications. But what if you need:</p>
+<ul>
+<li>Different mappings for specific applications</li>
+<li>Exclude certain apps from your remapping rules</li>
+<li>Complex conditional key behaviors</li>
+</ul>
+<p>Karabiner Elements solves this with Complex Modifications - JSON configuration files that define advanced remapping rules with conditions.</p>
+<h2>Creating Complex Modifications</h2>
+<p>You can use the online editor <a href="https://genesy.github.io/karabiner-complex-rules-generator/">Karabiner Complex Modification Generator</a> to create complex configurations. Here&#39;s an example that swaps left-command and left-control, but excludes specific applications:</p>
 <pre><code class="language-json">{
-  "title": "basic key-remapping",
-  "rules": [
+  &quot;title&quot;: &quot;basic key-remapping&quot;,
+  &quot;rules&quot;: [
     {
-      "description": "Exchange Left-Command Left-Control",
-      "manipulators": [
+      &quot;description&quot;: &quot;Exchange Left-Command Left-Control&quot;,
+      &quot;manipulators&quot;: [
         {
-          "type": "basic",
-          "from": {
-            "key_code": "left_gui"
+          &quot;type&quot;: &quot;basic&quot;,
+          &quot;from&quot;: {
+            &quot;key_code&quot;: &quot;left_gui&quot;
           },
-          "conditions": [
+          &quot;conditions&quot;: [
             {
-              "type": "frontmost_application_unless",
-              "bundle_identifiers": [
-                "^com\\.adobe\\.AfterEffects$"
+              &quot;type&quot;: &quot;frontmost_application_unless&quot;,
+              &quot;bundle_identifiers&quot;: [
+                &quot;^com\\.adobe\\.AfterEffects{{CONTENT}}quot;
               ]
             }
           ],
-          "to": [
+          &quot;to&quot;: [
             {
-              "repeat": true,
-              "modifiers": [],
-              "key_code": "left_control"
+              &quot;repeat&quot;: true,
+              &quot;modifiers&quot;: [],
+              &quot;key_code&quot;: &quot;left_control&quot;
             }
           ]
         },
         {
-          "type": "basic",
-          "from": {
-            "key_code": "left_control"
+          &quot;type&quot;: &quot;basic&quot;,
+          &quot;from&quot;: {
+            &quot;key_code&quot;: &quot;left_control&quot;
           },
-          "conditions": [
+          &quot;conditions&quot;: [
             {
-              "type": "frontmost_application_unless",
-              "bundle_identifiers": [
-                "^com\\.adobe\\.AfterEffects$"
+              &quot;type&quot;: &quot;frontmost_application_unless&quot;,
+              &quot;bundle_identifiers&quot;: [
+                &quot;^com\\.adobe\\.AfterEffects{{CONTENT}}quot;
               ]
             }
           ],
-          "to": [
+          &quot;to&quot;: [
             {
-              "repeat": true,
-              "modifiers": [],
-              "key_code": "left_gui"
+              &quot;repeat&quot;: true,
+              &quot;modifiers&quot;: [],
+              &quot;key_code&quot;: &quot;left_gui&quot;
             }
           ]
         }
       ]
     }
   ]
-}</code></pre>
+}</code></pre><h2>Understanding the Configuration</h2>
+<p>Key elements of this configuration:</p>
+<ul>
+<li><code>from.key_code</code>: The key to remap (<code>left_gui</code> is Command, <code>left_control</code> is Control)</li>
+<li><code>conditions</code>: When to apply the rule</li>
+<li><code>frontmost_application_unless</code>: Apply everywhere EXCEPT the listed apps</li>
+<li><code>bundle_identifiers</code>: Regex patterns matching app bundle IDs</li>
+<li><code>to.key_code</code>: The key to map to</li>
+</ul>
+<h2>Finding an App&#39;s Bundle Identifier</h2>
+<p>To get any application&#39;s bundle identifier, use this script:</p>
+<pre><code class="language-bash">osascript -e &#039;id of app &quot;After Effects&quot;&#039;
+# Output: com.adobe.AfterEffects</code></pre><p>Some common bundle identifiers:</p>
+<table>
+<thead>
+<tr>
+<th>Application</th>
+<th>Bundle Identifier</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>After Effects</td>
+<td><code>com.adobe.AfterEffects</code></td>
+</tr>
+<tr>
+<td>Premiere Pro</td>
+<td><code>com.adobe.PremierePro</code></td>
+</tr>
+<tr>
+<td>Terminal</td>
+<td><code>com.apple.Terminal</code></td>
+</tr>
+<tr>
+<td>VS Code</td>
+<td><code>com.microsoft.VSCode</code></td>
+</tr>
+</tbody></table>
+<h2>Installing the Configuration</h2>
+<ol>
+<li>Save your JSON file with a <code>.json</code> extension</li>
+<li>Place it in <code>~/.config/karabiner/assets/complex_modifications/</code></li>
+<li>Open Karabiner Elements Preferences</li>
+<li>Go to &quot;Complex Modifications&quot; tab</li>
+<li>Click &quot;Add rule&quot; and enable your new rule</li>
+</ol>
+<p>Alternatively, you can import configurations directly from the online editor or paste your JSON into the Karabiner Elements preferences.</p>
+<h2>Other Useful Condition Types</h2>
+<ul>
+<li><code>frontmost_application_if</code>: Only apply to specific apps</li>
+<li><code>device_if</code>: Only apply to specific keyboards</li>
+<li><code>keyboard_type_if</code>: Based on keyboard type (ANSI, ISO, JIS)</li>
+<li><code>variable_if</code>: Based on custom variables (for modal behavior)</li>
+</ul>
 
-        <h2>Understanding the Configuration</h2>
-
-        <p>Key elements of this configuration:</p>
-
-        <ul>
-          <li><code>from.key_code</code>: The key to remap (<code>left_gui</code> is Command, <code>left_control</code> is Control)</li>
-          <li><code>conditions</code>: When to apply the rule</li>
-          <li><code>frontmost_application_unless</code>: Apply everywhere EXCEPT the listed apps</li>
-          <li><code>bundle_identifiers</code>: Regex patterns matching app bundle IDs</li>
-          <li><code>to.key_code</code>: The key to map to</li>
-        </ul>
-
-        <h2>Finding an App's Bundle Identifier</h2>
-
-        <p>To get any application's bundle identifier, use this script:</p>
-
-<pre><code class="language-bash">osascript -e 'id of app "After Effects"'
-# Output: com.adobe.AfterEffects</code></pre>
-
-        <p>Some common bundle identifiers:</p>
-
-        <table>
-          <thead>
-            <tr>
-              <th>Application</th>
-              <th>Bundle Identifier</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>After Effects</td>
-              <td><code>com.adobe.AfterEffects</code></td>
-            </tr>
-            <tr>
-              <td>Premiere Pro</td>
-              <td><code>com.adobe.PremierePro</code></td>
-            </tr>
-            <tr>
-              <td>Terminal</td>
-              <td><code>com.apple.Terminal</code></td>
-            </tr>
-            <tr>
-              <td>VS Code</td>
-              <td><code>com.microsoft.VSCode</code></td>
-            </tr>
-          </tbody>
-        </table>
-
-        <h2>Installing the Configuration</h2>
-
-        <ol>
-          <li>Save your JSON file with a <code>.json</code> extension</li>
-          <li>Place it in <code>~/.config/karabiner/assets/complex_modifications/</code></li>
-          <li>Open Karabiner Elements Preferences</li>
-          <li>Go to "Complex Modifications" tab</li>
-          <li>Click "Add rule" and enable your new rule</li>
-        </ol>
-
-        <p>Alternatively, you can import configurations directly from the online editor or paste your JSON into the Karabiner Elements preferences.</p>
-
-        <h2>Other Useful Condition Types</h2>
-
-        <ul>
-          <li><code>frontmost_application_if</code>: Only apply to specific apps</li>
-          <li><code>device_if</code>: Only apply to specific keyboards</li>
-          <li><code>keyboard_type_if</code>: Based on keyboard type (ANSI, ISO, JIS)</li>
-          <li><code>variable_if</code>: Based on custom variables (for modal behavior)</li>
-        </ul>
       </div>
     </article>
 
