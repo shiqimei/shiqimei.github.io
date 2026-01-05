@@ -462,6 +462,84 @@ a:hover {
   }
 }
 
+/* Projects */
+.projects {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+
+.project {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 3rem;
+}
+
+.project:last-child {
+  border-bottom: none;
+}
+
+.project-header {
+  margin-bottom: 1.5rem;
+}
+
+.project-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.project-tagline {
+  color: var(--gray);
+  font-size: 0.875rem;
+}
+
+.project-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.project-video {
+  width: 100%;
+}
+
+.project-video video {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: #111;
+}
+
+.project-details h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+  color: var(--fg);
+}
+
+.project-details ul {
+  list-style: none;
+}
+
+.project-details li {
+  margin-bottom: 0.75rem;
+  padding-left: 1rem;
+  position: relative;
+  color: var(--gray);
+  font-size: 0.875rem;
+}
+
+.project-details li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 4px;
+  height: 4px;
+  background: var(--fg);
+}
+
 /* Gists */
 .gists {
   display: flex;

@@ -1,5 +1,12 @@
 [
   {
+    "type": "project",
+    "title": "LinguaCoach",
+    "excerpt": "Interactive English language tutor that talks with you. Built with OpenAI Realtime API, TalkingHead, and Pipecat.",
+    "date": "Jan 5, 2026",
+    "url": "projects.html#linguacoach"
+  },
+  {
     "type": "gist",
     "title": "Set Default Tmux Pane Title",
     "excerpt": "Stop tmux from showing hostname as pane title using session-created hook",
