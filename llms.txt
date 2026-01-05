@@ -12,6 +12,7 @@ Personal blog by Shiqi Mei, a software engineer focused on AI-powered developer 
 - [Removing Rounded Corners and Window Borders on macOS](https://shiqimei.github.io/posts/macos-square-corners.html) - Jan 3, 2026
 - [AI Agents and the New Tool Paradigm: Code as the Universal Interface](https://shiqimei.github.io/posts/ai-agents-code-universal-tool.html) - Aug 7, 2025
 - [Information Distribution, Deep Thinking, and Building Cognition](https://shiqimei.github.io/posts/information-distribution-cognition.html) - Nov 29, 2023
+- [The Complete Guide to Taking Your Tech Startup Global](https://shiqimei.github.io/posts/tech-company-going-global-guide.html) - Nov 12, 2023
 - [How to Add Karabiner Elements Advanced Mapping Rules](https://shiqimei.github.io/posts/karabiner-elements-advanced-rules.html) - Nov 3, 2021
 - [Deepin Boot Maker Not Recognizing USB Drive](https://shiqimei.github.io/posts/deepin-boot-maker-usb-not-recognized.html) - Feb 21, 2018
 - [Fixing Boot Issues: A Deep Dive into MBR, PBR, and BCD](https://shiqimei.github.io/posts/fixing-boot-issues-mbr-pbr-bcd.html) - Feb 21, 2018
