@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixing Claude Code "0 Tokens" Hang: macOS Proxy and SSE Streaming - Shiqi Mei</title>
+  <link rel="icon" type="image/png" href="../avatar.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">&larr; back</a>
+
+    <article>
+      <header class="post-header">
+        <h1 class="post-title">Fixing Claude Code "0 Tokens" Hang: macOS Proxy and SSE Streaming</h1>
+        <p class="post-meta">Jan 5, 2026</p>
+      </header>
+
+      <div class="post-content">
+        <p>Claude Code v2.0.70 (with Opus 4.5 on Claude Max) would hang indefinitely on the first message of each session. The status would show "Simmering...", "Pontificating...", etc., while the token counter stayed at 0 tokens. The timer kept running for 15+ minutes with no error messages. However, after interrupting with ESC and retrying, Claude Code would respond normally.</p>
+
+        <p>This post documents the root cause and solutions.</p>
+
+        <h2>Root Cause</h2>
+
+        <p>The issue stemmed from macOS network proxy settings combined with Clash proxy injection.</p>
+
+        <h3>The Problem Chain</h3>
+
+        <p><strong>1. macOS had proxy settings configured but disabled:</strong></p>
+
+        <pre><code class="language-bash">networksetup -getwebproxy Wi-Fi
+Enabled: No          # Proxy is "disabled"
+Server: 127.0.0.1    # But server address still configured
+Port: 7897</code></pre>
+
+        <p><strong>2. Clash was reading this config</strong> and injecting proxy environment variables into terminal sessions:</p>
+
+        <pre><code class="language-bash">HTTP_PROXY=http://127.0.0.1:7897
+HTTPS_PROXY=http://127.0.0.1:7897</code></pre>
+
+        <p><strong>3. Claude Code respects these proxy env vars</strong> and routes API requests through the proxy.</p>
+
+        <p><strong>4. The proxy wasn't properly handling SSE (Server-Sent Events) streaming:</strong></p>
+
+        <ul>
+          <li>Claude Code uses SSE for real-time token streaming</li>
+          <li>Clash buffers streaming responses before forwarding</li>
+          <li>Claude Code waits for tokens that never arrive (stuck at "0 tokens")</li>
+        </ul>
+
+        <h2>Solutions</h2>
+
+        <h3>Solution 1: Clear macOS Proxy Config Entirely</h3>
+
+        <p>Remove the proxy server settings completely, not just disable them:</p>
+
+        <pre><code class="language-bash">networksetup -setwebproxy Wi-Fi "" "" off
+networksetup -setsecurewebproxy Wi-Fi "" "" off</code></pre>
+
+        <h3>Solution 2: Bypass Proxy for Anthropic Domains</h3>
+
+        <p>Add to <code>~/.zshrc</code> or <code>~/.zshenv</code>:</p>
+
+        <pre><code class="language-bash">export NO_PROXY="api.anthropic.com,claude.ai,statsig.anthropic.com,sentry.io,localhost,127.0.0.1"
+export no_proxy="$NO_PROXY"</code></pre>
+
+        <p>Then reload:</p>
+
+        <pre><code class="language-bash">source ~/.zshrc</code></pre>
+
+        <h2>Diagnostic Commands</h2>
+
+        <pre><code class="language-bash"># Check proxy env vars
+echo $HTTP_PROXY $HTTPS_PROXY
+
+# Check macOS network proxy config
+networksetup -getwebproxy Wi-Fi
+networksetup -getsecurewebproxy Wi-Fi
+
+# Test direct connection to Anthropic
+curl -4 -v --connect-timeout 5 https://api.anthropic.com
+
+# Test connection bypassing proxy
+unset HTTP_PROXY HTTPS_PROXY
+curl -v --connect-timeout 5 https://api.anthropic.com
+
+# Run Claude with debug
+claude --debug</code></pre>
+
+        <h2>Key Takeaway</h2>
+
+        <p>The proxy was "disabled" in macOS UI but the server address remained configured. Clash read this config and injected proxy env vars into terminal sessions. Claude Code tried to route through a proxy that wasn't handling streaming connections properly, causing the "0 tokens" hang.</p>
+
+        <p>When debugging similar issues, check both the macOS system proxy settings and any proxy environment variables in your shell. A "disabled" proxy with residual configuration can still affect CLI tools.</p>
+      </div>
+    </article>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Shiqi Mei</p>
+    </footer>
+  </div>
+  <script type="module" src="../js/highlight.js"></script>
+</body>
+</html>

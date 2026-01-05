@@ -7,6 +7,13 @@
     "url": "projects.html#linguacoach"
   },
   {
+    "type": "post",
+    "title": "Fixing Claude Code \"0 Tokens\" Hang: macOS Proxy and SSE Streaming",
+    "excerpt": "Why Claude Code hangs at \"0 tokens\" when macOS has disabled-but-configured proxy settings that interfere with SSE streaming.",
+    "date": "Jan 5, 2026",
+    "url": "posts/claude-code-zero-tokens-hang.html"
+  },
+  {
     "type": "gist",
     "title": "Set Default Tmux Pane Title",
     "excerpt": "Stop tmux from showing hostname as pane title using session-created hook",
