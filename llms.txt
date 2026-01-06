@@ -8,8 +8,8 @@ Personal blog by Shiqi Mei, a software engineer focused on AI-powered developer 
 
 ## Posts
 
-- [Fixing Claude Code "0 Tokens" Hang: macOS Proxy and SSE Streaming](https://shiqimei.github.io/posts/claude-code-zero-tokens-hang.html) - Jan 5, 2026
 - [Removing Rounded Corners and Window Borders on macOS](https://shiqimei.github.io/posts/macos-square-corners.html) - Jan 3, 2026
+- [Fixing Claude Code "0 Tokens" Hang: macOS Proxy and SSE Streaming](https://shiqimei.github.io/posts/claude-code-zero-tokens-hang.html) - Dec 16, 2025
 - [AI Agents and the New Tool Paradigm: Code as the Universal Interface](https://shiqimei.github.io/posts/ai-agents-code-universal-tool.html) - Aug 7, 2025
 - [Information Distribution, Deep Thinking, and Building Cognition](https://shiqimei.github.io/posts/information-distribution-cognition.html) - Nov 29, 2023
 - [The Complete Guide to Taking Your Tech Startup Global](https://shiqimei.github.io/posts/tech-company-going-global-guide.html) - Nov 12, 2023

@@ -1,6 +1,6 @@
 ---
 title: "Fixing Claude Code \"0 Tokens\" Hang: macOS Proxy and SSE Streaming"
-date: 2026-01-05
+date: 2025-12-16
 excerpt: Why Claude Code hangs at "0 tokens" when macOS has disabled-but-configured proxy settings that interfere with SSE streaming.
 ---
 
