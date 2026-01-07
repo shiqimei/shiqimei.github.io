@@ -103,6 +103,49 @@ Context efficiency isn't abstract. It directly affects what agents can accomplis
 
 The constraint isn't capability - it's context. Architectures that respect this constraint scale better.
 
+## Current Limitations
+
+Agent Skills are promising, but the standard is still immature. Two significant gaps:
+
+**1. Specification is too loose**
+
+The current skill definition is essentially "a markdown file with frontmatter." There's no formal spec for:
+
+- Parameter declarations and type constraints
+- Input/output contracts
+- Error handling conventions
+- Dependency declarations between skills
+- Versioning and compatibility
+
+MCP, for all its verbosity, has a rigorous JSON Schema spec. Skills rely on the LLM to infer structure from natural language descriptions. This works surprisingly well in practice, but it's not a foundation for tooling, validation, or cross-agent interoperability.
+
+**2. No nested skill support**
+
+Complex workflows naturally decompose into sub-tasks. A "deploy-application" skill might internally need "run-tests", "build-artifacts", and "push-to-registry" as sub-skills.
+
+Currently, there's no standard way to:
+
+- Declare skill dependencies
+- Invoke one skill from another
+- Share context between parent and child skills
+- Handle partial failures in skill chains
+
+Each skill is a flat, isolated unit. Composition happens ad-hoc through bash scripts or manual orchestration.
+
+## Outlook
+
+The path forward is clear:
+
+**Formal specification**: A minimal but precise schema for skill definitions. Parameter types, required vs optional fields, return value contracts. Enough structure for tooling without MCP's verbosity.
+
+**Hierarchical skills**: First-class support for sub-skills. A skill should be able to declare dependencies on other skills, invoke them with proper context isolation, and handle their results programmatically.
+
+**Skill registries**: Discoverability beyond local filesystems. Shared repositories of community skills with versioning, ratings, and compatibility metadata.
+
+**Hybrid architectures**: Skills and MCP aren't mutually exclusive. Use Skills for the common case (context-efficient, Unix-native), fall back to MCP for stateful protocols and strict typing. Let the agent choose based on the task.
+
+The efficiency advantages of Skills are real. The ecosystem just needs to mature.
+
 ## Conclusion
 
 Agent Skills beat MCP on context efficiency through two mechanisms:

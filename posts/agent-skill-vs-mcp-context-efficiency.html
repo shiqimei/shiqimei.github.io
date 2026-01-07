@@ -99,6 +99,35 @@ echo &quot;Build completed: 0 errors, 0 warnings&quot;</code></pre><p>For comple
 <li><strong>Lower costs</strong>: Fewer tokens means lower API bills</li>
 </ul>
 <p>The constraint isn&#39;t capability - it&#39;s context. Architectures that respect this constraint scale better.</p>
+<h2>Current Limitations</h2>
+<p>Agent Skills are promising, but the standard is still immature. Two significant gaps:</p>
+<p><strong>1. Specification is too loose</strong></p>
+<p>The current skill definition is essentially &quot;a markdown file with frontmatter.&quot; There&#39;s no formal spec for:</p>
+<ul>
+<li>Parameter declarations and type constraints</li>
+<li>Input/output contracts</li>
+<li>Error handling conventions</li>
+<li>Dependency declarations between skills</li>
+<li>Versioning and compatibility</li>
+</ul>
+<p>MCP, for all its verbosity, has a rigorous JSON Schema spec. Skills rely on the LLM to infer structure from natural language descriptions. This works surprisingly well in practice, but it&#39;s not a foundation for tooling, validation, or cross-agent interoperability.</p>
+<p><strong>2. No nested skill support</strong></p>
+<p>Complex workflows naturally decompose into sub-tasks. A &quot;deploy-application&quot; skill might internally need &quot;run-tests&quot;, &quot;build-artifacts&quot;, and &quot;push-to-registry&quot; as sub-skills.</p>
+<p>Currently, there&#39;s no standard way to:</p>
+<ul>
+<li>Declare skill dependencies</li>
+<li>Invoke one skill from another</li>
+<li>Share context between parent and child skills</li>
+<li>Handle partial failures in skill chains</li>
+</ul>
+<p>Each skill is a flat, isolated unit. Composition happens ad-hoc through bash scripts or manual orchestration.</p>
+<h2>Outlook</h2>
+<p>The path forward is clear:</p>
+<p><strong>Formal specification</strong>: A minimal but precise schema for skill definitions. Parameter types, required vs optional fields, return value contracts. Enough structure for tooling without MCP&#39;s verbosity.</p>
+<p><strong>Hierarchical skills</strong>: First-class support for sub-skills. A skill should be able to declare dependencies on other skills, invoke them with proper context isolation, and handle their results programmatically.</p>
+<p><strong>Skill registries</strong>: Discoverability beyond local filesystems. Shared repositories of community skills with versioning, ratings, and compatibility metadata.</p>
+<p><strong>Hybrid architectures</strong>: Skills and MCP aren&#39;t mutually exclusive. Use Skills for the common case (context-efficient, Unix-native), fall back to MCP for stateful protocols and strict typing. Let the agent choose based on the task.</p>
+<p>The efficiency advantages of Skills are real. The ecosystem just needs to mature.</p>
 <h2>Conclusion</h2>
 <p>Agent Skills beat MCP on context efficiency through two mechanisms:</p>
 <ol>
