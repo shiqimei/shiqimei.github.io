@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Why Agent Skills Beat MCP for Context Efficiency - Shiqi Mei</title>
+  <link rel="icon" type="image/png" href="../avatar.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">&larr; back</a>
+
+    <article>
+      <header class="post-header">
+        <h1 class="post-title">Why Agent Skills Beat MCP for Context Efficiency</h1>
+        <p class="post-meta">Jan 7, 2026</p>
+      </header>
+
+      <div class="post-content">
+        <p>MCP (Model Context Protocol) has become the standard way to extend LLM agents with external tools. But there&#39;s an alternative architecture that&#39;s significantly more context-efficient: Agent Skills.</p>
+<p>This post breaks down why Agent Skills consume far less context than MCP, and why that matters for building capable agents.</p>
+<h2>The Context Budget Problem</h2>
+<p>Every LLM has a finite context window. Even with 128K or 200K token models, context is a scarce resource. Tool definitions, conversation history, and working memory all compete for the same space.</p>
+<p>MCP&#39;s approach: load all tool definitions upfront. Each tool&#39;s JSON Schema - parameters, types, descriptions, examples - gets injected into every request.</p>
+<p>A typical MCP tool definition runs 5,000 to 6,000 tokens. Load 10 tools and you&#39;ve consumed 50K tokens before the agent does anything useful. That&#39;s nearly half of a 128K context window, gone to tool definitions alone.</p>
+<h2>Progressive Disclosure: Load What You Need</h2>
+<p>Agent Skills take a different approach: progressive disclosure.</p>
+<p>At startup, only the frontmatter of each skill gets loaded - just the name and a one-line description. A single skill&#39;s frontmatter is roughly 10-20 tokens.</p>
+<pre><code class="language-yaml">---
+name: git-commit
+description: Stage and commit changes with conventional commit messages
+---</code></pre><p>The math changes dramatically:</p>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>10 Tools</th>
+<th>100 Tools</th>
+<th>1000 Tools</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MCP</td>
+<td>~50K tokens</td>
+<td>~500K tokens</td>
+<td>Not feasible</td>
+</tr>
+<tr>
+<td>Skills (frontmatter only)</td>
+<td>~150 tokens</td>
+<td>~1.5K tokens</td>
+<td>~15K tokens</td>
+</tr>
+</tbody></table>
+<p>With Skills, you can have thousands of capabilities available while only consuming 15K tokens. The full skill content - documentation, examples, implementation details - only loads when the agent decides to use that specific skill.</p>
+<p>This is progressive disclosure: show the menu first, load the recipe only when cooking.</p>
+<h2>Script Execution: Keep Intermediate Steps Out of Context</h2>
+<p>The second efficiency gain comes from how Skills execute.</p>
+<p>Many agent operations are idempotent - they produce the same result every time. Reading a config file. Checking directory structure. Installing dependencies. Running a build.</p>
+<p>MCP treats each tool call as a context event. Every input, every output, every intermediate step gets recorded in the conversation history. A 20-step task means 20 tool calls polluting your context.</p>
+<p>Agent Skills can encapsulate stable operations into bash scripts. The script runs outside the context window. Only the final result returns to the model.</p>
+<pre><code class="language-bash"># This entire script executes without touching context
+#!/bin/bash
+npm install
+npm run lint
+npm run test
+npm run build
+
+# Only this summary enters context
+echo &quot;Build completed: 0 errors, 0 warnings&quot;</code></pre><p>For complex workflows, this difference compounds. A deployment pipeline might have 50 steps internally but only report &quot;Deployment successful&quot; back to the model.</p>
+<h2>Unix: The Native Language of LLMs</h2>
+<p>There&#39;s a deeper reason why Skills work well: they&#39;re built on bash and the filesystem.</p>
+<p>Unix has existed since the 1970s. The internet is saturated with shell scripts, command-line tutorials, man pages, and pipeline examples. All of this was consumed during LLM pretraining.</p>
+<p>LLMs don&#39;t need to learn a new protocol to use Skills. They already understand:</p>
+<ul>
+<li>File paths and directory navigation</li>
+<li>Piping and redirection</li>
+<li>Common utilities (grep, sed, awk, curl)</li>
+<li>Environment variables and shell expansion</li>
+</ul>
+<p>MCP requires models to learn a custom protocol - specific JSON structures, particular calling conventions, tool-specific quirks. Skills leverage knowledge the model already has baked into its weights.</p>
+<p>This isn&#39;t just about familiarity. It&#39;s about error rates. Models make fewer mistakes with patterns they&#39;ve seen millions of times during training.</p>
+<h2>When MCP Still Makes Sense</h2>
+<p>MCP has legitimate use cases:</p>
+<ul>
+<li><strong>Stateful connections</strong>: Database sessions, WebSocket connections, authenticated API clients</li>
+<li><strong>Binary protocols</strong>: Services that can&#39;t be accessed via shell commands</li>
+<li><strong>Strict typing</strong>: When you need runtime validation of complex parameter structures</li>
+<li><strong>Cross-platform</strong>: When bash isn&#39;t available or reliable</li>
+</ul>
+<p>But for the common case - file operations, API calls, build tools, git workflows - Skills offer better context economics.</p>
+<h2>The Practical Impact</h2>
+<p>Context efficiency isn&#39;t abstract. It directly affects what agents can accomplish:</p>
+<ul>
+<li><strong>Longer conversations</strong>: More context for actual work, less for tool overhead</li>
+<li><strong>More tools available</strong>: Thousands of skills vs. dozens of MCP tools</li>
+<li><strong>Better reasoning</strong>: More space for chain-of-thought and working memory</li>
+<li><strong>Lower costs</strong>: Fewer tokens means lower API bills</li>
+</ul>
+<p>The constraint isn&#39;t capability - it&#39;s context. Architectures that respect this constraint scale better.</p>
+<h2>Conclusion</h2>
+<p>Agent Skills beat MCP on context efficiency through two mechanisms:</p>
+<ol>
+<li><strong>Progressive disclosure</strong>: Load frontmatter at startup (~20 tokens per skill), full content on-demand</li>
+<li><strong>Script execution</strong>: Intermediate steps stay outside context, only results return</li>
+</ol>
+<p>Combined with LLMs&#39; native understanding of Unix patterns, Skills offer a more scalable foundation for building capable agents.</p>
+<p>Context is the bottleneck. Spend it wisely.</p>
+
+      </div>
+    </article>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Shiqi Mei</p>
+    </footer>
+  </div>
+  <script type="module" src="../js/highlight.js"></script>
+</body>
+</html>
