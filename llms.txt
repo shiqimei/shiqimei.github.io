@@ -8,6 +8,7 @@ Personal blog by Shiqi Mei, a software engineer focused on AI-powered developer 
 
 ## Posts
 
+- [Claude Code's Fork and Agent Arguments: Running Skills in Sub-Agents](https://shiqimei.github.io/posts/claude-code-fork-agent-subagents.html) - Jan 11, 2026
 - [Why Agent Skills Beat MCP for Context Efficiency](https://shiqimei.github.io/posts/agent-skill-vs-mcp-context-efficiency.html) - Jan 7, 2026
 - [Removing Rounded Corners and Window Borders on macOS](https://shiqimei.github.io/posts/macos-square-corners.html) - Jan 3, 2026
 - [Fixing Claude Code "0 Tokens" Hang: macOS Proxy and SSE Streaming](https://shiqimei.github.io/posts/claude-code-zero-tokens-hang.html) - Dec 16, 2025
