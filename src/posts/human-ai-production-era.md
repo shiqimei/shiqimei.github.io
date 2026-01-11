@@ -111,6 +111,6 @@ I don't have an answer. But it's the right question.
 
 ---
 
-The production relationship between humans and AI is inverting. We built tools for ourselves. **Now we're building tools for the tools. And soon, the tools will build tools for themselves.**
+The production relationship between humans and AI is inverting. **We built tools for ourselves. Now we're building tools for the tools. And soon, the tools will build tools for themselves.**
 
 The question isn't whether this happens. It's how we navigate the transition.
