@@ -22,125 +22,106 @@ When your primary user doesn't need visual feedback, doesn't get confused by com
 
 AI will consume jobs progressively. The pattern:
 
-<svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;margin:1.5rem 0;">
-  <style>
-    .stage-text { font-family: 'SF Mono', monospace; font-size: 13px; fill: #fff; }
-    .stage-sub { font-family: 'SF Mono', monospace; font-size: 11px; fill: #888; }
-    .arrow { stroke: #888; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
-    .stage-box { fill: #111; stroke: #333; stroke-width: 1; }
-    .current-marker { fill: #fff; }
-  </style>
-  <defs>
-    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="#888"/>
-    </marker>
-  </defs>
-
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;margin:1.5rem 0;">
   <!-- Stage 1 -->
-  <rect class="stage-box" x="20" y="20" width="660" height="50" rx="0"/>
-  <text class="stage-text" x="35" y="42">Stage 1</text>
-  <text class="stage-text" x="120" y="42">Repetitive digital tasks</text>
-  <text class="stage-sub" x="120" y="58">(data entry, basic analysis)</text>
+  <rect x="50" y="20" width="600" height="55" fill="#111" stroke="#333" stroke-width="1"/>
+  <text x="70" y="45" font-family="SF Mono, monospace" font-size="14" fill="#fff">Stage 1</text>
+  <text x="160" y="45" font-family="SF Mono, monospace" font-size="14" fill="#fff">Repetitive digital tasks</text>
+  <text x="160" y="62" font-family="SF Mono, monospace" font-size="11" fill="#666">(data entry, basic analysis)</text>
 
-  <!-- Arrow 1 -->
-  <line class="arrow" x1="350" y1="70" x2="350" y2="90"/>
+  <!-- Arrow 1 (pointing down) -->
+  <line x1="350" y1="78" x2="350" y2="95" stroke="#555" stroke-width="2"/>
+  <polygon points="350,105 340,92 360,92" fill="#555"/>
 
   <!-- Stage 2 -->
-  <rect class="stage-box" x="20" y="95" width="660" height="50" rx="0"/>
-  <text class="stage-text" x="35" y="117">Stage 2</text>
-  <text class="stage-text" x="120" y="117">Knowledge work copilot</text>
-  <text class="stage-sub" x="120" y="133">(coding assistants, writing aids)</text>
+  <rect x="50" y="110" width="600" height="55" fill="#111" stroke="#333" stroke-width="1"/>
+  <text x="70" y="135" font-family="SF Mono, monospace" font-size="14" fill="#fff">Stage 2</text>
+  <text x="160" y="135" font-family="SF Mono, monospace" font-size="14" fill="#fff">Knowledge work copilot</text>
+  <text x="160" y="152" font-family="SF Mono, monospace" font-size="11" fill="#666">(coding assistants, writing aids)</text>
 
-  <!-- Arrow 2 -->
-  <line class="arrow" x1="350" y1="145" x2="350" y2="165"/>
+  <!-- Arrow 2 (pointing down) -->
+  <line x1="350" y1="168" x2="350" y2="185" stroke="#555" stroke-width="2"/>
+  <polygon points="350,195 340,182 360,182" fill="#555"/>
 
-  <!-- Stage 3 - Current -->
-  <rect class="stage-box" x="20" y="170" width="660" height="50" rx="0" style="stroke:#fff;stroke-width:2;"/>
-  <text class="stage-text" x="35" y="192">Stage 3</text>
-  <text class="stage-text" x="120" y="192">Autonomous digital work</text>
-  <text class="stage-sub" x="120" y="208">(full software development, research)</text>
-  <circle class="current-marker" cx="670" cy="195" r="4"/>
-  <text class="stage-sub" x="598" y="199">WE ARE HERE</text>
+  <!-- Stage 3 - Current (highlighted) -->
+  <rect x="50" y="200" width="600" height="55" fill="#111" stroke="#fff" stroke-width="2"/>
+  <text x="70" y="225" font-family="SF Mono, monospace" font-size="14" fill="#fff">Stage 3</text>
+  <text x="160" y="225" font-family="SF Mono, monospace" font-size="14" fill="#fff">Autonomous digital work</text>
+  <text x="160" y="242" font-family="SF Mono, monospace" font-size="11" fill="#666">(full software development, research)</text>
+  <text x="540" y="232" font-family="SF Mono, monospace" font-size="10" fill="#888">WE ARE HERE</text>
 
-  <!-- Arrow 3 -->
-  <line class="arrow" x1="350" y1="220" x2="350" y2="240"/>
+  <!-- Arrow 3 (pointing down) -->
+  <line x1="350" y1="258" x2="350" y2="275" stroke="#555" stroke-width="2"/>
+  <polygon points="350,285 340,272 360,272" fill="#555"/>
 
   <!-- Stage 4 -->
-  <rect class="stage-box" x="20" y="245" width="660" height="50" rx="0"/>
-  <text class="stage-text" x="35" y="267">Stage 4</text>
-  <text class="stage-text" x="120" y="267">Physical world integration</text>
-  <text class="stage-sub" x="120" y="283">(robotics, manufacturing)</text>
+  <rect x="50" y="290" width="600" height="55" fill="#111" stroke="#333" stroke-width="1"/>
+  <text x="70" y="315" font-family="SF Mono, monospace" font-size="14" fill="#fff">Stage 4</text>
+  <text x="160" y="315" font-family="SF Mono, monospace" font-size="14" fill="#fff">Physical world integration</text>
+  <text x="160" y="332" font-family="SF Mono, monospace" font-size="11" fill="#666">(robotics, manufacturing)</text>
 
-  <!-- Arrow 4 -->
-  <line class="arrow" x1="350" y1="295" x2="350" y2="315"/>
+  <!-- Arrow 4 (pointing down) -->
+  <line x1="350" y1="348" x2="350" y2="365" stroke="#555" stroke-width="2"/>
+  <polygon points="350,375 340,362 360,362" fill="#555"/>
 
   <!-- Stage 5 -->
-  <rect class="stage-box" x="20" y="320" width="660" height="50" rx="0"/>
-  <text class="stage-text" x="35" y="342">Stage 5</text>
-  <text class="stage-text" x="120" y="342">Self-improving systems</text>
-  <text class="stage-sub" x="120" y="358">(AI developing AI)</text>
+  <rect x="50" y="380" width="600" height="55" fill="#111" stroke="#333" stroke-width="1"/>
+  <text x="70" y="405" font-family="SF Mono, monospace" font-size="14" fill="#fff">Stage 5</text>
+  <text x="160" y="405" font-family="SF Mono, monospace" font-size="14" fill="#fff">Self-improving systems</text>
+  <text x="160" y="422" font-family="SF Mono, monospace" font-size="11" fill="#666">(AI developing AI)</text>
 </svg>
 
 The key insight: autonomy increases where error tolerance is high and reversibility is easy. Coding came early because `git revert` exists. Surgery comes late because you can't undo a cut.
 
 As AI consumes more job categories, society's overall autonomy rate rises:
 
-<svg viewBox="0 0 700 320" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;margin:1.5rem 0;">
-  <style>
-    .axis-label { font-family: 'SF Mono', monospace; font-size: 11px; fill: #888; }
-    .axis-title { font-family: 'SF Mono', monospace; font-size: 12px; fill: #fff; }
-    .grid-line { stroke: #222; stroke-width: 1; }
-    .curve { fill: none; stroke-width: 2; }
-    .autonomy-curve { stroke: #fff; }
-    .jobs-curve { stroke: #666; stroke-dasharray: 5,5; }
-    .legend-text { font-family: 'SF Mono', monospace; font-size: 11px; }
-    .marker { fill: #fff; }
-    .marker-label { font-family: 'SF Mono', monospace; font-size: 10px; fill: #888; }
-  </style>
+<svg viewBox="0 0 700 380" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;margin:1.5rem 0;">
+  <!-- Legend - above chart -->
+  <line x1="250" y1="20" x2="290" y2="20" stroke="#fff" stroke-width="2"/>
+  <text x="298" y="24" font-family="SF Mono, monospace" font-size="11" fill="#fff">Society Autonomy</text>
+  <line x1="450" y1="20" x2="490" y2="20" stroke="#666" stroke-width="2" stroke-dasharray="6,4"/>
+  <text x="498" y="24" font-family="SF Mono, monospace" font-size="11" fill="#666">Jobs Automated</text>
 
-  <!-- Grid -->
-  <line class="grid-line" x1="80" y1="40" x2="80" y2="250"/>
-  <line class="grid-line" x1="80" y1="250" x2="660" y2="250"/>
+  <!-- Y-axis -->
+  <line x1="80" y1="60" x2="80" y2="300" stroke="#333" stroke-width="1"/>
+
+  <!-- X-axis -->
+  <line x1="80" y1="300" x2="650" y2="300" stroke="#333" stroke-width="1"/>
 
   <!-- Y-axis labels -->
-  <text class="axis-label" x="70" y="45" text-anchor="end">100%</text>
-  <text class="axis-label" x="70" y="95" text-anchor="end">75%</text>
-  <text class="axis-label" x="70" y="150" text-anchor="end">50%</text>
-  <text class="axis-label" x="70" y="200" text-anchor="end">25%</text>
-  <text class="axis-label" x="70" y="255" text-anchor="end">0%</text>
+  <text x="65" y="65" font-family="SF Mono, monospace" font-size="11" fill="#666" text-anchor="end">100%</text>
+  <text x="65" y="125" font-family="SF Mono, monospace" font-size="11" fill="#666" text-anchor="end">75%</text>
+  <text x="65" y="185" font-family="SF Mono, monospace" font-size="11" fill="#666" text-anchor="end">50%</text>
+  <text x="65" y="245" font-family="SF Mono, monospace" font-size="11" fill="#666" text-anchor="end">25%</text>
+  <text x="65" y="305" font-family="SF Mono, monospace" font-size="11" fill="#666" text-anchor="end">0%</text>
 
-  <!-- X-axis labels (stages) -->
-  <text class="axis-label" x="130" y="270" text-anchor="middle">Stage 1</text>
-  <text class="axis-label" x="245" y="270" text-anchor="middle">Stage 2</text>
-  <text class="axis-label" x="360" y="270" text-anchor="middle">Stage 3</text>
-  <text class="axis-label" x="475" y="270" text-anchor="middle">Stage 4</text>
-  <text class="axis-label" x="590" y="270" text-anchor="middle">Stage 5</text>
+  <!-- Horizontal grid lines -->
+  <line x1="80" y1="60" x2="650" y2="60" stroke="#222" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="80" y1="120" x2="650" y2="120" stroke="#222" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="80" y1="180" x2="650" y2="180" stroke="#222" stroke-width="1" stroke-dasharray="4,4"/>
+  <line x1="80" y1="240" x2="650" y2="240" stroke="#222" stroke-width="1" stroke-dasharray="4,4"/>
 
-  <!-- Axis titles -->
-  <text class="axis-title" x="20" y="150" transform="rotate(-90,20,150)">Rate</text>
-  <text class="axis-title" x="370" y="295">AI Progression →</text>
+  <!-- X-axis labels -->
+  <text x="137" y="320" font-family="SF Mono, monospace" font-size="10" fill="#666" text-anchor="middle">Stage 1</text>
+  <text x="251" y="320" font-family="SF Mono, monospace" font-size="10" fill="#666" text-anchor="middle">Stage 2</text>
+  <text x="365" y="320" font-family="SF Mono, monospace" font-size="10" fill="#666" text-anchor="middle">Stage 3</text>
+  <text x="479" y="320" font-family="SF Mono, monospace" font-size="10" fill="#666" text-anchor="middle">Stage 4</text>
+  <text x="593" y="320" font-family="SF Mono, monospace" font-size="10" fill="#666" text-anchor="middle">Stage 5</text>
 
-  <!-- Grid lines horizontal -->
-  <line class="grid-line" x1="80" y1="92" x2="660" y2="92" stroke-dasharray="2,4"/>
-  <line class="grid-line" x1="80" y1="145" x2="660" y2="145" stroke-dasharray="2,4"/>
-  <line class="grid-line" x1="80" y1="197" x2="660" y2="197" stroke-dasharray="2,4"/>
+  <!-- Axis title -->
+  <text x="365" y="350" font-family="SF Mono, monospace" font-size="12" fill="#fff" text-anchor="middle">AI Progression</text>
 
-  <!-- Autonomy curve (exponential rise) -->
-  <path class="curve autonomy-curve" d="M 130 240 Q 200 235 245 220 Q 300 195 360 150 Q 420 90 475 55 Q 530 35 590 30"/>
+  <!-- Society Autonomy curve (solid white) - starts low, plateaus at ~90-95% -->
+  <path d="M 137 295 C 180 293, 220 288, 251 280 C 290 268, 320 250, 365 210 C 410 160, 440 120, 479 95 C 520 80, 560 75, 593 72"
+        fill="none" stroke="#fff" stroke-width="2"/>
 
-  <!-- Jobs eaten curve (also rises) -->
-  <path class="curve jobs-curve" d="M 130 245 Q 200 240 245 230 Q 300 210 360 170 Q 420 110 475 60 Q 530 40 590 35"/>
+  <!-- Jobs Automated curve (dashed gray) - similar but slightly behind, plateaus at ~90% -->
+  <path d="M 137 297 C 180 295, 220 292, 251 285 C 290 275, 320 258, 365 220 C 410 175, 440 130, 479 105 C 520 88, 560 82, 593 78"
+        fill="none" stroke="#666" stroke-width="2" stroke-dasharray="6,4"/>
 
-  <!-- Current position marker -->
-  <circle class="marker" cx="360" cy="150" r="5"/>
-  <line x1="360" y1="155" x2="360" y2="250" stroke="#333" stroke-width="1" stroke-dasharray="3,3"/>
-  <text class="marker-label" x="365" y="175">NOW</text>
-
-  <!-- Legend -->
-  <line x1="480" y1="15" x2="510" y2="15" stroke="#fff" stroke-width="2"/>
-  <text class="legend-text" x="515" y="19" fill="#fff">Society Autonomy</text>
-  <line x1="480" y1="30" x2="510" y2="30" stroke="#666" stroke-width="2" stroke-dasharray="5,5"/>
-  <text class="legend-text" x="515" y="34" fill="#888">Jobs Automated</text>
+  <!-- Current position marker - between Stage 2 and 3, below 25% (~18%) -->
+  <line x1="308" y1="262" x2="308" y2="300" stroke="#444" stroke-width="1" stroke-dasharray="3,3"/>
+  <text x="318" y="278" font-family="SF Mono, monospace" font-size="10" fill="#888">NOW</text>
 </svg>
 
 In the near future, 90% or even 95% of work won't require human involvement. People won't need to engage in low-level tasks.
