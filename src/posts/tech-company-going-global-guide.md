@@ -6,6 +6,8 @@ excerpt: A practical guide covering corporate structure, payment infrastructure,
 
 <img src="../images/tech-company-going-global.jpg" alt="Container ship representing global expansion" class="post-hero">
 
+<div class="lang-en">
+
 This guide is for tech founders, indie developers, and startup teams looking to expand into the North American market. The core strategy: export engineering resources as software services to North America, replicating the success model of cross-border e-commerce but for digital products.
 
 ## Corporate Structure
@@ -174,3 +176,178 @@ Theoretically, founders can self-sponsor H1B. You'd need to prove you could be f
 | H1B | Work visa that many international students rely on post-graduation. Changing jobs is complicated. To recruit international talent, plan for sponsorship early. |
 
 Building a global tech company is complex but achievable. Start with proper corporate structure, leverage every startup benefit available, and plan your immigration pathway early. The infrastructure has never been better for founders going global.
+
+</div>
+
+<div class="lang-zh">
+
+本指南适用于希望进入北美市场的科技创始人、独立开发者和创业团队。核心策略：将工程资源以软件服务的形式输出到北美，复制跨境电商的成功模式，但用于数字产品。
+
+## 公司架构
+
+首先，让我们明确核心逻辑。当一家科技公司出海瞄准北美市场时，你本质上是以软件服务和产品的形式输出国内工程资源。虽然许多科技创业公司已经作为全球团队以完全远程的方式运营，但拥有双语能力和跨文化经验的优势让你能比纯英语公司更高效地整合工程资源。想想 Zoom 的早期模式。
+
+如果你只是开一家美国公司，只雇佣当地美国员工，就没有"出海"的优势。既然你在两个国家运营，你就需要在两边都有公司实体。
+
+以下是基于三个考虑的建议：**合规、融资和成本**。
+
+### 合规
+
+由于你主要服务北美市场，以中国公司身份在美国运营会产生监管风险。想想 TikTok 的处境。我的建议：**美国公司为主体，中国公司为子公司**。中国实体应持有美国公司 51% 以上的股权（这个多数股权对后续 L1 签证申请很重要）。
+
+### 融资
+
+**公司类型**：科技公司通常需要融资。不要注册成 LLC——虽然 LLC 理论上可以融资，但很复杂。省去未来的麻烦，直接注册成 **C-CORP**。
+
+**融资主体**：通过美国实体融资。你可以同时接触美国和中国的 VC（出海的一个优势——你不局限于国内投资者）。对于中国 VC，确认他们有美元基金可用。
+
+### 成本
+
+运营两家公司有成本。鉴于北美工程师薪资是中国的 4-5 倍，推荐的分工是：
+
+- **中国公司**：工程和研发资源
+- **美国公司**：销售和增长资源
+
+创建美国 C-CORP 不需要 SSN，甚至不需要在美国有实际存在。理论可行——让我们进入实操。
+
+## 实操
+
+### 公司注册
+
+**美国公司**：使用 [Stripe Atlas](https://stripe.com/atlas)。费用是初始 $500 加上每年 $100 的管理费（记账、税务）。处理需要 4-8 周——公司注册 2 天完成，但从 IRS 获得 EIN 需要更长时间。
+
+我之前用过一家小律所注册公司，但最后关闭了那家公司。信任问题先不说，每年的会计和税务工作需要不断跟进。Stripe Atlas 标准化了一切——所有文件都在他们的系统中，年费自动扣除，如果以后需要注销公司，只需点击一个按钮。
+
+**重要**：注册成 **Delaware C-CORP**。Delaware 拥有最成熟的公司法——许多其他州都在效仿它。如果你已经被 Microsoft for Startups Founders Hub 接受，使用他们的 Stripe Atlas 福利可以获得 $250 折扣（半价）。
+
+**中国公司**：通过当地政府门户网站 DIY 或使用代理（约 2-3K 人民币）。让你的会计联系当地商务部门了解外资持股登记。你需要将 51% 以上的个人股份转让给你的美国实体。由于你 100% 控制两家公司，这很简单。
+
+### 收款
+
+**Stripe Payments**：Stripe Atlas 注册后，在同一账户激活 Stripe Payments。用护照信息完成 KYC。Atlas 注册提供福利，包括费用减免。Microsoft for Startups 还提供 $25K 的 Stripe 费用抵扣。
+
+Stripe 应该是你的主要支付解决方案——它是全球 SaaS 公司的标准。如果你的账户被封禁，考虑 Lemon Squeezy 或 Paddle 作为备选。
+
+**实物产品**：如果你做的是有实际库存和买家记录的跨境电商，WorldFirst（蚂蚁集团旗下）提供直接结算到国内支付宝账户。不幸的是，他们不支持虚拟产品或 SaaS——我专门问过，被拒绝了。
+
+### 银行
+
+**Mercury Bank**：定位为"创业公司银行"（技术上是与银行合作的金融机构）。注册门槛低，支持 Checking + Savings 账户（把闲置资金放在 Savings 赚取利息），并提供 API 访问。
+
+不要直接在他们网站注册——通过 Stripe Atlas Perks 获取福利。如果你在开户两个月内存入 $20K，可以获得 $1K 奖金。Atlas 链接还可以在注册时绕过 EIN 要求——Atlas 会在 EIN 签发后自动发送给 Mercury。
+
+**Mercury 的缺点**：只支持到国内账户的国际电汇，费用很高。
+
+**Wise / Payoneer**：用于将资金汇回国内银行账户（尽管汇率和费用不利，但仍比国际电汇便宜）。典型流程：Mercury → ACH/Wire → Wise/Payoneer → 国内银行账户。
+
+支付国内员工时，作为母子公司付款转到你的中国公司对公账户，然后正常处理税务。即使是个人账户转账，也要正确申报税务——罚款是最轻的后果；坐牢是可能的。
+
+**风险管理**：将资金分散在 Mercury、Wise、Payoneer 和国内账户。从硅谷银行倒闭事件中学习。
+
+### 虚拟地址和美国电话
+
+**Stable**（usestable.com）：通过 Stripe Atlas Perks 获取免费的美国虚拟地址作为你的商业邮寄地址。这个物理地址接收来自 IRS、银行等的纸质信件。系统可以让你打开并扫描邮件为数字格式，或转发到国际地址。
+
+注意：KYC 后，电子签署 USPS 1583 表格以授权邮件处理。一些服务如 Mercury 在注册时不接受虚拟地址——先用你的实际国内地址，入驻后再将邮寄地址更新为 Stable。
+
+**Google Voice**：从经销商那里购买，几美元等值。转移到你的 Google 账户进行正常通话和短信验证。我在美国旅行期间专门使用 GV 来节省漫游费。
+
+### 团队管理
+
+**邮箱**：我使用飞书（Lark）企业邮箱——免费且好用。只需将你的域名 MX 记录指向他们的服务器。Google Workspace 是北美创业公司的典型选择，但是付费的。
+
+**知识库**：Notion 用于文档。Whimsical 用于流程图、思维导图和白板协作。
+
+**即时通讯**：从 Discord 开始——同时处理社区管理和内部沟通。公开频道给用户，私密群组给团队。超过约 20 人后转到 Slack 或 Microsoft Teams。
+
+### 云服务
+
+**AI 创业公司**：申请 Microsoft for Startups Founders Hub——获得 $2,500 的 OpenAI 积分加上高达 $150K 的 Azure 积分。AWS 和 GCP 有类似的创业计划。早期不要花自己的钱——拿走每一分可用的免费额度。
+
+**基础设施**：从第一天就建立在 serverless 上。按使用付费意味着用户少时成本接近零。不要启动 EC2 预留实例在空闲时烧钱。Serverless 还能自动扩展——不需要手动容量规划。Vercel 和 Cloudflare 优雅地处理 DevOps——推送代码就部署了。
+
+**状态页**：使用 Atlassian StatusPage（免费层）进行服务状态监控。
+
+### 其他服务
+
+在注册任何东西之前检查 Microsoft for Startups Founders Hub、Stripe Atlas Perks 和 Mercury Perks——大多数服务通过这些计划提供福利。这包括 Carta 和 AngelList 等股权管理工具，用于融资后的需求。
+
+## 最佳启动路径
+
+根据我的经验，启动美国公司最快最便宜的路径：
+
+1. 购买域名，设置着陆页，完善你的 LinkedIn，创建产品演示视频
+2. 使用 LinkedIn 授权和产品材料申请 Microsoft for Startups Founders Hub
+3. 批准后，使用 Benefits → Stripe Atlas 以 $250 注册 Delaware C-CORP（半价）
+4. 通过 Atlas Perks 注册 Mercury
+5. EIN 到达后，注册 Wise/Payoneer 和其他服务
+
+## 签证选择
+
+运营美国公司最初可以完全远程。但随着规模扩大，创始人不可避免地需要在美国本土——用于路演、融资、招聘、办公空间。在你获得 PR 或公民身份之前，签证是不可避免的。
+
+### B1 商务签证
+
+**概述**：门槛最低的非移民签证。除了敏感专业（STEM）或学校，你通常会获得 10 年多次入境。行政审查最坏情况：1 年。
+
+**要求**：低——通过国内房产、家庭关系等证明非移民意图。
+
+**处理时间**：2-6 个月（主要是预约等待时间）。DS-160 表格、面试和护照返还大约需要一周。
+
+**停留时间**：每次入境一周到六个月，通常不超过三个月。可以因商务需要申请延期，但单次停留不能超过一年。频繁入境或停留超过三个月有移民意图嫌疑和被 CBP 拒绝的风险。
+
+### L1 签证
+
+**概述**：允许国际公司将外国员工转移到美国母公司/子公司/关联公司。L1A 用于经理/高管，L1B 用于专业知识工作者。这就是为什么我建议中国公司持有美国实体 51% 以上股权。
+
+**要求**：中等——必须在国内公司工作 1 年以上。创业公司可以申请，但比跨国公司更难。美国办公室必须证明实际的岗位创造。
+
+**处理时间**：标准 4-6 个月，加急处理 15 个工作日。
+
+**停留时间**：L1A 最长 7 年，L1B 最长 5 年。以 2 年为增量续签。
+
+### IER（国际企业家规则）
+
+**概述**：允许符合条件的企业家及其家人留在美国发展创业公司。USCIS 于 2023 年 3 月发布了正式指南——仍处于早期阶段。
+
+**要求**：中等——美国实体必须获得 $250K 以上的风险投资（有些来源说 $300K 以上更保险）。
+
+**处理时间**：6 个月以上。许多移民律师还没有处理过这类案件。
+
+**停留时间**：最长共 5 年——初始 30 个月，如果条件满足可延长 30 个月。
+
+### O1 签证
+
+**概述**：适用于在科学、艺术、教育、商业或体育领域有杰出能力的个人。
+
+**要求**：高——必须证明杰出成就。作为创业公司创始人，被 YC 等加速器接受、主要媒体报道或国家级奖项可以符合条件。
+
+**处理时间**：几周到几个月，可加急处理。
+
+**停留时间**：基于项目，最长 3 年，可无限续签。
+
+### H1B
+
+理论上，创始人可以自我担保 H1B。你需要证明你可以被董事会解雇——当你持有 50% 以上股权时这很棘手。可能但复杂。而且每年约 20% 的抽签概率，这应该是最后的选择。
+
+### 关键说明
+
+- 除了 B1（可 DIY），其他签证请雇佣移民律师
+- 所有非移民签证都有时间限制。尽早规划你的 PR 路径
+- 一旦符合条件就申请——批准需要时间
+- 你在美国合法停留的能力由政府决定，而不是你的商业活动
+
+## 术语表
+
+| 术语 | 定义 |
+|-----|------|
+| PR | 永久居民（绿卡）。需要留在美国——单次离境超过 6 个月有被撤销的风险。申请回美证可在国外停留最长 2 年。 |
+| STEM | 科学、技术、工程、数学。这些专业在签证申请时面临行政审查（"check"）。 |
+| EIN | 雇主识别号——你公司来自 IRS 的税号。Stripe、Mercury、Wise 注册所需。美国公司所有权的证明。 |
+| KYC | 了解你的客户——金融机构要求的身份验证。 |
+| ITIN | 个人纳税人识别号——用于没有 SSN 的个人。用于尽早建立美国信用记录。 |
+| H1B | 许多国际学生毕业后依赖的工作签证。换工作很复杂。要招聘国际人才，尽早规划担保。 |
+
+建立一家全球科技公司是复杂但可实现的。从正确的公司架构开始，利用每一个可用的创业福利，尽早规划你的移民路径。对于出海创始人来说，基础设施从未如此完善。
+
+</div>

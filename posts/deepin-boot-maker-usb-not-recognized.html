@@ -24,7 +24,9 @@
       </header>
 
       <div class="post-content">
-        <p>After using a Windows PE tool to create a bootable USB drive, I found that the Deepin Boot Maker could no longer detect my USB drive. Formatting the drive, restarting the computer - nothing worked. Here&#39;s what was happening and how to fix it.</p>
+        <div class="lang-en">
+
+<p>After using a Windows PE tool to create a bootable USB drive, I found that the Deepin Boot Maker could no longer detect my USB drive. Formatting the drive, restarting the computer - nothing worked. Here&#39;s what was happening and how to fix it.</p>
 <h2>The Problem</h2>
 <p>When you create a PE bootable drive with certain tools, Windows may start recognizing your USB drive as a &quot;Local Disk&quot; instead of a &quot;Removable Disk&quot;. The Deepin Boot Maker (and many other Linux boot disk creators) intentionally ignore local disks to prevent accidentally overwriting your system drive.</p>
 <p>You can verify this in Windows Disk Management (Win+X → Disk Management). If your USB drive shows as &quot;Basic&quot; disk instead of &quot;Removable&quot;, that&#39;s the issue.</p>
@@ -60,6 +62,47 @@ clean
 create partition primary
 format fs=fat32 quick
 exit</code></pre><p>If the drive still shows as &quot;Basic&quot; instead of &quot;Removable&quot; after this, the PE environment workaround is your best option.</p>
+</div>
+
+<div class="lang-zh">
+
+<p>使用 Windows PE 工具创建可启动 USB 驱动器后，我发现 Deepin 启动盘制作工具无法再检测到我的 USB 驱动器。格式化驱动器、重启电脑——都没用。以下是发生的情况以及如何修复。</p>
+<h2>问题</h2>
+<p>当你使用某些工具创建 PE 可启动驱动器时，Windows 可能会开始将你的 USB 驱动器识别为&quot;本地磁盘&quot;而不是&quot;可移动磁盘&quot;。Deepin 启动盘制作工具（以及许多其他 Linux 启动盘创建工具）故意忽略本地磁盘，以防止意外覆盖你的系统驱动器。</p>
+<p>你可以在 Windows 磁盘管理中验证这一点（Win+X → 磁盘管理）。如果你的 USB 驱动器显示为&quot;基本&quot;磁盘而不是&quot;可移动&quot;，那就是问题所在。</p>
+<h2>为什么会这样</h2>
+<p>USB 驱动器可以在两种模式下运行：</p>
+<ul>
+<li><strong>可移动媒体模式</strong>：正常的 USB 驱动器行为，被识别为可移动存储</li>
+<li><strong>固定磁盘模式</strong>：驱动器表现得像内部硬盘</li>
+</ul>
+<p>一些 PE 创建工具将 USB 驱动器的模式修改为固定磁盘，以支持多分区等功能。一旦进入此模式，Windows 就会将其视为本地磁盘。</p>
+<h2>解决方案</h2>
+<p>解决方法是在 PE 环境中运行 Deepin 启动盘制作工具，那里的磁盘过滤行为不同：</p>
+<ol>
+<li>下载 PE 环境版本的 Deepin 启动盘制作工具</li>
+<li>使用你喜欢的 PE 工具创建可启动 PE 驱动器（导致问题的同一个工具也可以）</li>
+<li>启动进入 PE 环境</li>
+<li>在 PE 中运行 <code>deepin-boot-maker.exe</code></li>
+<li>USB 驱动器现在应该可见并可选择</li>
+</ol>
+<h2>重要说明</h2>
+<ul>
+<li>此解决方案仅适用于 USB 之前被 PE 创建工具转换为固定磁盘模式的情况</li>
+<li>一些 USB 驱动器（特别是某些 SanDisk 型号）默认以固定磁盘模式出厂——这些可能根本无法与 Deepin 启动盘制作工具配合使用</li>
+<li>如果你的 USB 驱动器即使在 PE 中也无法识别，该驱动器可能有缺陷或被永久配置为固定磁盘</li>
+</ul>
+<h2>替代方案：将 USB 重置为可移动模式</h2>
+<p>在某些 USB 驱动器上，你可以使用 <code>diskpart</code> 命令重置为可移动模式，但这并非对所有驱动器都有效：</p>
+<pre><code class="language-bash"># 以管理员身份运行
+diskpart
+list disk
+select disk X    # 将 X 替换为你的 USB 磁盘编号
+clean
+create partition primary
+format fs=fat32 quick
+exit</code></pre><p>如果驱动器在此之后仍显示为&quot;基本&quot;而不是&quot;可移动&quot;，PE 环境解决方法是你的最佳选择。</p>
+</div>
 
       </div>
     </article>

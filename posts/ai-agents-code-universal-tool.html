@@ -24,7 +24,9 @@
       </header>
 
       <div class="post-content">
-        <p>Some scattered thoughts on where AI agents are heading - covering knowledge transfer, context engineering, alignment, confidence, evaluation, and why code is becoming the universal tool for machine intelligence.</p>
+        <div class="lang-en">
+
+<p>Some scattered thoughts on where AI agents are heading - covering knowledge transfer, context engineering, alignment, confidence, evaluation, and why code is becoming the universal tool for machine intelligence.</p>
 <h2>Knowledge and Alignment</h2>
 <p>In human society, knowledge is transmitted across generations primarily through education and self-directed learning. New knowledge continuously emerges from social production activities and lived experience.</p>
 <p>For AI systems, alignment is the analogous challenge: how do we ensure the knowledge and behaviors of these systems match human intentions and values? The parallel is striking - both processes involve transferring understanding from one entity to another, with all the loss and distortion that implies.</p>
@@ -80,6 +82,67 @@
 <li>The boundary between &quot;what the AI knows&quot; and &quot;what the AI can do&quot; dissolves</li>
 </ul>
 <p>Code isn&#39;t just a tool for building software anymore. It&#39;s the universal interface through which machine intelligence interacts with and reshapes the digital world.</p>
+</div>
+
+<div class="lang-zh">
+
+<p>关于 AI 智能体发展方向的一些零散思考——涵盖知识传递、上下文工程、对齐、置信度、评估，以及为什么代码正在成为机器智能的通用工具。</p>
+<h2>知识与对齐</h2>
+<p>在人类社会中，知识主要通过教育和自主学习跨代传递。新知识不断从社会生产活动和生活经验中涌现。</p>
+<p>对于 AI 系统，对齐是类似的挑战：我们如何确保这些系统的知识和行为符合人类的意图和价值观？这种相似性很惊人——两个过程都涉及将理解从一个实体传递到另一个实体，伴随着所有可能的损失和扭曲。</p>
+<h2>上下文工程与上下文窗口</h2>
+<p>短期内，上下文工程很重要。结构化提示词、管理对话历史、策略性地将相关信息加载到上下文中——这些技术都能带来显著改进。</p>
+<p>长期来看，所有上下文工程技巧都将被原生的大上下文窗口取代。当模型扩展到数百万 token 的上下文时，我们今天构建的精巧脚手架将变得不必要。技巧变成原生能力。</p>
+<p>这是 AI 中的一个反复出现的模式：今天的 hack 成为明天的基线功能。</p>
+<h2>委托与结果对齐</h2>
+<p>AI 智能体的核心挑战是让输出与用户期望对齐。我们如何缩小这个差距？</p>
+<p><strong>直接结果对齐：</strong></p>
+<ul>
+<li>与用户进行集成测试</li>
+<li>生成演示和模拟</li>
+<li>在编码前生成 Figma 原型</li>
+<li>预期行为的可视化预览</li>
+</ul>
+<p>需求确定性和代码稳定性之间存在有趣的关系：</p>
+<ul>
+<li><strong>需求越确定</strong> → 代码越固定、越稳定</li>
+<li><strong>需求越不确定</strong> → 代码越灵活、越具探索性</li>
+</ul>
+<p>启示：在动代码之前，大力投入需求澄清。对齐错误的成本会复利累积。</p>
+<h2>置信度</h2>
+<p>首先，让我们明确：解决任何问题都有多种路径。没有绝对正确的解决方案。不同的方法有各自的权衡。</p>
+<p>我们如何确保人类对 AI 生成的结果有信心？</p>
+<ol>
+<li><strong>逻辑自洽</strong>：解决方案应该内部一致</li>
+<li><strong>可解释性</strong>：推理应该可追溯、可理解</li>
+<li><strong>自信的懒惰</strong>：人类应该能够足够信任输出，而不必验证每个细节</li>
+</ol>
+<p>目标不是消除人类监督——而是让监督高效且有针对性。</p>
+<h2>评估与反馈</h2>
+<p><strong>一个逆向观点：减少人在回路（HITL）。</strong></p>
+<p>HITL 有助于在自动化系统中保留人类参与和决策。但老实说，这通常是一种懒惰的方法。</p>
+<p>人类是任何自动化系统中效率最低、最容易出错的组件。人类是一个极其懒惰的物种——最小化思考和行动以节省能量，这是自然进化的遗产。与 LLM 相比，人脑不一定有更低的错误率。</p>
+<p>未来不是更多的人类检查点。而是更好的自动化验证，只在真正必要时才升级给人类。</p>
+<h2>工具范式转变</h2>
+<p>自从我们学会使用火以来，人类就被定义为智能的。智能与非智能生物之间的外部区别是使用工具的能力。</p>
+<p>按照这个定义，我们必须承认当前的 LLM 已经能够有效使用工具。它们是真正的智能代理。</p>
+<p>在智能社会中，代理可以通过使用工具来改变客观现实。可用工具的质量在很大程度上决定了可以实现什么。</p>
+<h2>代码作为通用工具</h2>
+<p>什么是代码？</p>
+<p>代码是人类控制计算机的工具。从二进制打孔卡到汇编语言，再到高级语言——人类使用代码向计算机发出具体指令，使其按照人类的期望工作。</p>
+<p><strong>今天，我们必须改变这句话的主语。</strong></p>
+<p>代码是 LLM 智能控制计算机的通用工具。</p>
+<p>因为大多数高级编程语言都是图灵完备的，LLM 智能体理论上可以编写任意代码作为控制计算机、互联网甚至物理设备的工具。</p>
+<p>这是大幅提升 LLM 能力的关键发现之一：赋予它们编写和执行代码的能力，它们就能访问整个数字世界。</p>
+<p>影响是深远的：</p>
+<ul>
+<li>每个 API 都变得可访问</li>
+<li>每种自动化都变得可能</li>
+<li>每个数字系统都变得可控</li>
+<li>&quot;AI 知道什么&quot;和&quot;AI 能做什么&quot;之间的界限消融</li>
+</ul>
+<p>代码不再仅仅是构建软件的工具。它是机器智能与数字世界交互并重塑数字世界的通用接口。</p>
+</div>
 
       </div>
     </article>

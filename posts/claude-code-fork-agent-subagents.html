@@ -24,7 +24,9 @@
       </header>
 
       <div class="post-content">
-        <p>In a <a href="/posts/agent-skill-vs-mcp-context-efficiency.html">previous post</a>, I discussed how Agent Skills achieve context efficiency through progressive disclosure and script execution. But I noted a limitation: no nested skill support. Complex workflows couldn&#39;t delegate to sub-skills without polluting the main context.</p>
+        <div class="lang-en">
+
+<p>In a <a href="/posts/agent-skill-vs-mcp-context-efficiency.html">previous post</a>, I discussed how Agent Skills achieve context efficiency through progressive disclosure and script execution. But I noted a limitation: no nested skill support. Complex workflows couldn&#39;t delegate to sub-skills without polluting the main context.</p>
 <p>Claude Code now addresses this with two new skill arguments: <code>context: fork</code> and <code>agent: &lt;type&gt;</code>.</p>
 <h2>The Problem: Skill Execution Pollutes Context</h2>
 <p>When a skill runs, all its intermediate work happens in the main conversation context:</p>
@@ -143,6 +145,130 @@ agent: Explore         # Use the Explore agent type
 <h2>Conclusion</h2>
 <p>The <code>context: fork</code> and <code>agent: &lt;type&gt;</code> arguments solve the nested skill problem. Complex skills can now run sophisticated, multi-step operations without consuming main conversation context.</p>
 <p>The pattern is simple: isolate expensive operations, return only results. Context is the bottleneck - these tools help you respect it.</p>
+</div>
+
+<div class="lang-zh">
+
+<p>在<a href="/posts/agent-skill-vs-mcp-context-efficiency.html">上一篇文章</a>中，我讨论了 Agent Skills 如何通过渐进式披露和脚本执行实现上下文效率。但我指出了一个局限性：不支持嵌套技能。复杂工作流无法委托给子技能而不污染主上下文。</p>
+<p>Claude Code 现在通过两个新的技能参数解决了这个问题：<code>context: fork</code> 和 <code>agent: &lt;type&gt;</code>。</p>
+<h2>问题：技能执行污染上下文</h2>
+<p>当技能运行时，所有中间工作都发生在主对话上下文中：</p>
+<ul>
+<li>每个 <code>Read</code> 工具调用及其输出</li>
+<li>每个 <code>Grep</code> 搜索结果</li>
+<li>每个 <code>Bash</code> 命令输出</li>
+<li>步骤之间的所有推理</li>
+</ul>
+<p>一个探索代码库来回答问题的技能可能会进行 20+ 次工具调用。每一次都消耗 tokens。到技能返回答案时，你已经烧掉了本可用于实际工作的上下文。</p>
+<p>脚本执行对确定性操作有帮助。但对于需要全程 LLM 推理的技能呢——探索代码、做决策、适应发现的内容？</p>
+<h2>解决方案：Fork 上下文</h2>
+<p><code>context: fork</code> 参数在隔离的子智能体中运行技能：</p>
+<pre><code class="language-yaml">---
+name: analyze-codebase
+description: Analyze codebase architecture and patterns
+context: fork
+---</code></pre><p>当此技能触发时：</p>
+<ol>
+<li>Claude 生成一个具有全新上下文的子智能体</li>
+<li>子智能体只接收技能指令和用户查询</li>
+<li>子智能体独立执行——读取文件、搜索代码、推理</li>
+<li>只有最终结果返回到主对话</li>
+</ol>
+<p>所有中间工具调用、文件内容和推理都保留在子智能体的上下文中。主对话只看到答案。</p>
+<h2>选择正确的智能体类型</h2>
+<p><code>agent: &lt;type&gt;</code> 参数指定哪种专门的智能体运行技能：</p>
+<pre><code class="language-yaml">---
+name: explore-architecture
+description: Map out the codebase structure and dependencies
+context: fork
+agent: Explore
+---</code></pre><p>可用的智能体类型：</p>
+<table>
+<thead>
+<tr>
+<th>智能体</th>
+<th>能力</th>
+<th>用例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>general-purpose</code></td>
+<td>所有工具，完整推理</td>
+<td>复杂多步任务</td>
+</tr>
+<tr>
+<td><code>Explore</code></td>
+<td>快速文件搜索，模式匹配</td>
+<td>代码库探索</td>
+</tr>
+<tr>
+<td><code>Plan</code></td>
+<td>架构分析，步骤规划</td>
+<td>实现规划</td>
+</tr>
+<tr>
+<td><code>Bash</code></td>
+<td>仅命令执行</td>
+<td>shell 密集型操作</td>
+</tr>
+</tbody></table>
+<p>将智能体类型与技能需求匹配。探索技能受益于 <code>Explore</code> 智能体的优化搜索。部署技能可能使用 <code>Bash</code> 进行专注的命令执行。</p>
+<h2>实际示例</h2>
+<p>考虑一个回答架构问题的技能：</p>
+<p><strong>不使用 fork：</strong></p>
+<pre><code class="language-text">用户：&quot;这个代码库中的认证是如何工作的？&quot;
+
+[技能触发]
+[Read auth/middleware.ts - 200 行进入上下文]
+[Grep &quot;jwt&quot; - 15 个匹配进入上下文]
+[Read auth/providers/oauth.ts - 150 行进入上下文]
+[Read auth/session.ts - 100 行进入上下文]
+[关于认证流程的推理...]
+
+答案：&quot;认证使用带 OAuth 提供者的 JWT tokens...&quot;</code></pre><p>消耗的总上下文：约 500+ 行代码、搜索结果、推理。</p>
+<p><strong>使用 fork：</strong></p>
+<pre><code class="language-text">用户：&quot;这个代码库中的认证是如何工作的？&quot;
+
+[技能触发，带 context: fork]
+[子智能体生成，独立探索]
+
+答案：&quot;认证使用带 OAuth 提供者的 JWT tokens...&quot;</code></pre><p>主对话消耗的总上下文：只有答案。</p>
+<p>子智能体做了同样的工作，但是隔离的。主对话保持干净。</p>
+<h2>何时使用 Fork</h2>
+<p>当你的技能满足以下条件时使用 <code>context: fork</code>：</p>
+<ul>
+<li>读取多个文件来综合答案</li>
+<li>执行结果不确定的探索性搜索</li>
+<li>需要生成中间产物的多步推理</li>
+<li>如果内联运行会消耗大量上下文</li>
+</ul>
+<p>不使用 fork 的情况：</p>
+<ul>
+<li>技能很简单（单个文件读取，一个命令）</li>
+<li>你需要技能的中间结果在主对话中</li>
+<li>生成子智能体的开销超过上下文节省</li>
+</ul>
+<h2>完整图景</h2>
+<p>这完成了技能效率的故事：</p>
+<ol>
+<li><strong>渐进式披露</strong>：启动时只加载 frontmatter（每个技能约 20 tokens）</li>
+<li><strong>按需加载</strong>：完整技能内容只在触发时加载</li>
+<li><strong>脚本执行</strong>：确定性操作在上下文外运行</li>
+<li><strong>上下文 fork</strong>：LLM 驱动的操作在隔离的子智能体中运行</li>
+</ol>
+<p>每一层都减少上下文消耗。它们一起使技能比传统工具架构效率高得多。</p>
+<h2>配置</h2>
+<p>将这些参数添加到你的技能 frontmatter：</p>
+<pre><code class="language-yaml">---
+name: my-skill
+description: What this skill does
+context: fork          # 在隔离的子智能体中运行
+agent: Explore         # 使用 Explore 智能体类型
+---</code></pre><p>两个参数都是可选的。根据技能需求一起或分开使用。</p>
+<h2>结论</h2>
+<p><code>context: fork</code> 和 <code>agent: &lt;type&gt;</code> 参数解决了嵌套技能问题。复杂技能现在可以运行复杂的多步操作而不消耗主对话上下文。</p>
+<p>模式很简单：隔离昂贵的操作，只返回结果。上下文是瓶颈——这些工具帮助你尊重它。</p>
+</div>
 
       </div>
     </article>
