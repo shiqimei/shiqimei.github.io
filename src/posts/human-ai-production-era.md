@@ -112,12 +112,10 @@ As AI consumes more job categories, society's overall autonomy rate rises:
   <text x="365" y="350" font-family="SF Mono, monospace" font-size="12" fill="#fff" text-anchor="middle">AI Progression</text>
 
   <!-- Society Autonomy curve (solid white) - starts low, plateaus at ~90-95% -->
-  <path d="M 137 295 C 180 293, 220 288, 251 280 C 290 268, 320 250, 365 210 C 410 160, 440 120, 479 95 C 520 80, 560 75, 593 72"
-        fill="none" stroke="#fff" stroke-width="2"/>
+  <polyline points="137,295 180,290 220,282 251,270 290,255 320,235 365,195 410,145 440,110 479,90 520,78 560,74 593,72" fill="none" stroke="#fff" stroke-width="2"/>
 
   <!-- Jobs Automated curve (dashed gray) - similar but slightly behind, plateaus at ~90% -->
-  <path d="M 137 297 C 180 295, 220 292, 251 285 C 290 275, 320 258, 365 220 C 410 175, 440 130, 479 105 C 520 88, 560 82, 593 78"
-        fill="none" stroke="#666" stroke-width="2" stroke-dasharray="6,4"/>
+  <polyline points="137,297 180,293 220,287 251,278 290,265 320,248 365,210 410,162 440,125 479,100 520,86 560,80 593,78" fill="none" stroke="#666" stroke-width="2" stroke-dasharray="6,4"/>
 
   <!-- Current position marker - between Stage 2 and 3, below 25% (~18%) -->
   <line x1="308" y1="262" x2="308" y2="300" stroke="#444" stroke-width="1" stroke-dasharray="3,3"/>
@@ -205,6 +203,6 @@ I don't have an answer. But it's the right question.
 
 ---
 
-This is an MVP forecast. Rough edges, incomplete thoughts. But the direction seems clear. The production relationship between humans and AI is inverting. We built tools for ourselves. Now we're building tools for the tools. And soon, the tools will build tools for themselves.
+The production relationship between humans and AI is inverting. We built tools for ourselves. **Now we're building tools for the tools. And soon, the tools will build tools for themselves.**
 
 The question isn't whether this happens. It's how we navigate the transition.
