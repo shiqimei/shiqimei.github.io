@@ -786,6 +786,64 @@ a:hover {
   color: var(--gray);
 }
 
+/* Language Toggle */
+.lang-toggle {
+  display: none;
+  font-size: 0.75rem;
+  border: 1px solid var(--border);
+}
+
+.lang-toggle.visible {
+  display: flex;
+}
+
+.lang-toggle button {
+  padding: 0.4rem 0.6rem;
+  background: transparent;
+  border: none;
+  color: var(--gray);
+  font-family: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+}
+
+.lang-toggle button:first-child {
+  border-right: 1px solid var(--border);
+}
+
+.lang-toggle button:hover {
+  color: var(--fg);
+}
+
+.lang-toggle button.active {
+  color: var(--fg);
+  background: var(--border);
+}
+
+/* Post header with language toggle */
+.post-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.post-header-row .post-title {
+  flex: 1;
+}
+
+/* Language content sections */
+.lang-en,
+.lang-zh {
+  display: none;
+}
+
+.lang-en.active,
+.lang-zh.active {
+  display: block;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
   .container {
