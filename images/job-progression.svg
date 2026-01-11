@@ -1,0 +1,48 @@
+<svg viewBox="0 0 700 450" xmlns="http://www.w3.org/2000/svg" style="background:#000;">
+  <!-- Stage 1 -->
+  <rect x="50" y="20" width="600" height="55" fill="#111" stroke="#333" stroke-width="1"/>
+  <text x="70" y="45" font-family="SF Mono, monospace" font-size="14" fill="#fff">Stage 1</text>
+  <text x="160" y="45" font-family="SF Mono, monospace" font-size="14" fill="#fff">Repetitive digital tasks</text>
+  <text x="160" y="62" font-family="SF Mono, monospace" font-size="11" fill="#666">(data entry, basic analysis)</text>
+
+  <!-- Arrow 1 (pointing down) -->
+  <line x1="350" y1="78" x2="350" y2="95" stroke="#555" stroke-width="2"/>
+  <polygon points="350,105 340,92 360,92" fill="#555"/>
+
+  <!-- Stage 2 -->
+  <rect x="50" y="110" width="600" height="55" fill="#111" stroke="#333" stroke-width="1"/>
+  <text x="70" y="135" font-family="SF Mono, monospace" font-size="14" fill="#fff">Stage 2</text>
+  <text x="160" y="135" font-family="SF Mono, monospace" font-size="14" fill="#fff">Knowledge work copilot</text>
+  <text x="160" y="152" font-family="SF Mono, monospace" font-size="11" fill="#666">(coding assistants, writing aids)</text>
+
+  <!-- Arrow 2 (pointing down) -->
+  <line x1="350" y1="168" x2="350" y2="185" stroke="#555" stroke-width="2"/>
+  <polygon points="350,195 340,182 360,182" fill="#555"/>
+
+  <!-- Stage 3 - Current (highlighted) -->
+  <rect x="50" y="200" width="600" height="55" fill="#111" stroke="#fff" stroke-width="2"/>
+  <text x="70" y="225" font-family="SF Mono, monospace" font-size="14" fill="#fff">Stage 3</text>
+  <text x="160" y="225" font-family="SF Mono, monospace" font-size="14" fill="#fff">Autonomous digital work</text>
+  <text x="160" y="242" font-family="SF Mono, monospace" font-size="11" fill="#666">(full software development, research)</text>
+  <text x="540" y="232" font-family="SF Mono, monospace" font-size="10" fill="#888">WE ARE HERE</text>
+
+  <!-- Arrow 3 (pointing down) -->
+  <line x1="350" y1="258" x2="350" y2="275" stroke="#555" stroke-width="2"/>
+  <polygon points="350,285 340,272 360,272" fill="#555"/>
+
+  <!-- Stage 4 -->
+  <rect x="50" y="290" width="600" height="55" fill="#111" stroke="#333" stroke-width="1"/>
+  <text x="70" y="315" font-family="SF Mono, monospace" font-size="14" fill="#fff">Stage 4</text>
+  <text x="160" y="315" font-family="SF Mono, monospace" font-size="14" fill="#fff">Physical world integration</text>
+  <text x="160" y="332" font-family="SF Mono, monospace" font-size="11" fill="#666">(robotics, manufacturing)</text>
+
+  <!-- Arrow 4 (pointing down) -->
+  <line x1="350" y1="348" x2="350" y2="365" stroke="#555" stroke-width="2"/>
+  <polygon points="350,375 340,362 360,362" fill="#555"/>
+
+  <!-- Stage 5 -->
+  <rect x="50" y="380" width="600" height="55" fill="#111" stroke="#333" stroke-width="1"/>
+  <text x="70" y="405" font-family="SF Mono, monospace" font-size="14" fill="#fff">Stage 5</text>
+  <text x="160" y="405" font-family="SF Mono, monospace" font-size="14" fill="#fff">Self-improving systems</text>
+  <text x="160" y="422" font-family="SF Mono, monospace" font-size="11" fill="#666">(AI developing AI)</text>
+</svg>

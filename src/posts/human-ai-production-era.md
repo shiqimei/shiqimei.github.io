@@ -22,105 +22,13 @@ When your primary user doesn't need visual feedback, doesn't get confused by com
 
 AI will consume jobs progressively. The pattern:
 
-<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;margin:1.5rem 0;">
-  <!-- Stage 1 -->
-  <rect x="50" y="20" width="600" height="55" fill="#111" stroke="#333" stroke-width="1"/>
-  <text x="70" y="45" font-family="SF Mono, monospace" font-size="14" fill="#fff">Stage 1</text>
-  <text x="160" y="45" font-family="SF Mono, monospace" font-size="14" fill="#fff">Repetitive digital tasks</text>
-  <text x="160" y="62" font-family="SF Mono, monospace" font-size="11" fill="#666">(data entry, basic analysis)</text>
-
-  <!-- Arrow 1 (pointing down) -->
-  <line x1="350" y1="78" x2="350" y2="95" stroke="#555" stroke-width="2"/>
-  <polygon points="350,105 340,92 360,92" fill="#555"/>
-
-  <!-- Stage 2 -->
-  <rect x="50" y="110" width="600" height="55" fill="#111" stroke="#333" stroke-width="1"/>
-  <text x="70" y="135" font-family="SF Mono, monospace" font-size="14" fill="#fff">Stage 2</text>
-  <text x="160" y="135" font-family="SF Mono, monospace" font-size="14" fill="#fff">Knowledge work copilot</text>
-  <text x="160" y="152" font-family="SF Mono, monospace" font-size="11" fill="#666">(coding assistants, writing aids)</text>
-
-  <!-- Arrow 2 (pointing down) -->
-  <line x1="350" y1="168" x2="350" y2="185" stroke="#555" stroke-width="2"/>
-  <polygon points="350,195 340,182 360,182" fill="#555"/>
-
-  <!-- Stage 3 - Current (highlighted) -->
-  <rect x="50" y="200" width="600" height="55" fill="#111" stroke="#fff" stroke-width="2"/>
-  <text x="70" y="225" font-family="SF Mono, monospace" font-size="14" fill="#fff">Stage 3</text>
-  <text x="160" y="225" font-family="SF Mono, monospace" font-size="14" fill="#fff">Autonomous digital work</text>
-  <text x="160" y="242" font-family="SF Mono, monospace" font-size="11" fill="#666">(full software development, research)</text>
-  <text x="540" y="232" font-family="SF Mono, monospace" font-size="10" fill="#888">WE ARE HERE</text>
-
-  <!-- Arrow 3 (pointing down) -->
-  <line x1="350" y1="258" x2="350" y2="275" stroke="#555" stroke-width="2"/>
-  <polygon points="350,285 340,272 360,272" fill="#555"/>
-
-  <!-- Stage 4 -->
-  <rect x="50" y="290" width="600" height="55" fill="#111" stroke="#333" stroke-width="1"/>
-  <text x="70" y="315" font-family="SF Mono, monospace" font-size="14" fill="#fff">Stage 4</text>
-  <text x="160" y="315" font-family="SF Mono, monospace" font-size="14" fill="#fff">Physical world integration</text>
-  <text x="160" y="332" font-family="SF Mono, monospace" font-size="11" fill="#666">(robotics, manufacturing)</text>
-
-  <!-- Arrow 4 (pointing down) -->
-  <line x1="350" y1="348" x2="350" y2="365" stroke="#555" stroke-width="2"/>
-  <polygon points="350,375 340,362 360,362" fill="#555"/>
-
-  <!-- Stage 5 -->
-  <rect x="50" y="380" width="600" height="55" fill="#111" stroke="#333" stroke-width="1"/>
-  <text x="70" y="405" font-family="SF Mono, monospace" font-size="14" fill="#fff">Stage 5</text>
-  <text x="160" y="405" font-family="SF Mono, monospace" font-size="14" fill="#fff">Self-improving systems</text>
-  <text x="160" y="422" font-family="SF Mono, monospace" font-size="11" fill="#666">(AI developing AI)</text>
-</svg>
+<img src="../images/job-progression.svg" alt="Job Progression Stages" style="width:100%;max-width:700px;margin:1.5rem 0;">
 
 The key insight: autonomy increases where error tolerance is high and reversibility is easy. Coding came early because `git revert` exists. Surgery comes late because you can't undo a cut.
 
 As AI consumes more job categories, society's overall autonomy rate rises:
 
-<svg viewBox="0 0 700 380" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:700px;margin:1.5rem 0;">
-  <!-- Legend - above chart -->
-  <line x1="250" y1="20" x2="290" y2="20" stroke="#fff" stroke-width="2"/>
-  <text x="298" y="24" font-family="SF Mono, monospace" font-size="11" fill="#fff">Society Autonomy</text>
-  <line x1="450" y1="20" x2="490" y2="20" stroke="#666" stroke-width="2" stroke-dasharray="6,4"/>
-  <text x="498" y="24" font-family="SF Mono, monospace" font-size="11" fill="#666">Jobs Automated</text>
-
-  <!-- Y-axis -->
-  <line x1="80" y1="60" x2="80" y2="300" stroke="#333" stroke-width="1"/>
-
-  <!-- X-axis -->
-  <line x1="80" y1="300" x2="650" y2="300" stroke="#333" stroke-width="1"/>
-
-  <!-- Y-axis labels -->
-  <text x="65" y="65" font-family="SF Mono, monospace" font-size="11" fill="#666" text-anchor="end">100%</text>
-  <text x="65" y="125" font-family="SF Mono, monospace" font-size="11" fill="#666" text-anchor="end">75%</text>
-  <text x="65" y="185" font-family="SF Mono, monospace" font-size="11" fill="#666" text-anchor="end">50%</text>
-  <text x="65" y="245" font-family="SF Mono, monospace" font-size="11" fill="#666" text-anchor="end">25%</text>
-  <text x="65" y="305" font-family="SF Mono, monospace" font-size="11" fill="#666" text-anchor="end">0%</text>
-
-  <!-- Horizontal grid lines -->
-  <line x1="80" y1="60" x2="650" y2="60" stroke="#222" stroke-width="1" stroke-dasharray="4,4"/>
-  <line x1="80" y1="120" x2="650" y2="120" stroke="#222" stroke-width="1" stroke-dasharray="4,4"/>
-  <line x1="80" y1="180" x2="650" y2="180" stroke="#222" stroke-width="1" stroke-dasharray="4,4"/>
-  <line x1="80" y1="240" x2="650" y2="240" stroke="#222" stroke-width="1" stroke-dasharray="4,4"/>
-
-  <!-- X-axis labels -->
-  <text x="137" y="320" font-family="SF Mono, monospace" font-size="10" fill="#666" text-anchor="middle">Stage 1</text>
-  <text x="251" y="320" font-family="SF Mono, monospace" font-size="10" fill="#666" text-anchor="middle">Stage 2</text>
-  <text x="365" y="320" font-family="SF Mono, monospace" font-size="10" fill="#666" text-anchor="middle">Stage 3</text>
-  <text x="479" y="320" font-family="SF Mono, monospace" font-size="10" fill="#666" text-anchor="middle">Stage 4</text>
-  <text x="593" y="320" font-family="SF Mono, monospace" font-size="10" fill="#666" text-anchor="middle">Stage 5</text>
-
-  <!-- Axis title -->
-  <text x="365" y="350" font-family="SF Mono, monospace" font-size="12" fill="#fff" text-anchor="middle">AI Progression</text>
-
-  <!-- Society Autonomy curve (solid white) - starts low, plateaus at ~90-95% -->
-  <polyline points="137,295 180,290 220,282 251,270 290,255 320,235 365,195 410,145 440,110 479,90 520,78 560,74 593,72" fill="none" stroke="#fff" stroke-width="2"/>
-
-  <!-- Jobs Automated curve (dashed gray) - similar but slightly behind, plateaus at ~90% -->
-  <polyline points="137,297 180,293 220,287 251,278 290,265 320,248 365,210 410,162 440,125 479,100 520,86 560,80 593,78" fill="none" stroke="#666" stroke-width="2" stroke-dasharray="6,4"/>
-
-  <!-- Current position marker - between Stage 2 and 3, below 25% (~18%) -->
-  <line x1="308" y1="262" x2="308" y2="300" stroke="#444" stroke-width="1" stroke-dasharray="3,3"/>
-  <text x="318" y="278" font-family="SF Mono, monospace" font-size="10" fill="#888">NOW</text>
-</svg>
+<img src="../images/autonomy-chart.svg" alt="Autonomy vs Jobs Automated Chart" style="width:100%;max-width:700px;margin:1.5rem 0;">
 
 In the near future, 90% or even 95% of work won't require human involvement. People won't need to engage in low-level tasks.
 
