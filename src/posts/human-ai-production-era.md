@@ -113,7 +113,7 @@ I don't have an answer. But it's the right question.
 
 ---
 
-The production relationship between humans and AI is inverting. **We built tools for ourselves. Now we're building tools for the tools. And soon, the tools will build tools for themselves.**
+The production relationship between humans and AI is inverting. *We built tools for ourselves. Now we're building tools for the tools. And soon, the tools will build tools for themselves.*
 
 The question isn't whether this happens. It's how we navigate the transition.
 
@@ -226,7 +226,7 @@ AI系统终将在人类无法理解的时间尺度上运行。AI一年的进展�
 
 ---
 
-人类与AI的生产关系正在逆转。**过去，我们为自己构建工具；现在，我们为工具构建工具；很快，工具将为自己构建工具。**
+人类与AI的生产关系正在逆转。*过去，我们为自己构建工具；现在，我们为工具构建工具；很快，工具将为自己构建工具。*
 
 问题不在于这是否会发生，而在于我们如何度过这一转变。
 
