@@ -300,6 +300,42 @@ New documents process independently with entity deduplication:
 - Source IDs tracked per entity (FIFO limit: 300 chunks)
 - No graph rebuild required
 
+### Why LightRAG Still Has Graph Storage
+
+If LightRAG doesn't use community detection, why does it need a graph at all?
+
+**Different Purpose: Local Traversal vs Global Analysis**
+
+| Aspect | GraphRAG Graph | LightRAG Graph |
+|--------|----------------|----------------|
+| Purpose | Global structure analysis | Local traversal from entry points |
+| Entry Point | Community summaries | Vector-matched entities |
+| Traversal | Entire community hierarchy | 1-hop from matched nodes |
+| Community Detection | Required (Leiden) | Not used |
+
+**The Retrieval Flow:**
+
+```
+1. Vector DB (primary)     → Find candidate entities by embedding
+                              ↓
+2. Graph Storage           → Get entity metadata (descriptions)
+                           → Get node degrees (rank by connectivity)
+                           → Fan out to connected edges (1-hop)
+                           → Get relationship data (keywords, descriptions)
+```
+
+**What the graph provides:**
+- **Entity metadata**: Full descriptions stored on nodes
+- **Connectivity ranking**: Node degree = importance (more connected = more relevant)
+- **Relationship expansion**: From matched entities, find all connected relationships
+- **Edge data**: Relationship descriptions and keywords for context
+
+**Why no community detection needed:**
+- LightRAG doesn't answer "what are ALL the themes in this corpus?"
+- It starts from specific vector-matched entities, not a global view
+- Local 1-hop expansion captures enough context for most queries
+- Avoids the O(n) rebuild cost of maintaining community structure
+
 ### Important Clarification
 
 Indexing still requires LLM calls, similar to GraphRAG. The 6000x savings is entirely in the **query phase**, not indexing. This distinction matters because query costs compound with every user interaction.
@@ -788,6 +824,42 @@ LightRAG同时缓存提取结果和查询响应：
 - 实体已存在时合并描述
 - 每个实体追踪源ID（FIFO限制：300个块）
 - 无需图重建
+
+### 为何LightRAG仍需要图存储
+
+如果LightRAG不使用社区检测，为什么还需要图？
+
+**不同用途：局部遍历 vs 全局分析**
+
+| 方面 | GraphRAG图 | LightRAG图 |
+|------|-----------|-----------|
+| 用途 | 全局结构分析 | 从入口点局部遍历 |
+| 入口点 | 社区摘要 | 向量匹配的实体 |
+| 遍历 | 整个社区层次 | 从匹配节点1跳 |
+| 社区检测 | 必需（Leiden） | 不使用 |
+
+**检索流程：**
+
+```
+1. 向量数据库（主要）   → 通过嵌入找到候选实体
+                           ↓
+2. 图存储              → 获取实体元数据（描述）
+                       → 获取节点度数（按连接度排序）
+                       → 扩展到连接的边（1跳）
+                       → 获取关系数据（关键词、描述）
+```
+
+**图提供的功能：**
+- **实体元数据**：存储在节点上的完整描述
+- **连接度排序**：节点度数 = 重要性（连接越多 = 越相关）
+- **关系扩展**：从匹配的实体找到所有连接的关系
+- **边数据**：关系描述和关键词用于上下文
+
+**为何不需要社区检测：**
+- LightRAG不回答"这个语料库中所有的主题是什么？"
+- 它从特定的向量匹配实体开始，而非全局视图
+- 局部1跳扩展对大多数查询已足够
+- 避免了维护社区结构的O(n)重建成本
 
 ### 重要澄清
 
