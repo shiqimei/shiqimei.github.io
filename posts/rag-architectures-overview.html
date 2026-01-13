@@ -282,19 +282,67 @@ Vector search retrieves relevant entities/relationships. <strong>No LLM needed f
 <li>May miss complex multi-hop relationships that require global context</li>
 </ul>
 <h3>Technical Deep Dive</h3>
-<p><strong>Storage Architecture:</strong></p>
+<p><strong>Three Storage Backends:</strong></p>
+<p>LightRAG uses a pluggable storage architecture with three distinct backends:</p>
+<table>
+<thead>
+<tr>
+<th>Storage Type</th>
+<th>Purpose</th>
+<th>Production Options</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>KV Storage</strong></td>
+<td>Entity/relation metadata</td>
+<td>Redis, PostgreSQL, MongoDB, JSON</td>
+</tr>
+<tr>
+<td><strong>Vector Storage</strong></td>
+<td>Embedding similarity search</td>
+<td>Milvus, Qdrant, pgvector, nano-vectordb</td>
+</tr>
+<tr>
+<td><strong>Graph Storage</strong></td>
+<td>Relationship traversal</td>
+<td>Neo4j, PostgreSQL, NetworkX</td>
+</tr>
+</tbody></table>
+<p>For production at scale (1M+ records), the recommended stack is Redis + Milvus + Neo4j. The default JSON/nano-vectordb/NetworkX setup is only suitable for development.</p>
+<p><strong>Entity Extraction (from codebase):</strong></p>
+<p>The extraction prompt uses a structured format with delimiters:</p>
+<pre><code class="language-text">entity&lt;|#|&gt;entity_name&lt;|#|&gt;entity_type&lt;|#|&gt;description
+relation&lt;|#|&gt;source&lt;|#|&gt;target&lt;|#|&gt;keywords&lt;|#|&gt;description</code></pre><p>Entity types are configurable (default: Person, Organization, Location, Event, Concept, Method, etc.). Each chunk goes through extraction + optional &quot;gleaning&quot; pass to catch missed entities.</p>
+<p><strong>Query Context Building (4-stage pipeline):</strong></p>
+<ol>
+<li><strong>Search</strong>: Vector similarity on entities/relations using extracted keywords</li>
+<li><strong>Truncate</strong>: Apply token limits (default: 6K entity, 8K relation, 30K total)</li>
+<li><strong>Merge</strong>: Combine chunks from matched entities, deduplicate</li>
+<li><strong>Build</strong>: Format final LLM context with references</li>
+</ol>
+<p><strong>Token Control System:</strong></p>
+<pre><code class="language-text">MAX_ENTITY_TOKENS=6000   # Entity context budget
+MAX_RELATION_TOKENS=8000 # Relation context budget
+MAX_TOTAL_TOKENS=30000   # Total including chunks
+TOP_K=40                 # Entities/relations retrieved</code></pre><p><strong>Keyword Extraction at Query Time:</strong></p>
+<pre><code class="language-python"># From operate.py - keywords drive retrieval routing
+hl_keywords, ll_keywords = await get_keywords_from_query(query, ...)
+
+# Local mode: uses ll_keywords (specific entities)
+# Global mode: uses hl_keywords (concepts/themes)
+# Hybrid mode: combines both</code></pre><p><strong>Caching Strategy:</strong></p>
+<p>LightRAG caches both extraction results and query responses:</p>
 <ul>
-<li><strong>nano-vectordb</strong>: Lightweight vector store, optimized for small-medium datasets</li>
-<li><strong>JSON key-value stores</strong>: Entity profiles and relationship data</li>
-<li><strong>Deduplication</strong>: Entity merging based on name similarity and context overlap</li>
+<li><code>llm_response_cache</code>: Stores extraction results per chunk</li>
+<li>Query cache: Hashes query + params to avoid duplicate LLM calls</li>
 </ul>
-<p><strong>Incremental Update Mechanism:</strong>
-New documents are processed independently. Entities are matched against existing nodes using fuzzy matching. New relationships are appended without rebuilding the entire graph. This enables real-time knowledge base updates.</p>
-<p><strong>Integration Options:</strong></p>
+<p><strong>Incremental Updates:</strong></p>
+<p>New documents process independently with entity deduplication:</p>
 <ul>
-<li><strong>LLM providers</strong>: OpenAI, Anthropic, local models (Ollama, vLLM)</li>
-<li><strong>Embedding models</strong>: OpenAI ada, local sentence transformers</li>
-<li><strong>Storage backends</strong>: Local files, cloud storage (S3, GCS)</li>
+<li>Entities matched by name (case-insensitive)</li>
+<li>Descriptions merged when entity already exists</li>
+<li>Source IDs tracked per entity (FIFO limit: 300 chunks)</li>
+<li>No graph rebuild required</li>
 </ul>
 <h3>Important Clarification</h3>
 <p>Indexing still requires LLM calls, similar to GraphRAG. The 6000x savings is entirely in the <strong>query phase</strong>, not indexing. This distinction matters because query costs compound with every user interaction.</p>
@@ -821,6 +869,69 @@ LLM为每个实体/关系生成键：</p>
 </tr>
 </tbody></table>
 <p><strong>混合模式</strong>结合两者以平衡精确度和上下文。</p>
+<h3>技术实现细节</h3>
+<p><strong>三种存储后端：</strong></p>
+<p>LightRAG采用可插拔的存储架构，包含三种不同的后端：</p>
+<table>
+<thead>
+<tr>
+<th>存储类型</th>
+<th>用途</th>
+<th>生产环境选项</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>KV存储</strong></td>
+<td>实体/关系元数据</td>
+<td>Redis、PostgreSQL、MongoDB、JSON</td>
+</tr>
+<tr>
+<td><strong>向量存储</strong></td>
+<td>嵌入相似度搜索</td>
+<td>Milvus、Qdrant、pgvector、nano-vectordb</td>
+</tr>
+<tr>
+<td><strong>图存储</strong></td>
+<td>关系遍历</td>
+<td>Neo4j、PostgreSQL、NetworkX</td>
+</tr>
+</tbody></table>
+<p>对于大规模生产环境（100万+记录），推荐的技术栈是 Redis + Milvus + Neo4j。默认的 JSON/nano-vectordb/NetworkX 配置仅适用于开发环境。</p>
+<p><strong>实体提取（源自代码库）：</strong></p>
+<p>提取提示使用带分隔符的结构化格式：</p>
+<pre><code class="language-text">entity&lt;|#|&gt;entity_name&lt;|#|&gt;entity_type&lt;|#|&gt;description
+relation&lt;|#|&gt;source&lt;|#|&gt;target&lt;|#|&gt;keywords&lt;|#|&gt;description</code></pre><p>实体类型可配置（默认：Person、Organization、Location、Event、Concept、Method等）。每个块经过提取 + 可选的&quot;gleaning&quot;二次提取以捕获遗漏的实体。</p>
+<p><strong>查询上下文构建（4阶段流水线）：</strong></p>
+<ol>
+<li><strong>搜索</strong>：使用提取的关键词对实体/关系进行向量相似度搜索</li>
+<li><strong>截断</strong>：应用token限制（默认：实体6K、关系8K、总计30K）</li>
+<li><strong>合并</strong>：组合匹配实体的块，去重</li>
+<li><strong>构建</strong>：格式化最终LLM上下文及引用</li>
+</ol>
+<p><strong>Token控制系统：</strong></p>
+<pre><code class="language-text">MAX_ENTITY_TOKENS=6000   # 实体上下文预算
+MAX_RELATION_TOKENS=8000 # 关系上下文预算
+MAX_TOTAL_TOKENS=30000   # 包含块的总预算
+TOP_K=40                 # 检索的实体/关系数</code></pre><p><strong>查询时关键词提取：</strong></p>
+<pre><code class="language-python"># 来自 operate.py - 关键词驱动检索路由
+hl_keywords, ll_keywords = await get_keywords_from_query(query, ...)
+
+# Local模式：使用 ll_keywords（具体实体）
+# Global模式：使用 hl_keywords（概念/主题）
+# Hybrid模式：两者结合</code></pre><p><strong>缓存策略：</strong></p>
+<p>LightRAG同时缓存提取结果和查询响应：</p>
+<ul>
+<li><code>llm_response_cache</code>：按块存储提取结果</li>
+<li>查询缓存：对查询+参数进行哈希以避免重复LLM调用</li>
+</ul>
+<p><strong>增量更新：</strong></p>
+<p>新文档独立处理，具备实体去重：</p>
+<ul>
+<li>实体按名称匹配（不区分大小写）</li>
+<li>实体已存在时合并描述</li>
+<li>每个实体追踪源ID（FIFO限制：300个块）</li>
+<li>无需图重建</li>
+</ul>
 <h3>重要澄清</h3>
 <p>索引仍然需要LLM调用，类似GraphRAG。6000倍的节省完全在<strong>查询阶段</strong>，而非索引阶段。这个区别很重要，因为查询成本随每次用户交互而累积。</p>
 <h2>5. 对比分析</h2>
