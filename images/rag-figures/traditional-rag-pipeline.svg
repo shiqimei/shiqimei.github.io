@@ -1,0 +1,60 @@
+<svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="background:#000;">
+  <!-- Title -->
+  <text x="350" y="25" font-family="SF Mono, monospace" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Traditional RAG Pipeline</text>
+
+  <!-- Step 1: Document -->
+  <rect x="20" y="70" width="80" height="50" fill="#111" stroke="#444" stroke-width="1"/>
+  <text x="60" y="92" font-family="SF Mono, monospace" font-size="11" fill="#fff" text-anchor="middle">Document</text>
+  <text x="60" y="107" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">PDF, HTML...</text>
+
+  <!-- Arrow 1 -->
+  <line x1="100" y1="95" x2="125" y2="95" stroke="#555" stroke-width="2"/>
+  <polygon points="135,95 122,88 122,102" fill="#555"/>
+
+  <!-- Step 2: Chunk -->
+  <rect x="135" y="70" width="80" height="50" fill="#111" stroke="#444" stroke-width="1"/>
+  <text x="175" y="92" font-family="SF Mono, monospace" font-size="11" fill="#fff" text-anchor="middle">Chunk</text>
+  <text x="175" y="107" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">100-500 tok</text>
+
+  <!-- Arrow 2 -->
+  <line x1="215" y1="95" x2="240" y2="95" stroke="#555" stroke-width="2"/>
+  <polygon points="250,95 237,88 237,102" fill="#555"/>
+
+  <!-- Step 3: Embed -->
+  <rect x="250" y="70" width="80" height="50" fill="#111" stroke="#444" stroke-width="1"/>
+  <text x="290" y="92" font-family="SF Mono, monospace" font-size="11" fill="#fff" text-anchor="middle">Embed</text>
+  <text x="290" y="107" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">Vectors</text>
+
+  <!-- Arrow 3 -->
+  <line x1="330" y1="95" x2="355" y2="95" stroke="#555" stroke-width="2"/>
+  <polygon points="365,95 352,88 352,102" fill="#555"/>
+
+  <!-- Step 4: Store -->
+  <rect x="365" y="70" width="80" height="50" fill="#111" stroke="#444" stroke-width="1"/>
+  <text x="405" y="92" font-family="SF Mono, monospace" font-size="11" fill="#fff" text-anchor="middle">Store</text>
+  <text x="405" y="107" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">Vector DB</text>
+
+  <!-- Arrow 4 -->
+  <line x1="445" y1="95" x2="470" y2="95" stroke="#555" stroke-width="2"/>
+  <polygon points="480,95 467,88 467,102" fill="#555"/>
+
+  <!-- Step 5: Retrieve -->
+  <rect x="480" y="70" width="80" height="50" fill="#111" stroke="#fff" stroke-width="2"/>
+  <text x="520" y="92" font-family="SF Mono, monospace" font-size="11" fill="#fff" text-anchor="middle">Retrieve</text>
+  <text x="520" y="107" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">Top-K</text>
+
+  <!-- Arrow 5 -->
+  <line x1="560" y1="95" x2="585" y2="95" stroke="#555" stroke-width="2"/>
+  <polygon points="595,95 582,88 582,102" fill="#555"/>
+
+  <!-- Step 6: Generate -->
+  <rect x="595" y="70" width="80" height="50" fill="#111" stroke="#444" stroke-width="1"/>
+  <text x="635" y="92" font-family="SF Mono, monospace" font-size="11" fill="#fff" text-anchor="middle">Generate</text>
+  <text x="635" y="107" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">LLM</text>
+
+  <!-- Bottom annotation -->
+  <text x="350" y="155" font-family="SF Mono, monospace" font-size="10" fill="#666" text-anchor="middle">Linear Pipeline: Query -> Cosine Similarity -> Top-K Chunks -> Context + Prompt -> Answer</text>
+
+  <!-- Limitation note -->
+  <text x="350" y="175" font-family="SF Mono, monospace" font-size="10" fill="#888" text-anchor="middle">Limitation: Flat representation, no relationship modeling, single-hop only</text>
+</svg>

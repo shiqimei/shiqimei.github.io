@@ -107,6 +107,37 @@ This generates:
 | `css/style.css` | All styles |
 | `js/search.js` | Search functionality (⌘K) |
 
+## Blog Post Workflow
+
+For technical/survey blog posts, follow this workflow:
+
+### 1. Research & Brainstorm
+- Use `WebSearch` to gather current information on the topic
+- Use `Task` agent (Explore) to investigate related codebases or papers
+- Discuss with user to refine scope and angle
+
+### 2. Create Outline
+- Draft detailed section-by-section outline
+- Identify key concepts that need visual explanation
+- Get user approval before proceeding
+
+### 3. Create SVG Figures (Critical Step)
+- Create figures in `images/<post-slug>/` folder
+- Follow blog theme: black background (#000), white/gray text, SF Mono font, sharp corners
+- **Important**: Escape `&` as `&amp;` in SVG text elements
+- Test SVGs render correctly before proceeding
+
+### 4. Write Blog Post
+- Create markdown in `src/posts/<slug>.md`
+- Include bilingual content (EN in `<div class="lang-en">`, ZH in `<div class="lang-zh">`)
+- Reference SVG figures with: `<img src="../images/<folder>/<file>.svg" style="width:100%;max-width:700px;margin:1.5rem 0;">`
+
+### 5. Build & Publish
+```bash
+npm run build
+git add . && git commit -m "Add post: <title>" && git push
+```
+
 ## Skills
 
 - `blog-creator` - Create new blog posts (writes markdown, runs build)

@@ -1,0 +1,93 @@
+<svg viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg" style="background:#000;">
+  <!-- Title -->
+  <text x="350" y="25" font-family="SF Mono, monospace" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">LightRAG Processing Pipeline</text>
+
+  <!-- Indexing Phase Label -->
+  <text x="200" y="55" font-family="SF Mono, monospace" font-size="10" fill="#666" text-anchor="middle">INDEXING PHASE (LLM required)</text>
+  <line x1="30" y1="62" x2="370" y2="62" stroke="#333" stroke-width="1"/>
+
+  <!-- Step 1: Document -->
+  <rect x="30" y="75" width="85" height="50" fill="#111" stroke="#444" stroke-width="1"/>
+  <text x="72" y="97" font-family="SF Mono, monospace" font-size="11" fill="#fff" text-anchor="middle">Document</text>
+  <text x="72" y="112" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">Chunks</text>
+
+  <!-- Arrow 1 -->
+  <line x1="115" y1="100" x2="145" y2="100" stroke="#555" stroke-width="2"/>
+  <polygon points="155,100 142,93 142,107" fill="#555"/>
+
+  <!-- Step 2: Extract -->
+  <rect x="155" y="75" width="85" height="50" fill="#111" stroke="#444" stroke-width="1"/>
+  <text x="197" y="97" font-family="SF Mono, monospace" font-size="11" fill="#fff" text-anchor="middle">1. Extract</text>
+  <text x="197" y="112" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">LLM/chunk</text>
+
+  <!-- Arrow 2 -->
+  <line x1="240" y1="100" x2="270" y2="100" stroke="#555" stroke-width="2"/>
+  <polygon points="280,100 267,93 267,107" fill="#555"/>
+
+  <!-- Step 3: Key-Value -->
+  <rect x="280" y="75" width="85" height="50" fill="#111" stroke="#fff" stroke-width="2"/>
+  <text x="322" y="97" font-family="SF Mono, monospace" font-size="11" fill="#fff" text-anchor="middle">2. Key-Value</text>
+  <text x="322" y="112" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">Dual-Level</text>
+
+  <!-- Query Phase Label -->
+  <text x="540" y="55" font-family="SF Mono, monospace" font-size="10" fill="#666" text-anchor="middle">QUERY PHASE (No LLM for retrieval)</text>
+  <line x1="400" y1="62" x2="680" y2="62" stroke="#333" stroke-width="1"/>
+
+  <!-- Arrow 3 -->
+  <line x1="365" y1="100" x2="415" y2="100" stroke="#555" stroke-width="2"/>
+  <polygon points="425,100 412,93 412,107" fill="#555"/>
+
+  <!-- Step 4: Retrieve -->
+  <rect x="425" y="75" width="85" height="50" fill="#111" stroke="#444" stroke-width="1"/>
+  <text x="467" y="97" font-family="SF Mono, monospace" font-size="11" fill="#fff" text-anchor="middle">3. Retrieve</text>
+  <text x="467" y="112" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">Vector Search</text>
+
+  <!-- Arrow 4 -->
+  <line x1="510" y1="100" x2="540" y2="100" stroke="#555" stroke-width="2"/>
+  <polygon points="550,100 537,93 537,107" fill="#555"/>
+
+  <!-- Step 5: Generate -->
+  <rect x="550" y="75" width="85" height="50" fill="#111" stroke="#444" stroke-width="1"/>
+  <text x="592" y="97" font-family="SF Mono, monospace" font-size="11" fill="#fff" text-anchor="middle">4. Generate</text>
+  <text x="592" y="112" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">Single LLM</text>
+
+  <!-- Key differentiator box -->
+  <text x="322" y="145" font-family="SF Mono, monospace" font-size="10" fill="#888" text-anchor="middle">KEY DIFFERENTIATOR</text>
+
+  <!-- Dual Level Visualization -->
+  <rect x="50" y="165" width="280" height="140" fill="#0a0a0a" stroke="#333" stroke-width="1"/>
+  <text x="190" y="185" font-family="SF Mono, monospace" font-size="10" fill="#666" text-anchor="middle">Dual-Level Key-Value Index</text>
+
+  <!-- Low-Level Box -->
+  <rect x="65" y="200" width="115" height="85" fill="#111" stroke="#444" stroke-width="1"/>
+  <text x="122" y="220" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle">Low-Level</text>
+  <text x="122" y="238" font-family="SF Mono, monospace" font-size="8" fill="#666" text-anchor="middle">Entity Keys</text>
+  <text x="122" y="255" font-family="SF Mono, monospace" font-size="8" fill="#555" text-anchor="middle">"Tesla" -> {...}</text>
+  <text x="122" y="270" font-family="SF Mono, monospace" font-size="8" fill="#555" text-anchor="middle">"Musk" -> {...}</text>
+
+  <!-- High-Level Box -->
+  <rect x="200" y="200" width="115" height="85" fill="#111" stroke="#444" stroke-width="1"/>
+  <text x="257" y="220" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle">High-Level</text>
+  <text x="257" y="238" font-family="SF Mono, monospace" font-size="8" fill="#666" text-anchor="middle">Concept Keys</text>
+  <text x="257" y="255" font-family="SF Mono, monospace" font-size="8" fill="#555" text-anchor="middle">"EV Industry"</text>
+  <text x="257" y="270" font-family="SF Mono, monospace" font-size="8" fill="#555" text-anchor="middle">"Clean Energy"</text>
+
+  <!-- Vector Store Visualization -->
+  <rect x="370" y="165" width="280" height="140" fill="#0a0a0a" stroke="#333" stroke-width="1"/>
+  <text x="510" y="185" font-family="SF Mono, monospace" font-size="10" fill="#666" text-anchor="middle">Vector Store (nano-vectordb)</text>
+
+  <!-- Vector representations -->
+  <rect x="385" y="205" width="250" height="20" fill="#111" stroke="#333" stroke-width="1"/>
+  <text x="395" y="219" font-family="SF Mono, monospace" font-size="8" fill="#555">[0.23, -0.45, 0.12, ...] Entity: Tesla</text>
+
+  <rect x="385" y="230" width="250" height="20" fill="#111" stroke="#333" stroke-width="1"/>
+  <text x="395" y="244" font-family="SF Mono, monospace" font-size="8" fill="#555">[0.67, 0.21, -0.33, ...] Rel: founded_by</text>
+
+  <rect x="385" y="255" width="250" height="20" fill="#111" stroke="#333" stroke-width="1"/>
+  <text x="395" y="269" font-family="SF Mono, monospace" font-size="8" fill="#555">[0.11, 0.89, 0.04, ...] Concept: EV</text>
+
+  <text x="510" y="295" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">Fast similarity search without LLM</text>
+
+  <!-- Bottom annotation -->
+  <text x="350" y="325" font-family="SF Mono, monospace" font-size="10" fill="#888" text-anchor="middle">6000x fewer tokens per query: ~100 tokens vs ~610,000 (GraphRAG)</text>
+</svg>

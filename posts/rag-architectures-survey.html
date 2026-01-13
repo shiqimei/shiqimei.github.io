@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>From Chunks to Graphs: An Overview of RAG Architectures - Shiqi Mei</title>
+  <link rel="icon" type="image/png" href="../avatar.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">&larr; back</a>
+
+    <article>
+      <header class="post-header">
+        <div class="post-header-row">
+          <h1 class="post-title">From Chunks to Graphs: An Overview of RAG Architectures</h1>
+          <div class="lang-toggle" id="langToggle">
+            <button data-lang="en" class="active">EN</button>
+            <button data-lang="zh">CN</button>
+          </div>
+        </div>
+        <p class="post-meta">Jan 13, 2026</p>
+      </header>
+
+      <div class="post-content">
+        <img src="../images/rag-architectures-survey.svg" class="post-hero">
+
+<div class="lang-en">
+
+<p>Retrieval-Augmented Generation has become the default architecture for grounding LLM responses in external knowledge. According to Forrester&#39;s 2025 analysis, RAG is now the standard for enterprise knowledge assistants. But RAG is not monolithic - it has evolved significantly.</p>
+<p>In this post, I&#39;ll walk through three distinct approaches: Traditional RAG, GraphRAG, and LightRAG. We&#39;ll look at how each works, when to use them, and the real trade-offs you&#39;ll face in production.</p>
+<h2>1. The Problem Space</h2>
+<p>Large language models have fundamental limitations: hallucinations, knowledge cutoffs, and finite context windows. RAG addresses these by retrieving relevant information at query time and injecting it into the prompt.</p>
+<h3>The Evolution</h3>
+<p>RAG has gone through several generations:</p>
+<ol>
+<li><strong>Naive RAG</strong> (2020-2022): Simple chunk-and-retrieve</li>
+<li><strong>Advanced RAG</strong> (2022-2023): Better chunking, reranking, query rewriting</li>
+<li><strong>Modular RAG</strong> (2023-2024): Composable pipelines, routing</li>
+<li><strong>Graph-based RAG</strong> (2024-present): Knowledge graphs meet retrieval</li>
+</ol>
+<h3>The Challenge</h3>
+<p>Balancing four competing concerns:</p>
+<ul>
+<li><strong>Accuracy</strong>: Does the system retrieve the right information?</li>
+<li><strong>Cost</strong>: How many tokens and API calls per query?</li>
+<li><strong>Latency</strong>: How fast is the response?</li>
+<li><strong>Maintainability</strong>: How easily can the knowledge base be updated?</li>
+</ul>
+<p>Different RAG architectures make different trade-offs across these dimensions.</p>
+<h2>2. Traditional RAG</h2>
+<p>The original RAG architecture follows a linear pipeline.</p>
+<img src="../images/rag-figures/traditional-rag-pipeline.svg" alt="Traditional RAG Pipeline" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<h3>Processing Pipeline</h3>
+<ol>
+<li><strong>Document Loading</strong>: Ingest raw documents (PDF, HTML, TXT)</li>
+<li><strong>Chunking</strong>: Split into segments (100-500 tokens)<ul>
+<li><em>Fixed-size</em>: Split at token count boundaries</li>
+<li><em>Recursive</em>: Split by separators (paragraphs → sentences → words)</li>
+<li><em>Semantic</em>: Split at topic boundaries using embeddings</li>
+<li><em>Sentence-based</em>: Preserve complete sentences</li>
+</ul>
+</li>
+<li><strong>Embedding</strong>: Convert chunks to dense vectors (OpenAI, Cohere, local models)</li>
+<li><strong>Indexing</strong>: Store in vector database (FAISS, Pinecone, Weaviate, Chroma)</li>
+<li><strong>Retrieval</strong>: Query embedding → cosine similarity → top-k chunks</li>
+<li><strong>Augmentation</strong>: Inject retrieved context into prompt</li>
+<li><strong>Generation</strong>: LLM produces response from retrieved context</li>
+</ol>
+<h3>Strengths</h3>
+<ul>
+<li>Simple to implement and debug</li>
+<li>Low latency (~120ms)</li>
+<li>Mature ecosystem with extensive tooling</li>
+<li>Cost-effective for simple queries</li>
+</ul>
+<h3>Weaknesses</h3>
+<table>
+<thead>
+<tr>
+<th>Limitation</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Information Loss</td>
+<td>Arbitrary chunking disrupts semantic boundaries</td>
+</tr>
+<tr>
+<td>Flat Representation</td>
+<td>No relationship modeling between concepts</td>
+</tr>
+<tr>
+<td>Context Fragmentation</td>
+<td>Related information scattered across chunks</td>
+</tr>
+<tr>
+<td>Single-Hop Only</td>
+<td>Cannot traverse relationships for complex queries</td>
+</tr>
+<tr>
+<td>No Global Understanding</td>
+<td>Cannot answer thematic questions</td>
+</tr>
+<tr>
+<td>Redundancy</td>
+<td>Same information duplicated across overlapping chunks</td>
+</tr>
+</tbody></table>
+<h3>When Traditional RAG Fails</h3>
+<p>Traditional RAG breaks down on three types of queries:</p>
+<ul>
+<li><strong>Multi-hop reasoning</strong>: &quot;How does X relate to Y through Z?&quot;</li>
+<li><strong>Thematic questions</strong>: &quot;What are the key trends in this dataset?&quot;</li>
+<li><strong>Cross-document synthesis</strong>: &quot;Compare perspectives across all sources&quot;</li>
+</ul>
+<p>Ask &quot;What are the main themes in this dataset?&quot; and traditional RAG has no good answer - it can only return the most similar chunks, not synthesize across all of them.</p>
+<h2>3. Solution 1: GraphRAG</h2>
+<p>Microsoft Research released GraphRAG in 2024 to address these limitations. The core insight: knowledge graphs preserve relational structure that chunking destroys.</p>
+<img src="../images/rag-figures/graphrag-pipeline.svg" alt="GraphRAG Pipeline" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<h3>Processing Pipeline</h3>
+<p><strong>Stage 1: Chunking</strong>
+Document segmentation, similar to traditional RAG but with smaller chunks to improve entity extraction accuracy.</p>
+<p><strong>Stage 2: Entity &amp; Relationship Extraction</strong>
+LLM extracts entities (nodes) and relationships (edges) from each chunk. Output: knowledge graph triples like <code>(Marie Curie) → [discovered] → (Radium)</code>.</p>
+<p><strong>Stage 3: Community Detection</strong>
+This is the key differentiator. The Leiden algorithm clusters related entities into hierarchical communities. These groupings enable thematic understanding across the entire dataset.</p>
+<p><strong>Stage 4: Community Summarization</strong>
+LLM generates summary reports for each community at multiple levels, from fine-grained to high-level themes.</p>
+<p><strong>Stage 5: Query Processing</strong>
+Two distinct modes based on query type.</p>
+<h3>Query Modes</h3>
+<img src="../images/rag-figures/graphrag-query-modes.svg" alt="GraphRAG Query Modes" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<p><strong>Global Search</strong> handles holistic questions about the entire dataset:</p>
+<ol>
+<li>Query all community summaries in parallel</li>
+<li>Map-reduce aggregation across communities</li>
+<li>Synthesize global answer from partial responses</li>
+</ol>
+<p>Example: &quot;What are the main themes in this dataset?&quot;</p>
+<p>Cost: High (~610K tokens, hundreds of API calls)</p>
+<p><strong>Local Search</strong> handles specific questions about entities:</p>
+<ol>
+<li>Find relevant entities from query</li>
+<li>Fan out to neighboring nodes (multi-hop)</li>
+<li>Gather local context from subgraph</li>
+<li>Generate answer from local information</li>
+</ol>
+<p>Example: &quot;What are Scrooge&#39;s main relationships?&quot;</p>
+<p>Cost: Lower than global, but still significant</p>
+<h3>Trade-offs</h3>
+<p><strong>Strengths:</strong></p>
+<ul>
+<li>Deep relational understanding</li>
+<li>Excellent global/thematic queries</li>
+<li>Multi-hop reasoning capability</li>
+<li>Automatic pattern and community discovery</li>
+<li>Microsoft enterprise backing</li>
+</ul>
+<p><strong>Limitations:</strong></p>
+<ul>
+<li>Extremely high query cost (~610K tokens)</li>
+<li>Hundreds of API calls per query (rate limit risk)</li>
+<li>Slow indexing due to community detection</li>
+<li>Full rebuild required for updates</li>
+<li>Complex infrastructure</li>
+</ul>
+<h3>Technical Deep Dive</h3>
+<p><strong>Graph Database Options:</strong></p>
+<ul>
+<li><strong>Neo4j</strong>: Production-grade, ACID compliant, Cypher query language</li>
+<li><strong>NetworkX</strong>: Python library, good for prototyping, in-memory only</li>
+<li><strong>Custom</strong>: JSON/pickle serialization for simpler deployments</li>
+</ul>
+<p><strong>Community Detection Algorithms:</strong></p>
+<ul>
+<li><strong>Leiden</strong>: Default choice, hierarchical clustering, better modularity than Louvain</li>
+<li><strong>Louvain</strong>: Faster but less accurate, good for initial experiments</li>
+</ul>
+<p><strong>Embedding Integration:</strong>
+GraphRAG can operate in hybrid mode, combining graph traversal with vector similarity for entity matching. This improves recall when entity names vary across documents.</p>
+<p><strong>Hierarchical Summary Strategy:</strong>
+Communities are summarized at multiple levels (e.g., 3-5 levels). Higher levels capture broader themes, lower levels preserve detail. Query routing determines which level to access based on question scope.</p>
+<h2>4. Solution 2: LightRAG</h2>
+<p>In October 2024, researchers from Hong Kong University released LightRAG specifically to address GraphRAG&#39;s cost and update limitations.</p>
+<img src="../images/rag-figures/lightrag-pipeline.svg" alt="LightRAG Pipeline" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<h3>Core Approach</h3>
+<p>LightRAG combines knowledge graphs with vector retrieval using dual-level key-value pairs. This enables fast, cost-effective retrieval without expensive community clustering.</p>
+<h3>Key Features</h3>
+<ol>
+<li>Dual-level retrieval (Low + High)</li>
+<li>Vector-based search at query time</li>
+<li>Incremental updates (append-only)</li>
+<li><strong>6000x fewer tokens per query</strong></li>
+</ol>
+<h3>Processing Pipeline</h3>
+<p><strong>Stage 1: Entity &amp; Relationship Extraction</strong>
+LLM call per chunk, similar to GraphRAG. Extracts entities and relationships.</p>
+<p><strong>Stage 2: Dual-Level Key-Value Indexing</strong>
+LLM generates keys for each entity/relationship:</p>
+<ul>
+<li><strong>Low-level keys</strong>: Specific entity identifiers</li>
+<li><strong>High-level keys</strong>: Thematic/conceptual descriptors</li>
+</ul>
+<p><strong>Stage 3: Vector Embedding</strong>
+Entity and relationship descriptions are embedded and stored in a lightweight vector database.</p>
+<p><strong>Stage 4: Query Processing</strong>
+Vector search retrieves relevant entities/relationships. <strong>No LLM needed for retrieval.</strong> Single LLM call for final answer generation.</p>
+<h3>Dual-Level Retrieval</h3>
+<img src="../images/rag-figures/lightrag-dual-level.svg" alt="LightRAG Dual-Level Retrieval" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<p><strong>Low-Level Retrieval (Precision)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Scope</td>
+<td>1-hop direct connections</td>
+</tr>
+<tr>
+<td>Matching</td>
+<td>Exact keyword matching</td>
+</tr>
+<tr>
+<td>Output</td>
+<td>Factual, precise results</td>
+</tr>
+<tr>
+<td>Use Case</td>
+<td>&quot;Who is the CEO of Tesla?&quot;</td>
+</tr>
+</tbody></table>
+<p><strong>High-Level Retrieval (Context)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Scope</td>
+<td>2-3 hop neighbor expansion</td>
+</tr>
+<tr>
+<td>Matching</td>
+<td>Conceptual/semantic matching</td>
+</tr>
+<tr>
+<td>Output</td>
+<td>Comprehensive context</td>
+</tr>
+<tr>
+<td>Use Case</td>
+<td>&quot;How does EV industry affect climate?&quot;</td>
+</tr>
+</tbody></table>
+<p><strong>Hybrid Mode</strong> combines both for balanced precision and context.</p>
+<h3>Trade-offs</h3>
+<p><strong>Strengths:</strong></p>
+<ul>
+<li>90%+ cost reduction at query time</li>
+<li>30% faster query response than traditional RAG</li>
+<li>Incremental updates without full rebuild</li>
+<li>Simple architecture, easier to debug</li>
+<li>Fully open source and customizable</li>
+</ul>
+<p><strong>Limitations:</strong></p>
+<ul>
+<li>Newer technology (October 2024), less battle-tested</li>
+<li>Smaller ecosystem and community</li>
+<li>No automatic community detection</li>
+<li>May miss complex multi-hop relationships that require global context</li>
+</ul>
+<h3>Technical Deep Dive</h3>
+<p><strong>Storage Architecture:</strong></p>
+<ul>
+<li><strong>nano-vectordb</strong>: Lightweight vector store, optimized for small-medium datasets</li>
+<li><strong>JSON key-value stores</strong>: Entity profiles and relationship data</li>
+<li><strong>Deduplication</strong>: Entity merging based on name similarity and context overlap</li>
+</ul>
+<p><strong>Incremental Update Mechanism:</strong>
+New documents are processed independently. Entities are matched against existing nodes using fuzzy matching. New relationships are appended without rebuilding the entire graph. This enables real-time knowledge base updates.</p>
+<p><strong>Integration Options:</strong></p>
+<ul>
+<li><strong>LLM providers</strong>: OpenAI, Anthropic, local models (Ollama, vLLM)</li>
+<li><strong>Embedding models</strong>: OpenAI ada, local sentence transformers</li>
+<li><strong>Storage backends</strong>: Local files, cloud storage (S3, GCS)</li>
+</ul>
+<h3>Important Clarification</h3>
+<p>Indexing still requires LLM calls, similar to GraphRAG. The 6000x savings is entirely in the <strong>query phase</strong>, not indexing. This distinction matters because query costs compound with every user interaction.</p>
+<h2>5. Comparative Analysis</h2>
+<img src="../images/rag-figures/architecture-comparison.svg" alt="RAG Architecture Comparison" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<h3>LLM Usage Comparison</h3>
+<img src="../images/rag-figures/llm-usage-comparison.svg" alt="LLM Usage Comparison" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<p>Both GraphRAG and LightRAG require LLM calls during indexing. The critical difference is query-time behavior:</p>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>GraphRAG</th>
+<th>LightRAG</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Extract entities/relations</td>
+<td>LLM per chunk</td>
+<td>LLM per chunk</td>
+</tr>
+<tr>
+<td>Index generation</td>
+<td>LLM per community</td>
+<td>LLM per entity</td>
+</tr>
+<tr>
+<td>Query (retrieval)</td>
+<td>~610,000 tokens</td>
+<td>~100 tokens</td>
+</tr>
+<tr>
+<td>API calls per query</td>
+<td>Hundreds</td>
+<td>Single</td>
+</tr>
+</tbody></table>
+<p>The 6000x savings compounds with scale. At 1000 queries/day, that&#39;s the difference between $600 and $0.10 in token costs.</p>
+<h3>Performance Metrics</h3>
+<img src="../images/rag-figures/performance-comparison.svg" alt="Performance Comparison" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Traditional RAG</th>
+<th>GraphRAG</th>
+<th>LightRAG</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Query Latency</td>
+<td>~120ms</td>
+<td>2x baseline</td>
+<td>~80ms (30% faster)</td>
+</tr>
+<tr>
+<td>Query Token Cost</td>
+<td>Low (~1K)</td>
+<td>Very High (~610K)</td>
+<td>Low (~100)</td>
+</tr>
+<tr>
+<td>Indexing Cost</td>
+<td>Low</td>
+<td>High</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Incremental Updates</td>
+<td>Fast</td>
+<td>Full rebuild</td>
+<td>Append only</td>
+</tr>
+<tr>
+<td>Setup Complexity</td>
+<td>Simple</td>
+<td>Complex</td>
+<td>Moderate</td>
+</tr>
+</tbody></table>
+<h3>Capability Matrix</h3>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Traditional</th>
+<th>GraphRAG</th>
+<th>LightRAG</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Direct fact lookup</td>
+<td>Excellent</td>
+<td>Good</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>Multi-hop reasoning</td>
+<td>Poor</td>
+<td>Excellent</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>Global/thematic queries</td>
+<td>Poor</td>
+<td>Excellent</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>Entity relationships</td>
+<td>Poor</td>
+<td>Excellent</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>Community discovery</td>
+<td>None</td>
+<td>Excellent</td>
+<td>None</td>
+</tr>
+<tr>
+<td>Real-time updates</td>
+<td>Excellent</td>
+<td>Poor</td>
+<td>Excellent</td>
+</tr>
+<tr>
+<td>Cost efficiency</td>
+<td>Excellent</td>
+<td>Poor</td>
+<td>Excellent</td>
+</tr>
+</tbody></table>
+<h2>6. Decision Framework</h2>
+<img src="../images/rag-figures/decision-flowchart.svg" alt="RAG Selection Flowchart" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<h3>When to Choose GraphRAG</h3>
+<p><strong>Choose when:</strong></p>
+<ul>
+<li>Budget flexibility allows higher per-query costs</li>
+<li>Enterprise requirements need Microsoft backing</li>
+<li>Knowledge base is relatively static</li>
+<li>Users ask global/thematic questions frequently</li>
+<li>Pattern and community discovery is valuable</li>
+<li>Complex multi-hop reasoning is critical</li>
+</ul>
+<p><strong>Avoid when:</strong></p>
+<ul>
+<li>Cost per query is a hard constraint</li>
+<li>Data updates frequently (daily/weekly)</li>
+<li>Low latency (&lt;100ms) is required</li>
+<li>Infrastructure simplicity is preferred</li>
+</ul>
+<h3>When to Choose LightRAG</h3>
+<p><strong>Choose when:</strong></p>
+<ul>
+<li>Cost sensitivity at scale</li>
+<li>Startup/MVP phase requiring quick deployment</li>
+<li>Dynamic, frequently updated knowledge base</li>
+<li>Speed and user experience are priorities</li>
+<li>Processing 100K+ documents</li>
+<li>Experimenting with graph RAG concepts</li>
+</ul>
+<p><strong>Avoid when:</strong></p>
+<ul>
+<li>Community/cluster discovery is essential</li>
+<li>Maximum relational depth required</li>
+<li>Need extensive enterprise support</li>
+<li>Very complex multi-hop reasoning across entire corpus</li>
+</ul>
+<h3>When to Choose Traditional RAG</h3>
+<p><strong>Choose when:</strong></p>
+<ul>
+<li>Simple fact lookup queries dominate</li>
+<li>Minimal infrastructure desired</li>
+<li>Small document corpus (&lt;1K docs)</li>
+<li>Rapid prototyping needed</li>
+<li>No relational queries expected</li>
+</ul>
+<p><strong>Avoid when:</strong></p>
+<ul>
+<li>Users ask &quot;why&quot; or &quot;how&quot; questions</li>
+<li>Information spans multiple documents</li>
+<li>Thematic or summary queries are common</li>
+</ul>
+<h2>7. Implementation Considerations</h2>
+<h3>Infrastructure Requirements</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Traditional</th>
+<th>GraphRAG</th>
+<th>LightRAG</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Vector DB</td>
+<td>Required</td>
+<td>Optional</td>
+<td>Required</td>
+</tr>
+<tr>
+<td>Graph DB</td>
+<td>None</td>
+<td>Recommended</td>
+<td>Optional</td>
+</tr>
+<tr>
+<td>LLM API</td>
+<td>Generation only</td>
+<td>Heavy usage</td>
+<td>Moderate</td>
+</tr>
+<tr>
+<td>Compute</td>
+<td>Low</td>
+<td>High</td>
+<td>Moderate</td>
+</tr>
+</tbody></table>
+<h3>Integration Patterns</h3>
+<p><strong>Standalone Deployment:</strong>
+Single RAG system handles all queries. Simplest to implement and maintain.</p>
+<p><strong>Hybrid Approach (Traditional + Graph):</strong>
+Route simple queries to traditional RAG, complex queries to graph-based. Use query classification to determine routing. Balances cost and capability.</p>
+<p><strong>Agentic Orchestration:</strong>
+RAG as a tool within an agent framework. Agent decides when to retrieve, which RAG to use, and how to combine results. Most flexible but highest complexity.</p>
+<h3>Evaluation Metrics</h3>
+<p>When benchmarking RAG systems, measure:</p>
+<ul>
+<li><strong>Faithfulness</strong>: Does the answer accurately reflect retrieved context?</li>
+<li><strong>Answer Relevance</strong>: Does the response address the query?</li>
+<li><strong>Context Relevance</strong>: Is the retrieved context appropriate?</li>
+<li><strong>Latency</strong>: Time to first token and total response time</li>
+<li><strong>Cost</strong>: Tokens consumed per query</li>
+</ul>
+<h2>8. Future Directions</h2>
+<h3>Emerging Approaches (2025)</h3>
+<ul>
+<li><strong>GFM-RAG</strong>: Graph Foundation Model integration</li>
+<li><strong>KET-RAG</strong>: Knowledge-Enhanced Traversal</li>
+<li><strong>NodeRAG</strong>: Node-centric retrieval optimization</li>
+<li><strong>Agentic RAG</strong>: Multi-agent orchestration with RAG</li>
+</ul>
+<h3>Open Research Questions</h3>
+<ul>
+<li>Optimal graph construction strategies</li>
+<li>Balancing indexing vs query costs</li>
+<li>Hybrid retrieval mechanisms</li>
+<li>Automated architecture selection based on query patterns</li>
+</ul>
+<h3>Industry Trends</h3>
+<p>What I&#39;m seeing in production deployments:</p>
+<ul>
+<li><strong>RAG as default</strong>: Most enterprise AI projects now start with RAG, not fine-tuning</li>
+<li><strong>Graph-aware retrieval going mainstream</strong>: Even traditional RAG systems are adding relationship awareness</li>
+<li><strong>Cost optimization driving adoption</strong>: LightRAG&#39;s approach resonates because query costs matter at scale</li>
+<li><strong>Hybrid architectures emerging</strong>: Companies running multiple RAG types with intelligent routing</li>
+</ul>
+<h2>9. Conclusion</h2>
+<p>RAG is not one thing. Traditional RAG offers simplicity and speed. GraphRAG provides deep relational understanding at high cost. LightRAG balances graph-based reasoning with practical economics.</p>
+<p>The right choice depends on your constraints:</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Recommendation</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Startup MVP</td>
+<td>LightRAG</td>
+</tr>
+<tr>
+<td>Enterprise static KB</td>
+<td>GraphRAG</td>
+</tr>
+<tr>
+<td>Simple Q&amp;A bot</td>
+<td>Traditional RAG</td>
+</tr>
+<tr>
+<td>Cost-sensitive scale</td>
+<td>LightRAG</td>
+</tr>
+<tr>
+<td>Research/Discovery</td>
+<td>GraphRAG</td>
+</tr>
+<tr>
+<td>Frequent updates</td>
+<td>LightRAG</td>
+</tr>
+</tbody></table>
+<p>Choose based on your <strong>query patterns</strong>, <strong>budget constraints</strong>, and <strong>update frequency</strong> - not hype.</p>
+<hr>
+<p><em>The field is moving fast. GraphRAG established that graphs matter for RAG. LightRAG proved you don&#39;t need to pay GraphRAG prices to get graph benefits. The next iteration will likely push both dimensions further.</em></p>
+</div>
+
+<div class="lang-zh">
+
+<p>检索增强生成（RAG）已成为将LLM响应锚定于外部知识的默认架构。根据Forrester 2025年的分析，RAG现已成为企业知识助手的标准方案。但RAG并非铁板一块——它已经历了显著的演进。</p>
+<p>在这篇文章中，我将介绍三种不同的方法：传统RAG、GraphRAG和LightRAG。我们将探讨每种方法的工作原理、适用场景，以及生产环境中真正面临的权衡。</p>
+<h2>1. 问题空间</h2>
+<p>大型语言模型有根本性局限：幻觉、知识截止日期、有限的上下文窗口。RAG通过在查询时检索相关信息并注入提示来解决这些问题。</p>
+<h3>演进历程</h3>
+<p>RAG经历了几代发展：</p>
+<ol>
+<li><strong>朴素RAG</strong>（2020-2022）：简单的分块检索</li>
+<li><strong>高级RAG</strong>（2022-2023）：更好的分块、重排序、查询重写</li>
+<li><strong>模块化RAG</strong>（2023-2024）：可组合的流水线、路由</li>
+<li><strong>图RAG</strong>（2024至今）：知识图谱与检索的结合</li>
+</ol>
+<h3>核心挑战</h3>
+<p>平衡四个相互竞争的关切：</p>
+<ul>
+<li><strong>准确性</strong>：系统能否检索到正确信息？</li>
+<li><strong>成本</strong>：每次查询消耗多少tokens和API调用？</li>
+<li><strong>延迟</strong>：响应速度如何？</li>
+<li><strong>可维护性</strong>：知识库更新有多容易？</li>
+</ul>
+<p>不同的RAG架构在这些维度上做出不同的权衡。</p>
+<h2>2. 传统RAG</h2>
+<p>原始RAG架构遵循线性流水线。</p>
+<img src="../images/rag-figures/traditional-rag-pipeline.svg" alt="传统RAG流水线" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<h3>处理流程</h3>
+<ol>
+<li><strong>文档加载</strong>：摄入原始文档（PDF、HTML、TXT）</li>
+<li><strong>分块</strong>：切分为片段（100-500 tokens）<ul>
+<li><em>固定大小</em>：按token数边界切分</li>
+<li><em>递归</em>：按分隔符切分（段落 → 句子 → 词）</li>
+<li><em>语义</em>：使用嵌入在主题边界处切分</li>
+<li><em>句子级</em>：保持完整句子</li>
+</ul>
+</li>
+<li><strong>嵌入</strong>：将块转换为稠密向量（OpenAI、Cohere、本地模型）</li>
+<li><strong>索引</strong>：存储在向量数据库（FAISS、Pinecone、Weaviate、Chroma）</li>
+<li><strong>检索</strong>：查询嵌入 → 余弦相似度 → top-k块</li>
+<li><strong>增强</strong>：将检索到的上下文注入提示</li>
+<li><strong>生成</strong>：LLM根据检索到的上下文生成响应</li>
+</ol>
+<h3>优势</h3>
+<ul>
+<li>实现和调试简单</li>
+<li>低延迟（~120ms）</li>
+<li>成熟的生态系统和丰富的工具</li>
+<li>对简单查询性价比高</li>
+</ul>
+<h3>劣势</h3>
+<table>
+<thead>
+<tr>
+<th>局限</th>
+<th>影响</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>信息丢失</td>
+<td>任意分块破坏语义边界</td>
+</tr>
+<tr>
+<td>扁平表示</td>
+<td>概念之间无关系建模</td>
+</tr>
+<tr>
+<td>上下文碎片化</td>
+<td>相关信息分散在各块中</td>
+</tr>
+<tr>
+<td>仅单跳</td>
+<td>无法遍历关系处理复杂查询</td>
+</tr>
+<tr>
+<td>无全局理解</td>
+<td>无法回答主题性问题</td>
+</tr>
+<tr>
+<td>冗余</td>
+<td>相同信息在重叠块中重复</td>
+</tr>
+</tbody></table>
+<h3>传统RAG失效的场景</h3>
+<p>传统RAG在三类查询上会崩溃：</p>
+<ul>
+<li><strong>多跳推理</strong>：&quot;X通过Z与Y有什么关系？&quot;</li>
+<li><strong>主题性问题</strong>：&quot;这个数据集的关键趋势是什么？&quot;</li>
+<li><strong>跨文档综合</strong>：&quot;比较所有来源的观点&quot;</li>
+</ul>
+<p>问&quot;这个数据集的主要主题是什么？&quot;传统RAG无法给出好的答案——它只能返回最相似的块，而不能跨所有块进行综合。</p>
+<h2>3. 方案一：GraphRAG</h2>
+<p>微软研究院于2024年发布GraphRAG来解决这些局限。核心洞察：知识图谱保留了分块所破坏的关系结构。</p>
+<img src="../images/rag-figures/graphrag-pipeline.svg" alt="GraphRAG流水线" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<h3>处理流程</h3>
+<p><strong>阶段1：分块</strong>
+文档分割，类似传统RAG，但使用更小的块以提高实体提取准确性。</p>
+<p><strong>阶段2：实体与关系提取</strong>
+LLM从每个块中提取实体（节点）和关系（边）。输出：知识图谱三元组，如<code>(居里夫人) → [发现] → (镭)</code>。</p>
+<p><strong>阶段3：社区检测</strong>
+这是关键差异点。Leiden算法将相关实体聚类为层次化社区。这些分组使得能够理解整个数据集的主题。</p>
+<p><strong>阶段4：社区摘要</strong>
+LLM为每个社区生成多层次的摘要报告，从细粒度到高层主题。</p>
+<p><strong>阶段5：查询处理</strong>
+根据查询类型有两种不同模式。</p>
+<h3>查询模式</h3>
+<img src="../images/rag-figures/graphrag-query-modes.svg" alt="GraphRAG查询模式" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<p><strong>全局搜索</strong>处理关于整个数据集的整体性问题：</p>
+<ol>
+<li>并行查询所有社区摘要</li>
+<li>跨社区Map-reduce聚合</li>
+<li>从部分响应合成全局答案</li>
+</ol>
+<p>示例：&quot;这个数据集的主要主题是什么？&quot;</p>
+<p>成本：高（~610K tokens，数百次API调用）</p>
+<p><strong>局部搜索</strong>处理关于特定实体的问题：</p>
+<ol>
+<li>从查询中找到相关实体</li>
+<li>扩展到邻近节点（多跳）</li>
+<li>从子图收集局部上下文</li>
+<li>从局部信息生成答案</li>
+</ol>
+<p>示例：&quot;Scrooge的主要关系是什么？&quot;</p>
+<p>成本：比全局低，但仍然显著</p>
+<h3>权衡</h3>
+<p><strong>优势：</strong></p>
+<ul>
+<li>深度关系理解</li>
+<li>优秀的全局/主题查询</li>
+<li>多跳推理能力</li>
+<li>自动模式和社区发现</li>
+<li>微软企业级支持</li>
+</ul>
+<p><strong>局限：</strong></p>
+<ul>
+<li>极高的查询成本（~610K tokens）</li>
+<li>每次查询数百次API调用（触发限速风险）</li>
+<li>由于社区检测导致索引缓慢</li>
+<li>更新需要完全重建</li>
+<li>基础设施复杂</li>
+</ul>
+<h2>4. 方案二：LightRAG</h2>
+<p>2024年10月，香港大学的研究人员发布了LightRAG，专门解决GraphRAG的成本和更新局限。</p>
+<img src="../images/rag-figures/lightrag-pipeline.svg" alt="LightRAG流水线" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<h3>核心方法</h3>
+<p>LightRAG使用双层键值对将知识图谱与向量检索相结合。这实现了快速、低成本的检索，无需昂贵的社区聚类。</p>
+<h3>关键特性</h3>
+<ol>
+<li>双层检索（低层+高层）</li>
+<li>查询时基于向量搜索</li>
+<li>增量更新（仅追加）</li>
+<li><strong>每次查询减少6000倍tokens</strong></li>
+</ol>
+<h3>处理流程</h3>
+<p><strong>阶段1：实体与关系提取</strong>
+每块一次LLM调用，类似GraphRAG。提取实体和关系。</p>
+<p><strong>阶段2：双层键值索引</strong>
+LLM为每个实体/关系生成键：</p>
+<ul>
+<li><strong>低层键</strong>：特定实体标识符</li>
+<li><strong>高层键</strong>：主题/概念描述符</li>
+</ul>
+<p><strong>阶段3：向量嵌入</strong>
+实体和关系描述被嵌入并存储在轻量级向量数据库中。</p>
+<p><strong>阶段4：查询处理</strong>
+向量搜索检索相关实体/关系。**检索不需要LLM。**最终答案生成仅需一次LLM调用。</p>
+<h3>双层检索</h3>
+<img src="../images/rag-figures/lightrag-dual-level.svg" alt="LightRAG双层检索" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<p><strong>低层检索（精确）</strong></p>
+<table>
+<thead>
+<tr>
+<th>方面</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>范围</td>
+<td>1跳直接连接</td>
+</tr>
+<tr>
+<td>匹配</td>
+<td>精确关键词匹配</td>
+</tr>
+<tr>
+<td>输出</td>
+<td>事实性、精确的结果</td>
+</tr>
+<tr>
+<td>用例</td>
+<td>&quot;谁是特斯拉的CEO？&quot;</td>
+</tr>
+</tbody></table>
+<p><strong>高层检索（上下文）</strong></p>
+<table>
+<thead>
+<tr>
+<th>方面</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>范围</td>
+<td>2-3跳邻居扩展</td>
+</tr>
+<tr>
+<td>匹配</td>
+<td>概念/语义匹配</td>
+</tr>
+<tr>
+<td>输出</td>
+<td>全面的上下文</td>
+</tr>
+<tr>
+<td>用例</td>
+<td>&quot;电动车行业如何影响气候？&quot;</td>
+</tr>
+</tbody></table>
+<p><strong>混合模式</strong>结合两者以平衡精确度和上下文。</p>
+<h3>重要澄清</h3>
+<p>索引仍然需要LLM调用，类似GraphRAG。6000倍的节省完全在<strong>查询阶段</strong>，而非索引阶段。这个区别很重要，因为查询成本随每次用户交互而累积。</p>
+<h2>5. 对比分析</h2>
+<img src="../images/rag-figures/architecture-comparison.svg" alt="RAG架构对比" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<h3>LLM使用对比</h3>
+<img src="../images/rag-figures/llm-usage-comparison.svg" alt="LLM使用对比" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<p>GraphRAG和LightRAG在索引期间都需要LLM调用。关键区别在于查询时的行为：</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>GraphRAG</th>
+<th>LightRAG</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>提取实体/关系</td>
+<td>每块一次LLM</td>
+<td>每块一次LLM</td>
+</tr>
+<tr>
+<td>索引生成</td>
+<td>每社区一次LLM</td>
+<td>每实体一次LLM</td>
+</tr>
+<tr>
+<td>查询（检索）</td>
+<td>~610,000 tokens</td>
+<td>~100 tokens</td>
+</tr>
+<tr>
+<td>每次查询API调用</td>
+<td>数百次</td>
+<td>单次</td>
+</tr>
+</tbody></table>
+<p>6000倍的节省随规模累积。每天1000次查询，这意味着token成本是$600还是$0.10的差别。</p>
+<h3>性能指标</h3>
+<img src="../images/rag-figures/performance-comparison.svg" alt="性能对比" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>传统RAG</th>
+<th>GraphRAG</th>
+<th>LightRAG</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>查询延迟</td>
+<td>~120ms</td>
+<td>2倍基线</td>
+<td>~80ms（快30%）</td>
+</tr>
+<tr>
+<td>查询Token成本</td>
+<td>低（~1K）</td>
+<td>极高（~610K）</td>
+<td>低（~100）</td>
+</tr>
+<tr>
+<td>索引成本</td>
+<td>低</td>
+<td>高</td>
+<td>高</td>
+</tr>
+<tr>
+<td>增量更新</td>
+<td>快</td>
+<td>需完全重建</td>
+<td>仅追加</td>
+</tr>
+<tr>
+<td>部署复杂度</td>
+<td>简单</td>
+<td>复杂</td>
+<td>中等</td>
+</tr>
+</tbody></table>
+<h3>能力矩阵</h3>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>传统</th>
+<th>GraphRAG</th>
+<th>LightRAG</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>直接事实查询</td>
+<td>优秀</td>
+<td>良好</td>
+<td>良好</td>
+</tr>
+<tr>
+<td>多跳推理</td>
+<td>差</td>
+<td>优秀</td>
+<td>良好</td>
+</tr>
+<tr>
+<td>全局/主题查询</td>
+<td>差</td>
+<td>优秀</td>
+<td>良好</td>
+</tr>
+<tr>
+<td>实体关系</td>
+<td>差</td>
+<td>优秀</td>
+<td>良好</td>
+</tr>
+<tr>
+<td>社区发现</td>
+<td>无</td>
+<td>优秀</td>
+<td>无</td>
+</tr>
+<tr>
+<td>实时更新</td>
+<td>优秀</td>
+<td>差</td>
+<td>优秀</td>
+</tr>
+<tr>
+<td>成本效率</td>
+<td>优秀</td>
+<td>差</td>
+<td>优秀</td>
+</tr>
+</tbody></table>
+<h2>6. 决策框架</h2>
+<img src="../images/rag-figures/decision-flowchart.svg" alt="RAG选择流程图" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<h3>何时选择GraphRAG</h3>
+<ul>
+<li>预算灵活，可接受更高的单次查询成本</li>
+<li>企业需求需要微软支持</li>
+<li>知识库相对静态</li>
+<li>用户频繁提问全局/主题性问题</li>
+<li>模式和社区发现很有价值</li>
+<li>复杂的多跳推理至关重要</li>
+</ul>
+<h3>何时选择LightRAG</h3>
+<ul>
+<li>规模化时对成本敏感</li>
+<li>创业/MVP阶段需要快速部署</li>
+<li>动态、频繁更新的知识库</li>
+<li>速度和用户体验是优先级</li>
+<li>处理100K+文档</li>
+<li>尝试图RAG概念</li>
+</ul>
+<h3>何时选择传统RAG</h3>
+<ul>
+<li>简单事实查询占主导</li>
+<li>希望最小化基础设施</li>
+<li>小型文档库（&lt;1K文档）</li>
+<li>需要快速原型开发</li>
+<li>不需要关系查询</li>
+</ul>
+<h2>7. 实施考虑</h2>
+<h3>基础设施需求</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>传统</th>
+<th>GraphRAG</th>
+<th>LightRAG</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>向量数据库</td>
+<td>必需</td>
+<td>可选</td>
+<td>必需</td>
+</tr>
+<tr>
+<td>图数据库</td>
+<td>无</td>
+<td>推荐</td>
+<td>可选</td>
+</tr>
+<tr>
+<td>LLM API</td>
+<td>仅生成</td>
+<td>重度使用</td>
+<td>中等</td>
+</tr>
+<tr>
+<td>计算资源</td>
+<td>低</td>
+<td>高</td>
+<td>中等</td>
+</tr>
+</tbody></table>
+<h3>评估指标</h3>
+<p>在对RAG系统进行基准测试时，需测量：</p>
+<ul>
+<li><strong>忠实度</strong>：答案是否准确反映检索到的上下文？</li>
+<li><strong>答案相关性</strong>：响应是否解决了查询？</li>
+<li><strong>上下文相关性</strong>：检索到的上下文是否适当？</li>
+<li><strong>延迟</strong>：首token时间和总响应时间</li>
+<li><strong>成本</strong>：每次查询消耗的tokens</li>
+</ul>
+<h2>8. 未来方向</h2>
+<h3>新兴方法（2025）</h3>
+<ul>
+<li><strong>GFM-RAG</strong>：图基础模型集成</li>
+<li><strong>KET-RAG</strong>：知识增强遍历</li>
+<li><strong>NodeRAG</strong>：以节点为中心的检索优化</li>
+<li><strong>Agentic RAG</strong>：多智能体与RAG编排</li>
+</ul>
+<h3>开放研究问题</h3>
+<ul>
+<li>最优图构建策略</li>
+<li>平衡索引与查询成本</li>
+<li>混合检索机制</li>
+<li>基于查询模式的自动架构选择</li>
+</ul>
+<h2>9. 结论</h2>
+<p>RAG不是单一事物。传统RAG提供简洁和速度。GraphRAG以高成本提供深度关系理解。LightRAG在图推理与实用经济性之间取得平衡。</p>
+<p>正确的选择取决于你的约束：</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>创业MVP</td>
+<td>LightRAG</td>
+</tr>
+<tr>
+<td>企业静态知识库</td>
+<td>GraphRAG</td>
+</tr>
+<tr>
+<td>简单问答机器人</td>
+<td>传统RAG</td>
+</tr>
+<tr>
+<td>成本敏感规模化</td>
+<td>LightRAG</td>
+</tr>
+<tr>
+<td>研究/发现</td>
+<td>GraphRAG</td>
+</tr>
+<tr>
+<td>频繁更新</td>
+<td>LightRAG</td>
+</tr>
+</tbody></table>
+<p>基于你的<strong>查询模式</strong>、<strong>预算约束</strong>和<strong>更新频率</strong>来选择——而非追逐热点。</p>
+<hr>
+<p><em>这个领域发展迅速。GraphRAG确立了图对RAG的重要性。LightRAG证明了获得图的好处不必付出GraphRAG的代价。下一次迭代可能会在两个维度上走得更远。</em></p>
+</div>
+
+      </div>
+    </article>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Shiqi Mei</p>
+    </footer>
+  </div>
+  <script type="module" src="../js/highlight.js"></script>
+  <script src="../js/lang-toggle.js"></script>
+</body>
+</html>
