@@ -304,7 +304,60 @@ New documents process independently with entity deduplication:
 
 Indexing still requires LLM calls, similar to GraphRAG. The 6000x savings is entirely in the **query phase**, not indexing. This distinction matters because query costs compound with every user interaction.
 
-## 5. Comparative Analysis
+## 5. Why GraphRAG is Expensive (And How LightRAG Fixes It)
+
+Understanding the architectural difference is key to choosing the right approach.
+
+### GraphRAG's Two Problems
+
+**Problem 1: Full Reconstruction on Updates**
+
+GraphRAG uses the Leiden algorithm to cluster entities into hierarchical communities. Each community gets an LLM-generated summary. When new documents arrive:
+
+1. New entities may shift cluster boundaries
+2. Community memberships change
+3. All affected summaries become stale
+4. Must regenerate summaries for changed communities
+
+This creates **O(n) rebuild cost** - adding one document can trigger reprocessing of the entire graph.
+
+**Problem 2: High Query Cost**
+
+For global queries ("What are the main themes?"), GraphRAG must:
+
+1. Query ALL community summaries in parallel
+2. Each community = one LLM call
+3. Map-reduce to aggregate partial answers
+4. Hundreds of communities = hundreds of API calls
+
+This is why global search costs ~610K tokens per query.
+
+### LightRAG's Key Optimizations
+
+| Problem | GraphRAG Approach | LightRAG Solution |
+|---------|-------------------|-------------------|
+| Structure | Community detection (Leiden) | No clustering - direct indexing |
+| Summaries | LLM summary per community | No community summaries |
+| Updates | Rebuild affected communities | Append-only, merge by entity name |
+| Retrieval | Query all communities (LLM) | Vector similarity (no LLM) |
+| Answer | Map-reduce across communities | Single LLM call |
+
+**The Query Flow Comparison:**
+
+```
+GraphRAG:  Query → [LLM × N communities] → Aggregate → Answer
+LightRAG:  Query → [LLM keywords] → Vector search → [LLM generate]
+```
+
+GraphRAG's community structure enables deep thematic understanding but creates structural dependencies. LightRAG trades community discovery for:
+
+- **O(1) updates** instead of O(n) rebuilds
+- **2 LLM calls** per query instead of hundreds
+- **~100 tokens** retrieval cost instead of ~610K
+
+The trade-off: LightRAG cannot answer "what patterns exist across this entire corpus?" as effectively, but handles 99% of queries at 0.01% of the cost.
+
+## 6. Comparative Analysis
 
 <img src="../images/rag-figures/architecture-comparison.svg" alt="RAG Architecture Comparison" style="width:100%;max-width:700px;margin:1.5rem 0;">
 
@@ -312,16 +365,14 @@ Indexing still requires LLM calls, similar to GraphRAG. The 6000x savings is ent
 
 <img src="../images/rag-figures/llm-usage-comparison.svg" alt="LLM Usage Comparison" style="width:100%;max-width:700px;margin:1.5rem 0;">
 
-Both GraphRAG and LightRAG require LLM calls during indexing. The critical difference is query-time behavior:
-
 | Phase | GraphRAG | LightRAG |
 |-------|----------|----------|
 | Extract entities/relations | LLM per chunk | LLM per chunk |
-| Index generation | LLM per community | LLM per entity |
+| Index generation | LLM per community | Embedding only |
 | Query (retrieval) | ~610,000 tokens | ~100 tokens |
-| API calls per query | Hundreds | Single |
+| API calls per query | Hundreds | 2 (keywords + answer) |
 
-The 6000x savings compounds with scale. At 1000 queries/day, that's the difference between $600 and $0.10 in token costs.
+At 1000 queries/day, that's $600 vs $0.10 in token costs.
 
 ### Performance Metrics
 
@@ -347,7 +398,7 @@ The 6000x savings compounds with scale. At 1000 queries/day, that's the differen
 | Real-time updates | Excellent | Poor | Excellent |
 | Cost efficiency | Excellent | Poor | Excellent |
 
-## 6. Decision Framework
+## 7. Decision Framework
 
 <img src="../images/rag-figures/decision-flowchart.svg" alt="RAG Selection Flowchart" style="width:100%;max-width:700px;margin:1.5rem 0;">
 
@@ -397,7 +448,7 @@ The 6000x savings compounds with scale. At 1000 queries/day, that's the differen
 - Information spans multiple documents
 - Thematic or summary queries are common
 
-## 7. Implementation Considerations
+## 8. Implementation Considerations
 
 ### Infrastructure Requirements
 
@@ -428,7 +479,7 @@ When benchmarking RAG systems, measure:
 - **Latency**: Time to first token and total response time
 - **Cost**: Tokens consumed per query
 
-## 8. Future Directions
+## 9. Future Directions
 
 ### Emerging Approaches (2025)
 
@@ -453,7 +504,7 @@ What I'm seeing in production deployments:
 - **Cost optimization driving adoption**: LightRAG's approach resonates because query costs matter at scale
 - **Hybrid architectures emerging**: Companies running multiple RAG types with intelligent routing
 
-## 9. Conclusion
+## 10. Conclusion
 
 RAG is not one thing. Traditional RAG offers simplicity and speed. GraphRAG provides deep relational understanding at high cost. LightRAG balances graph-based reasoning with practical economics.
 
@@ -742,7 +793,60 @@ LightRAG同时缓存提取结果和查询响应：
 
 索引仍然需要LLM调用，类似GraphRAG。6000倍的节省完全在**查询阶段**，而非索引阶段。这个区别很重要，因为查询成本随每次用户交互而累积。
 
-## 5. 对比分析
+## 5. GraphRAG为何昂贵（以及LightRAG如何解决）
+
+理解架构差异是选择正确方案的关键。
+
+### GraphRAG的两个问题
+
+**问题1：更新需要完全重建**
+
+GraphRAG使用Leiden算法将实体聚类为层次化社区。每个社区都有LLM生成的摘要。当新文档到达时：
+
+1. 新实体可能改变聚类边界
+2. 社区成员关系发生变化
+3. 所有受影响的摘要变得过时
+4. 必须为变化的社区重新生成摘要
+
+这造成了**O(n)重建成本**——添加一个文档可能触发整个图的重新处理。
+
+**问题2：高查询成本**
+
+对于全局查询（"主要主题是什么？"），GraphRAG必须：
+
+1. 并行查询所有社区摘要
+2. 每个社区 = 一次LLM调用
+3. Map-reduce聚合部分答案
+4. 数百个社区 = 数百次API调用
+
+这就是为什么全局搜索每次查询消耗~610K tokens。
+
+### LightRAG的关键优化
+
+| 问题 | GraphRAG方案 | LightRAG方案 |
+|------|-------------|-------------|
+| 结构 | 社区检测（Leiden） | 无聚类 - 直接索引 |
+| 摘要 | 每社区LLM摘要 | 无社区摘要 |
+| 更新 | 重建受影响社区 | 仅追加，按实体名合并 |
+| 检索 | 查询所有社区（LLM） | 向量相似度（无LLM） |
+| 回答 | 跨社区Map-reduce | 单次LLM调用 |
+
+**查询流程对比：**
+
+```
+GraphRAG:  查询 → [LLM × N个社区] → 聚合 → 答案
+LightRAG:  查询 → [LLM提取关键词] → 向量搜索 → [LLM生成]
+```
+
+GraphRAG的社区结构实现了深度主题理解，但创建了结构依赖。LightRAG用社区发现能力换取：
+
+- **O(1)更新**代替O(n)重建
+- 每次查询**2次LLM调用**代替数百次
+- **~100 tokens**检索成本代替~610K
+
+权衡：LightRAG无法像GraphRAG那样有效回答"整个语料库中存在什么模式？"，但以0.01%的成本处理99%的查询。
+
+## 6. 对比分析
 
 <img src="../images/rag-figures/architecture-comparison.svg" alt="RAG架构对比" style="width:100%;max-width:700px;margin:1.5rem 0;">
 
@@ -750,16 +854,14 @@ LightRAG同时缓存提取结果和查询响应：
 
 <img src="../images/rag-figures/llm-usage-comparison.svg" alt="LLM使用对比" style="width:100%;max-width:700px;margin:1.5rem 0;">
 
-GraphRAG和LightRAG在索引期间都需要LLM调用。关键区别在于查询时的行为：
-
 | 阶段 | GraphRAG | LightRAG |
 |------|----------|----------|
 | 提取实体/关系 | 每块一次LLM | 每块一次LLM |
-| 索引生成 | 每社区一次LLM | 每实体一次LLM |
+| 索引生成 | 每社区一次LLM | 仅嵌入 |
 | 查询（检索） | ~610,000 tokens | ~100 tokens |
-| 每次查询API调用 | 数百次 | 单次 |
+| 每次查询API调用 | 数百次 | 2次（关键词+回答） |
 
-6000倍的节省随规模累积。每天1000次查询，这意味着token成本是$600还是$0.10的差别。
+每天1000次查询，token成本是$600 vs $0.10。
 
 ### 性能指标
 
@@ -785,7 +887,7 @@ GraphRAG和LightRAG在索引期间都需要LLM调用。关键区别在于查询�
 | 实时更新 | 优秀 | 差 | 优秀 |
 | 成本效率 | 优秀 | 差 | 优秀 |
 
-## 6. 决策框架
+## 7. 决策框架
 
 <img src="../images/rag-figures/decision-flowchart.svg" alt="RAG选择流程图" style="width:100%;max-width:700px;margin:1.5rem 0;">
 
@@ -815,7 +917,7 @@ GraphRAG和LightRAG在索引期间都需要LLM调用。关键区别在于查询�
 - 需要快速原型开发
 - 不需要关系查询
 
-## 7. 实施考虑
+## 8. 实施考虑
 
 ### 基础设施需求
 
@@ -835,7 +937,7 @@ GraphRAG和LightRAG在索引期间都需要LLM调用。关键区别在于查询�
 - **延迟**：首token时间和总响应时间
 - **成本**：每次查询消耗的tokens
 
-## 8. 未来方向
+## 9. 未来方向
 
 ### 新兴方法（2025）
 
@@ -851,7 +953,7 @@ GraphRAG和LightRAG在索引期间都需要LLM调用。关键区别在于查询�
 - 混合检索机制
 - 基于查询模式的自动架构选择
 
-## 9. 结论
+## 10. 结论
 
 RAG不是单一事物。传统RAG提供简洁和速度。GraphRAG以高成本提供深度关系理解。LightRAG在图推理与实用经济性之间取得平衡。
 
