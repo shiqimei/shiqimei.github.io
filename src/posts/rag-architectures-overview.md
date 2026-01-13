@@ -4,7 +4,7 @@ date: 2026-01-13
 excerpt: A comprehensive comparison of Traditional RAG, GraphRAG, and LightRAG - their architectures, trade-offs, and when to use each.
 ---
 
-<img src="../images/rag-architectures-survey.svg" class="post-hero">
+<img src="../images/rag-architectures-overview.svg" class="post-hero">
 
 <div class="lang-en">
 

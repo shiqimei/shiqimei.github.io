@@ -11,7 +11,7 @@
     "title": "From Chunks to Graphs: An Overview of RAG Architectures",
     "excerpt": "A comprehensive comparison of Traditional RAG, GraphRAG, and LightRAG - their architectures, trade-offs, and when to use each.",
     "date": "Jan 13, 2026",
-    "url": "posts/rag-architectures-survey.html"
+    "url": "posts/rag-architectures-overview.html"
   },
   {
     "type": "post",
