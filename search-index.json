@@ -3,8 +3,15 @@
     "type": "project",
     "title": "LinguaCoach",
     "excerpt": "Interactive English language tutor that talks with you",
-    "date": "Jan 13, 2026",
+    "date": "Jan 16, 2026",
     "url": "projects.html#linguacoach"
+  },
+  {
+    "type": "post",
+    "title": "Why Building a Web Scraper is Harder Than You Think",
+    "excerpt": "A breakdown of the infrastructure required for production web scraping - from proxy pools to anti-bot bypass to hosted scrapers - and why SaaS solutions exist.",
+    "date": "Jan 16, 2026",
+    "url": "posts/web-scraping-infrastructure-complexity.html"
   },
   {
     "type": "post",
