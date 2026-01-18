@@ -404,7 +404,7 @@ Claude Code skills are reusable instruction sets that encapsulate domain experti
 
 <div class="lang-zh">
 
-### report-validator 技能
+### report-validator Skill
 
 3步工作流：
 
@@ -429,9 +429,9 @@ Claude Code skills are reusable instruction sets that encapsulate domain experti
 - 不添加虚构细节
 - 声明可追溯
 
-## Agent 技能：封装专业知识
+## Agent Skills：封装专业知识
 
-Claude Code 技能是封装领域专业知识的可复用指令集。
+Claude Code Skills 是封装领域专业知识的可复用指令集。
 
 </div>
 
@@ -471,7 +471,7 @@ Claude Code 技能是封装领域专业知识的可复用指令集。
 
 <div class="lang-zh">
 
-### 数据分析的关键技能
+### 数据分析的关键 Skills
 
 **generate-report**：编排完整流程
 - 第0阶段：数据库去重
@@ -532,7 +532,7 @@ Claude Code isn't just for writing code. It's a general-purpose agent for any ta
 
 5. **验证一切**：report-validator 模式在交付前捕获幻觉。
 
-6. **封装为技能**：领域专业知识变成可复用、可维护的指令集。
+6. **封装为 Skills**：领域专业知识变成可复用、可维护的指令集。
 
 结果：从2.5万多篇文章生成企业级报告，每个事实都可追溯到源数据。
 
