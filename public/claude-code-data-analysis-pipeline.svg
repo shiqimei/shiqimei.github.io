@@ -33,252 +33,252 @@
       <stop offset="100%" style="stop-color:#DC2626;stop-opacity:1" />
     </linearGradient>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="2" dy="4" stdDeviation="4" flood-opacity="0.15"/>
+      <feDropShadow dx="2" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.5"/>
     </filter>
     <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="#64748B"/>
+      <polygon points="0 0, 10 3.5, 0 7" fill="#6B7280"/>
     </marker>
   </defs>
 
   <!-- Background -->
-  <rect width="1400" height="1150" fill="#F8FAFC"/>
+  <rect width="1400" height="1150" fill="#000"/>
 
   <!-- Title -->
-  <text x="700" y="40" font-family="Arial, sans-serif" font-size="26" font-weight="bold" fill="#1E293B" text-anchor="middle">News Intelligence Processing Pipeline</text>
-  <text x="700" y="65" font-family="Arial, sans-serif" font-size="13" fill="#64748B" text-anchor="middle">Recursive Hierarchical Clustering + Small Model Summaries + Claude Code Dedup/Merge + Agent Skills Report Generation</text>
+  <text x="700" y="40" font-family="SF Mono, JetBrains Mono, monospace" font-size="24" font-weight="bold" fill="#FFFFFF" text-anchor="middle">News Intelligence Processing Pipeline</text>
+  <text x="700" y="65" font-family="SF Mono, JetBrains Mono, monospace" font-size="11" fill="#9CA3AF" text-anchor="middle">Recursive Hierarchical Clustering + Small Model Summaries + Claude Code Dedup/Merge + Agent Skills Report Generation</text>
 
   <!-- Left Column: Phases 1-4 -->
 
   <!-- Phase 1 -->
   <g transform="translate(50, 100)">
-    <rect x="0" y="0" width="320" height="120" rx="12" fill="url(#phase1Grad)" filter="url(#shadow)"/>
-    <text x="160" y="30" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="white" text-anchor="middle">Step 1: Data Loading + L0 Classification</text>
+    <rect x="0" y="0" width="320" height="120" rx="0" fill="url(#phase1Grad)" filter="url(#shadow)"/>
+    <text x="160" y="30" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="white" text-anchor="middle">Step 1: Data Loading + L0 Classification</text>
     <line x1="20" y1="45" x2="300" y2="45" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-    <text x="160" y="68" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Load source data files (multiple initial categories)</text>
-    <text x="160" y="88" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Pre-classify by business requirements</text>
-    <text x="160" y="108" font-family="Arial, sans-serif" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">Supports JSON, CSV, Excel formats</text>
+    <text x="160" y="68" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Load source data files (multiple initial categories)</text>
+    <text x="160" y="88" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Pre-classify by business requirements</text>
+    <text x="160" y="108" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="rgba(255,255,255,0.7)" text-anchor="middle">Supports JSON, CSV, Excel formats</text>
   </g>
 
   <!-- Arrow 1 to 2 -->
-  <path d="M 210 220 L 210 260" stroke="#64748B" stroke-width="2.5" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 210 220 L 210 260" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
 
   <!-- Phase 2 -->
   <g transform="translate(50, 280)">
-    <rect x="0" y="0" width="320" height="120" rx="12" fill="url(#phase2Grad)" filter="url(#shadow)"/>
-    <text x="160" y="30" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="white" text-anchor="middle">Step 2: Embeddings + Initial Clustering</text>
+    <rect x="0" y="0" width="320" height="120" rx="0" fill="url(#phase2Grad)" filter="url(#shadow)"/>
+    <text x="160" y="30" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="white" text-anchor="middle">Step 2: Embeddings + Initial Clustering</text>
     <line x1="20" y1="45" x2="300" y2="45" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-    <text x="160" y="68" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Qwen3-Embedding-0.6B (1024 dimensions)</text>
-    <text x="160" y="88" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Conservative HDBSCAN to generate L1 clusters</text>
-    <text x="160" y="108" font-family="Arial, sans-serif" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">Larger, more cohesive topic clusters (30-150)</text>
+    <text x="160" y="68" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Qwen3-Embedding-0.6B (1024 dimensions)</text>
+    <text x="160" y="88" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Conservative HDBSCAN to generate L1 clusters</text>
+    <text x="160" y="108" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="rgba(255,255,255,0.7)" text-anchor="middle">Larger, more cohesive topic clusters (30-150)</text>
   </g>
 
   <!-- Arrow 2 to 3 -->
-  <path d="M 210 400 L 210 440" stroke="#64748B" stroke-width="2.5" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 210 400 L 210 440" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
 
   <!-- Phase 3 -->
   <g transform="translate(50, 460)">
-    <rect x="0" y="0" width="320" height="140" rx="12" fill="url(#phase3Grad)" filter="url(#shadow)"/>
-    <text x="160" y="30" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="white" text-anchor="middle">Step 3: Recursive Hierarchical Clustering</text>
+    <rect x="0" y="0" width="320" height="140" rx="0" fill="url(#phase3Grad)" filter="url(#shadow)"/>
+    <text x="160" y="30" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="white" text-anchor="middle">Step 3: Recursive Hierarchical Clustering</text>
     <line x1="20" y1="45" x2="300" y2="45" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-    <text x="160" y="68" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Check each cluster articles.csv tokens</text>
-    <text x="160" y="88" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">If > 10K tokens: L1 -> L2 -> L3...</text>
-    <text x="160" y="108" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Termination: all leaf clusters &lt; 10K</text>
-    <text x="160" y="128" font-family="Arial, sans-serif" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">Unlimited recursion depth</text>
+    <text x="160" y="68" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Check each cluster articles.csv tokens</text>
+    <text x="160" y="88" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">If &gt; 10K tokens: L1 -&gt; L2 -&gt; L3...</text>
+    <text x="160" y="108" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Termination: all leaf clusters &lt; 10K</text>
+    <text x="160" y="128" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="rgba(255,255,255,0.7)" text-anchor="middle">Unlimited recursion depth</text>
   </g>
 
   <!-- Arrow 3 to 4 -->
-  <path d="M 210 600 L 210 640" stroke="#64748B" stroke-width="2.5" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 210 600 L 210 640" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
 
   <!-- Phase 4 -->
   <g transform="translate(50, 660)">
-    <rect x="0" y="0" width="320" height="140" rx="12" fill="url(#phase4Grad)" filter="url(#shadow)"/>
-    <text x="160" y="30" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="white" text-anchor="middle">Step 4: Cluster Summary Generation</text>
+    <rect x="0" y="0" width="320" height="140" rx="0" fill="url(#phase4Grad)" filter="url(#shadow)"/>
+    <text x="160" y="30" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="white" text-anchor="middle">Step 4: Cluster Summary Generation</text>
     <line x1="20" y1="45" x2="300" y2="45" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-    <text x="160" y="68" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Model: @cf/qwen/qwen3-30b-a3b-fp8</text>
-    <text x="160" y="88" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Input limit: 10K tokens (low cost, fast)</text>
-    <text x="160" y="108" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Generate summaries for all L0 clusters</text>
-    <text x="160" y="128" font-family="Arial, sans-serif" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">Output: themes, key points, statistics</text>
+    <text x="160" y="68" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Model: @cf/qwen/qwen3-30b-a3b-fp8</text>
+    <text x="160" y="88" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Input limit: 10K tokens (low cost, fast)</text>
+    <text x="160" y="108" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Generate summaries for all L0 clusters</text>
+    <text x="160" y="128" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="rgba(255,255,255,0.7)" text-anchor="middle">Output: themes, key points, statistics</text>
   </g>
 
   <!-- Right Column: Phases 5-8 -->
 
   <!-- Phase 5 -->
   <g transform="translate(430, 100)">
-    <rect x="0" y="0" width="320" height="140" rx="12" fill="url(#phase5Grad)" filter="url(#shadow)"/>
-    <text x="160" y="30" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="white" text-anchor="middle">Step 5: Collect All Summaries</text>
+    <rect x="0" y="0" width="320" height="140" rx="0" fill="url(#phase5Grad)" filter="url(#shadow)"/>
+    <text x="160" y="30" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="white" text-anchor="middle">Step 5: Collect All Summaries</text>
     <line x1="20" y1="45" x2="300" y2="45" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-    <text x="160" y="68" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Recursively traverse all clusters</text>
-    <text x="160" y="88" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Output single markdown file</text>
-    <text x="160" y="108" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Contains summary + cluster ID (path format)</text>
-    <text x="160" y="128" font-family="Arial, sans-serif" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">ID: L0_category_A/cluster_0/...</text>
+    <text x="160" y="68" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Recursively traverse all clusters</text>
+    <text x="160" y="88" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Output single markdown file</text>
+    <text x="160" y="108" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Contains summary + cluster ID (path format)</text>
+    <text x="160" y="128" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="rgba(255,255,255,0.7)" text-anchor="middle">ID: L0_category_A/cluster_0/...</text>
   </g>
 
   <!-- Arrow 5 to 6 -->
-  <path d="M 590 240 L 590 280" stroke="#64748B" stroke-width="2.5" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 590 240 L 590 280" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
 
   <!-- Phase 6 -->
   <g transform="translate(430, 300)">
-    <rect x="0" y="0" width="320" height="160" rx="12" fill="url(#phase6Grad)" filter="url(#shadow)"/>
-    <text x="160" y="30" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="white" text-anchor="middle">Step 6: Add Metadata</text>
+    <rect x="0" y="0" width="320" height="160" rx="0" fill="url(#phase6Grad)" filter="url(#shadow)"/>
+    <text x="160" y="30" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="white" text-anchor="middle">Step 6: Add Metadata</text>
     <line x1="20" y1="45" x2="300" y2="45" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-    <text x="160" y="68" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Trace back to source for full fields:</text>
-    <text x="160" y="88" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Date, headline, country, source, quality score</text>
-    <text x="160" y="108" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Calculate weighted scores and recommendations</text>
-    <text x="160" y="128" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Provide dedup criteria for Step 7</text>
-    <text x="160" y="148" font-family="Arial, sans-serif" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">Same source + same date + similar title = same event</text>
+    <text x="160" y="68" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Trace back to source for full fields:</text>
+    <text x="160" y="88" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Date, headline, country, source, quality</text>
+    <text x="160" y="108" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Calculate weighted scores + recommendations</text>
+    <text x="160" y="128" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Provide dedup criteria for Step 7</text>
+    <text x="160" y="148" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="rgba(255,255,255,0.7)" text-anchor="middle">Same source + date + title = same event</text>
   </g>
 
   <!-- Arrow 6 to 7 -->
-  <path d="M 590 460 L 590 500" stroke="#64748B" stroke-width="2.5" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 590 460 L 590 500" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
 
   <!-- Phase 7 -->
   <g transform="translate(430, 520)">
-    <rect x="0" y="0" width="320" height="160" rx="12" fill="url(#phase7Grad)" filter="url(#shadow)"/>
-    <text x="160" y="30" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="white" text-anchor="middle">Step 7: Dedup, Merge, Categorize, Rank</text>
+    <rect x="0" y="0" width="320" height="160" rx="0" fill="url(#phase7Grad)" filter="url(#shadow)"/>
+    <text x="160" y="30" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="white" text-anchor="middle">Step 7: Dedup, Merge, Categorize, Rank</text>
     <line x1="20" y1="45" x2="300" y2="45" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-    <text x="160" y="68" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Use Claude skill for classification</text>
-    <text x="160" y="88" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Use metadata to identify same events</text>
-    <text x="160" y="108" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Max parallelism: 10 Task agents</text>
-    <text x="160" y="128" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Deduplicate, merge, categorize, rank</text>
-    <text x="160" y="148" font-family="Arial, sans-serif" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">Output: categorized markdown</text>
+    <text x="160" y="68" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Use Claude skill for classification</text>
+    <text x="160" y="88" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Use metadata to identify same events</text>
+    <text x="160" y="108" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Max parallelism: 10 Task agents</text>
+    <text x="160" y="128" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Deduplicate, merge, categorize, rank</text>
+    <text x="160" y="148" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="rgba(255,255,255,0.7)" text-anchor="middle">Output: categorized markdown</text>
   </g>
 
   <!-- Arrow 7 to 8 -->
-  <path d="M 590 680 L 590 720" stroke="#64748B" stroke-width="2.5" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 590 680 L 590 720" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
 
   <!-- Phase 8 -->
   <g transform="translate(430, 740)">
-    <rect x="0" y="0" width="320" height="140" rx="12" fill="url(#phase8Grad)" filter="url(#shadow)"/>
-    <text x="160" y="30" font-family="Arial, sans-serif" font-size="15" font-weight="bold" fill="white" text-anchor="middle">Step 8: Agent Report Generation</text>
+    <rect x="0" y="0" width="320" height="140" rx="0" fill="url(#phase8Grad)" filter="url(#shadow)"/>
+    <text x="160" y="30" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="white" text-anchor="middle">Step 8: Agent Report Generation</text>
     <line x1="20" y1="45" x2="300" y2="45" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
-    <text x="160" y="68" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Agent navigates categorized data</text>
-    <text x="160" y="88" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Select articles per report template</text>
-    <text x="160" y="108" font-family="Arial, sans-serif" font-size="11" fill="rgba(255,255,255,0.95)" text-anchor="middle">Generate structured reports</text>
-    <text x="160" y="128" font-family="Arial, sans-serif" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">Supports Excel, PDF, Word formats</text>
+    <text x="160" y="68" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Agent navigates categorized data</text>
+    <text x="160" y="88" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Select articles per report template</text>
+    <text x="160" y="108" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.95)" text-anchor="middle">Generate structured reports</text>
+    <text x="160" y="128" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="rgba(255,255,255,0.7)" text-anchor="middle">Supports Excel, PDF, Word formats</text>
   </g>
 
   <!-- Connector arrow from Phase 4 to Phase 5 -->
-  <path d="M 370 730 L 410 730 L 410 170 L 430 170" stroke="#64748B" stroke-width="2.5" fill="none" marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
+  <path d="M 370 730 L 410 730 L 410 170 L 430 170" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
 
   <!-- Core Principles Box -->
   <g transform="translate(810, 100)">
-    <rect x="0" y="0" width="540" height="280" rx="12" fill="white" stroke="#CBD5E1" stroke-width="2" filter="url(#shadow)"/>
-    <text x="270" y="30" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#1E293B" text-anchor="middle">Core Design Principles</text>
-    <line x1="20" y1="45" x2="520" y2="45" stroke="#E2E8F0" stroke-width="1"/>
+    <rect x="0" y="0" width="540" height="280" rx="0" fill="#111" stroke="#333" stroke-width="1"/>
+    <text x="270" y="30" font-family="SF Mono, JetBrains Mono, monospace" font-size="14" font-weight="bold" fill="#FFF" text-anchor="middle">Core Design Principles</text>
+    <line x1="20" y1="45" x2="520" y2="45" stroke="#333" stroke-width="1"/>
 
-    <circle cx="35" cy="68" r="7" fill="#3B82F6"/>
-    <text x="55" y="73" font-family="Arial, sans-serif" font-size="12" fill="#475569">Full embedding, no sampling - preserves semantic integrity</text>
+    <circle cx="35" cy="68" r="6" fill="#3B82F6"/>
+    <text x="55" y="73" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="#D1D5DB">Full embedding, no sampling - preserves semantic integrity</text>
 
-    <circle cx="35" cy="98" r="7" fill="#8B5CF6"/>
-    <text x="55" y="103" font-family="Arial, sans-serif" font-size="12" fill="#475569">Conservative recursive clustering - larger clusters, better coherence</text>
+    <circle cx="35" cy="98" r="6" fill="#8B5CF6"/>
+    <text x="55" y="103" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="#D1D5DB">Conservative recursive clustering - larger clusters, better coherence</text>
 
-    <circle cx="35" cy="128" r="7" fill="#F59E0B"/>
-    <text x="55" y="133" font-family="Arial, sans-serif" font-size="12" fill="#475569">Small model summaries - low cost, fast processing (Qwen3-30B)</text>
+    <circle cx="35" cy="128" r="6" fill="#F59E0B"/>
+    <text x="55" y="133" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="#D1D5DB">Small model summaries - low cost, fast processing (Qwen3-30B)</text>
 
-    <circle cx="35" cy="158" r="7" fill="#10B981"/>
-    <text x="55" y="163" font-family="Arial, sans-serif" font-size="12" fill="#475569">Metadata-driven dedup - compare date/headline/source</text>
+    <circle cx="35" cy="158" r="6" fill="#10B981"/>
+    <text x="55" y="163" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="#D1D5DB">Metadata-driven dedup - compare date/headline/source</text>
 
-    <circle cx="35" cy="188" r="7" fill="#EC4899"/>
-    <text x="55" y="193" font-family="Arial, sans-serif" font-size="12" fill="#475569">On-demand metadata retrieval - avoid redundant storage</text>
+    <circle cx="35" cy="188" r="6" fill="#EC4899"/>
+    <text x="55" y="193" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="#D1D5DB">On-demand metadata retrieval - avoid redundant storage</text>
 
-    <circle cx="35" cy="218" r="7" fill="#EF4444"/>
-    <text x="55" y="223" font-family="Arial, sans-serif" font-size="12" fill="#475569">Parallel processing - max 10 Claude agents running simultaneously</text>
+    <circle cx="35" cy="218" r="6" fill="#EF4444"/>
+    <text x="55" y="223" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="#D1D5DB">Parallel processing - max 10 Claude agents simultaneously</text>
 
-    <line x1="20" y1="243" x2="520" y2="243" stroke="#E2E8F0" stroke-width="1"/>
-    <text x="270" y="265" font-family="Arial, sans-serif" font-size="11" fill="#94A3B8" text-anchor="middle">Termination condition ensures all clusters fit small model context (10K input limit)</text>
+    <line x1="20" y1="243" x2="520" y2="243" stroke="#333" stroke-width="1"/>
+    <text x="270" y="265" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#6B7280" text-anchor="middle">Termination condition ensures all clusters fit small model context (10K input limit)</text>
   </g>
 
   <!-- Technology Stack Box -->
   <g transform="translate(810, 410)">
-    <rect x="0" y="0" width="540" height="240" rx="12" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="2" filter="url(#shadow)"/>
-    <text x="270" y="30" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#1E293B" text-anchor="middle">Technology Stack</text>
-    <line x1="20" y1="45" x2="520" y2="45" stroke="#E2E8F0" stroke-width="1"/>
+    <rect x="0" y="0" width="540" height="240" rx="0" fill="#111" stroke="#333" stroke-width="1"/>
+    <text x="270" y="30" font-family="SF Mono, JetBrains Mono, monospace" font-size="14" font-weight="bold" fill="#FFF" text-anchor="middle">Technology Stack</text>
+    <line x1="20" y1="45" x2="520" y2="45" stroke="#333" stroke-width="1"/>
 
     <!-- Row 1 -->
-    <rect x="20" y="60" width="160" height="40" rx="6" fill="#8B5CF6"/>
-    <text x="100" y="85" font-family="Arial, sans-serif" font-size="11" fill="white" text-anchor="middle">Embedding</text>
-    <text x="205" y="80" font-family="Arial, sans-serif" font-size="10" fill="#64748B">Qwen3-Embedding-0.6B</text>
-    <text x="205" y="95" font-family="Arial, sans-serif" font-size="9" fill="#94A3B8">(Cloudflare Workers AI)</text>
+    <rect x="20" y="60" width="160" height="40" rx="0" fill="#8B5CF6"/>
+    <text x="100" y="85" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="white" text-anchor="middle">Embedding</text>
+    <text x="205" y="80" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#D1D5DB">Qwen3-Embedding-0.6B</text>
+    <text x="205" y="95" font-family="SF Mono, JetBrains Mono, monospace" font-size="8" fill="#6B7280">(Cloudflare Workers AI)</text>
 
     <!-- Row 2 -->
-    <rect x="20" y="115" width="160" height="40" rx="6" fill="#10B981"/>
-    <text x="100" y="140" font-family="Arial, sans-serif" font-size="11" fill="white" text-anchor="middle">Summary Model</text>
-    <text x="205" y="135" font-family="Arial, sans-serif" font-size="10" fill="#64748B">@cf/qwen/qwen3-30b-a3b-fp8</text>
-    <text x="205" y="150" font-family="Arial, sans-serif" font-size="9" fill="#94A3B8">(10K input limit, low cost)</text>
+    <rect x="20" y="115" width="160" height="40" rx="0" fill="#10B981"/>
+    <text x="100" y="140" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="white" text-anchor="middle">Summary Model</text>
+    <text x="205" y="135" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#D1D5DB">@cf/qwen/qwen3-30b-a3b-fp8</text>
+    <text x="205" y="150" font-family="SF Mono, JetBrains Mono, monospace" font-size="8" fill="#6B7280">(10K input limit, low cost)</text>
 
     <!-- Row 3 -->
-    <rect x="20" y="170" width="160" height="40" rx="6" fill="#EC4899"/>
-    <text x="100" y="195" font-family="Arial, sans-serif" font-size="11" fill="white" text-anchor="middle">Categorization</text>
-    <text x="205" y="190" font-family="Arial, sans-serif" font-size="10" fill="#64748B">Claude Opus 4.5 (200K ctx)</text>
-    <text x="205" y="205" font-family="Arial, sans-serif" font-size="9" fill="#94A3B8">(via Claude Code Skills)</text>
+    <rect x="20" y="170" width="160" height="40" rx="0" fill="#EC4899"/>
+    <text x="100" y="195" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="white" text-anchor="middle">Categorization</text>
+    <text x="205" y="190" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#D1D5DB">Claude Opus 4.5 (200K ctx)</text>
+    <text x="205" y="205" font-family="SF Mono, JetBrains Mono, monospace" font-size="8" fill="#6B7280">(via Claude Code Skills)</text>
 
     <!-- Separator -->
-    <line x1="380" y1="60" x2="380" y2="220" stroke="#CBD5E1" stroke-width="1" stroke-dasharray="4"/>
+    <line x1="380" y1="60" x2="380" y2="220" stroke="#333" stroke-width="1" stroke-dasharray="4"/>
 
     <!-- Clustering info -->
-    <text x="400" y="80" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#475569">Clustering Algorithm</text>
-    <text x="400" y="100" font-family="Arial, sans-serif" font-size="10" fill="#64748B">HDBSCAN (conservative params)</text>
-    <text x="400" y="118" font-family="Arial, sans-serif" font-size="10" fill="#64748B">min_size: 10-25</text>
+    <text x="400" y="80" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" font-weight="bold" fill="#D1D5DB">Clustering Algorithm</text>
+    <text x="400" y="100" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#9CA3AF">HDBSCAN (conservative params)</text>
+    <text x="400" y="118" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#9CA3AF">min_size: 10-25</text>
 
-    <text x="400" y="145" font-family="Arial, sans-serif" font-size="11" font-weight="bold" fill="#475569">Storage Format</text>
-    <text x="400" y="165" font-family="Arial, sans-serif" font-size="10" fill="#64748B">manifest.json (metadata)</text>
-    <text x="400" y="183" font-family="Arial, sans-serif" font-size="10" fill="#64748B">index.json (article IDs)</text>
-    <text x="400" y="201" font-family="Arial, sans-serif" font-size="10" fill="#64748B">articles.csv (content)</text>
+    <text x="400" y="145" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" font-weight="bold" fill="#D1D5DB">Storage Format</text>
+    <text x="400" y="165" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#9CA3AF">manifest.json (metadata)</text>
+    <text x="400" y="183" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#9CA3AF">index.json (article IDs)</text>
+    <text x="400" y="201" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#9CA3AF">articles.csv (content)</text>
   </g>
 
   <!-- File Structure Box -->
   <g transform="translate(810, 680)">
-    <rect x="0" y="0" width="540" height="200" rx="12" fill="white" stroke="#3B82F6" stroke-width="2" filter="url(#shadow)"/>
-    <text x="270" y="30" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#3B82F6" text-anchor="middle">File Structure Example</text>
-    <line x1="20" y1="45" x2="520" y2="45" stroke="#E2E8F0" stroke-width="1"/>
+    <rect x="0" y="0" width="540" height="200" rx="0" fill="#111" stroke="#3B82F6" stroke-width="1"/>
+    <text x="270" y="30" font-family="SF Mono, JetBrains Mono, monospace" font-size="14" font-weight="bold" fill="#3B82F6" text-anchor="middle">File Structure Example</text>
+    <line x1="20" y1="45" x2="520" y2="45" stroke="#333" stroke-width="1"/>
 
-    <text x="30" y="70" font-family="monospace" font-size="10" fill="#64748B">/data_intelligence/</text>
-    <text x="45" y="90" font-family="monospace" font-size="10" fill="#3B82F6">  L0_category_A/</text>
-    <text x="60" y="110" font-family="monospace" font-size="10" fill="#8B5CF6">    cluster_0_17.89_market_trend/</text>
-    <text x="75" y="130" font-family="monospace" font-size="10" fill="#10B981">      L2_sub_0_subcategory/</text>
-    <text x="90" y="150" font-family="monospace" font-size="10" fill="#64748B">        manifest.json</text>
-    <text x="90" y="168" font-family="monospace" font-size="10" fill="#64748B">        index.json</text>
-    <text x="90" y="186" font-family="monospace" font-size="10" fill="#94A3B8">        articles.csv (tokens &lt; 10K)</text>
+    <text x="30" y="70" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="#9CA3AF">/data_intelligence/</text>
+    <text x="45" y="90" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="#3B82F6">  L0_category_A/</text>
+    <text x="60" y="110" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="#8B5CF6">    cluster_0_17.89_market_trend/</text>
+    <text x="75" y="130" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="#10B981">      L2_sub_0_subcategory/</text>
+    <text x="90" y="150" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="#9CA3AF">        manifest.json</text>
+    <text x="90" y="168" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="#9CA3AF">        index.json</text>
+    <text x="90" y="186" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="#6B7280">        articles.csv (tokens &lt; 10K)</text>
   </g>
 
   <!-- Key Benefits Box -->
   <g transform="translate(50, 940)">
-    <rect x="0" y="0" width="1300" height="180" rx="12" fill="white" stroke="#10B981" stroke-width="2" filter="url(#shadow)"/>
-    <text x="650" y="30" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#065F46" text-anchor="middle">Key Benefits</text>
-    <line x1="30" y1="45" x2="1270" y2="45" stroke="#D1FAE5" stroke-width="1"/>
+    <rect x="0" y="0" width="1300" height="180" rx="0" fill="#111" stroke="#10B981" stroke-width="1"/>
+    <text x="650" y="30" font-family="SF Mono, JetBrains Mono, monospace" font-size="14" font-weight="bold" fill="#10B981" text-anchor="middle">Key Benefits</text>
+    <line x1="30" y1="45" x2="1270" y2="45" stroke="#333" stroke-width="1"/>
 
     <!-- Column 1 -->
-    <circle cx="60" cy="75" r="8" fill="#10B981"/>
-    <text x="80" y="80" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#065F46">Cost Optimization</text>
-    <text x="80" y="98" font-family="Arial, sans-serif" font-size="10" fill="#047857">Small models for summaries reduce costs</text>
-    <text x="80" y="113" font-family="Arial, sans-serif" font-size="10" fill="#047857">Claude only for final classification, high ROI</text>
+    <circle cx="60" cy="75" r="6" fill="#10B981"/>
+    <text x="80" y="80" font-family="SF Mono, JetBrains Mono, monospace" font-size="11" font-weight="bold" fill="#10B981">Cost Optimization</text>
+    <text x="80" y="98" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#9CA3AF">Small models for summaries reduce costs</text>
+    <text x="80" y="113" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#9CA3AF">Claude only for final classification</text>
 
     <!-- Column 2 -->
-    <circle cx="360" cy="75" r="8" fill="#3B82F6"/>
-    <text x="380" y="80" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1E3A8A">Scalability</text>
-    <text x="380" y="98" font-family="Arial, sans-serif" font-size="10" fill="#1E40AF">Recursive clustering handles any data volume</text>
-    <text x="380" y="113" font-family="Arial, sans-serif" font-size="10" fill="#1E40AF">Termination condition ensures context control</text>
+    <circle cx="360" cy="75" r="6" fill="#3B82F6"/>
+    <text x="380" y="80" font-family="SF Mono, JetBrains Mono, monospace" font-size="11" font-weight="bold" fill="#3B82F6">Scalability</text>
+    <text x="380" y="98" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#9CA3AF">Recursive clustering handles any volume</text>
+    <text x="380" y="113" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#9CA3AF">Termination ensures context control</text>
 
     <!-- Column 3 -->
-    <circle cx="660" cy="75" r="8" fill="#F59E0B"/>
-    <text x="680" y="80" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#92400E">Accuracy</text>
-    <text x="680" y="98" font-family="Arial, sans-serif" font-size="10" fill="#B45309">Claude skill understands business requirements</text>
-    <text x="680" y="113" font-family="Arial, sans-serif" font-size="10" fill="#B45309">Human review rules embedded in classification logic</text>
+    <circle cx="660" cy="75" r="6" fill="#F59E0B"/>
+    <text x="680" y="80" font-family="SF Mono, JetBrains Mono, monospace" font-size="11" font-weight="bold" fill="#F59E0B">Accuracy</text>
+    <text x="680" y="98" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#9CA3AF">Claude skill understands business reqs</text>
+    <text x="680" y="113" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#9CA3AF">Human review rules in classification</text>
 
     <!-- Column 4 -->
-    <circle cx="960" cy="75" r="8" fill="#EC4899"/>
-    <text x="980" y="80" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#831843">Flexibility</text>
-    <text x="980" y="98" font-family="Arial, sans-serif" font-size="10" fill="#9F1239">Supports multiple report templates</text>
-    <text x="980" y="113" font-family="Arial, sans-serif" font-size="10" fill="#9F1239">Metadata added on demand</text>
+    <circle cx="960" cy="75" r="6" fill="#EC4899"/>
+    <text x="980" y="80" font-family="SF Mono, JetBrains Mono, monospace" font-size="11" font-weight="bold" fill="#EC4899">Flexibility</text>
+    <text x="980" y="98" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#9CA3AF">Supports multiple report templates</text>
+    <text x="980" y="113" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#9CA3AF">Metadata added on demand</text>
 
     <!-- Bottom row -->
-    <circle cx="210" cy="145" r="8" fill="#8B5CF6"/>
-    <text x="230" y="150" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#5B21B6">Parallel Processing</text>
-    <text x="230" y="168" font-family="Arial, sans-serif" font-size="10" fill="#6D28D9">10 Task agents running simultaneously for speed</text>
+    <circle cx="210" cy="145" r="6" fill="#8B5CF6"/>
+    <text x="230" y="150" font-family="SF Mono, JetBrains Mono, monospace" font-size="11" font-weight="bold" fill="#8B5CF6">Parallel Processing</text>
+    <text x="230" y="168" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#9CA3AF">10 Task agents running simultaneously</text>
 
-    <circle cx="610" cy="145" r="8" fill="#EF4444"/>
-    <text x="630" y="150" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#991B1B">Zero Data Loss</text>
-    <text x="630" y="168" font-family="Arial, sans-serif" font-size="10" fill="#B91C1C">Full embedding + recursive clustering, no data dropped</text>
+    <circle cx="610" cy="145" r="6" fill="#EF4444"/>
+    <text x="630" y="150" font-family="SF Mono, JetBrains Mono, monospace" font-size="11" font-weight="bold" fill="#EF4444">Zero Data Loss</text>
+    <text x="630" y="168" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="#9CA3AF">Full embedding + recursive clustering</text>
   </g>
 
 </svg>
