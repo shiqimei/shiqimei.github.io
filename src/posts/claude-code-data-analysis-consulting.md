@@ -484,64 +484,7 @@ Claude Code 技能是封装领域专业知识的可复用指令集。
 
 </div>
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Raw Data Sources                          │
-│  datasets/*.json (25K+ articles in JSON format)                  │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Preprocessing Scripts                         │
-│  - Normalize IDs                                                 │
-│  - Remove whitespace                                             │
-│  - Split into CSV chunks                                         │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                   Parallel Task Agents (×10)                     │
-│  - tag-summaries skill                                           │
-│  - Multi-label classification                                    │
-│  - Edit CSV files in place                                       │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      PostgreSQL Database                         │
-│  - Tagged articles with metadata                                 │
-│  - Queryable by tag, date, source                                │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    IR Generation (Two-Phase)                     │
-│  Phase 1: Query → Raw IR (JSON)                                  │
-│  Phase 2: Normalize → Deduplicated IR                            │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Report Generation                             │
-│  - generate-report skill                                         │
-│  - Markdown → xlsx skill → Excel                                 │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Report Validation                             │
-│  - report-validator skill                                        │
-│  - Extract facts → Search sources → Verify                       │
-│  - Zero NOT_FOUND tolerance                                      │
-└─────────────────────────────────────────────────────────────────┘
-                                │
-                                ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      Final Deliverables                          │
-│  - Excel reports with 8 sheets                                   │
-│  - Verified, traceable, enterprise-ready                         │
-└─────────────────────────────────────────────────────────────────┘
-```
+<img src="../images/claude-code-data-analysis-architecture.svg" style="width:100%;max-width:700px;margin:1.5rem auto;display:block;">
 
 <div class="lang-en">
 
