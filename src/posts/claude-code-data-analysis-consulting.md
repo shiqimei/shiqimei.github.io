@@ -8,59 +8,59 @@ excerpt: How to use Claude Code for enterprise data analysis by transforming the
 
 <div class="lang-en">
 
-Working with large datasets (100K-1M records) for consulting is hard. You need to extract top themes, deduplicate content, categorize by business relevance, and generate reports without hallucinations.
+Consulting with large datasets. 100K-1M records. Extract themes. Dedupe. Classify. Generate reports. No hallucinations.
 
-This post documents our approach using Claude Code for a real enterprise project: generating biweekly media monitoring reports from 25,000+ news articles.
+This post: using Claude Code for enterprise data analysis. Real project. 25K+ news articles. Biweekly media monitoring reports.
 
-## The Problem: Large-Scale Data Analysis
+## The Problem
 
-The core challenge: given a massive dataset, how do you:
+Given a massive dataset, how do you:
 
-1. Identify the top themes and topics
+1. Identify top themes
 2. Deduplicate similar content
-3. Categorize and rank by business relevance
+3. Classify by business relevance
 4. Generate summaries without hallucinations
-5. Produce formatted reports (Excel, PDF)
+5. Output formatted reports (Excel, PDF)
 
-Three approaches exist. Two don't work. One does.
+Three approaches. Two fail. One works.
 
 ## Approach 1: Embeddings + Clustering
 
-The traditional ML approach:
+Traditional ML:
 
-1. Generate semantic embeddings (Qwen3-Embedding-0.6B)
-2. Run density-based clustering (HDBSCAN)
-3. Recursively sub-cluster until manageable sizes
-4. Use small models for cluster summaries
+1. Generate embeddings (Qwen3-Embedding-0.6B)
+2. Density-based clustering (HDBSCAN)
+3. Recursive sub-clustering
+4. Small models for summaries
 
 </div>
 
 <div class="lang-zh">
 
-处理大规模数据集（10万-100万条记录）做咨询很难。你需要提取顶级主题、去重内容、按业务相关性分类，并生成无幻觉的报告。
+大规模数据集做咨询。10万-100万条记录。提取主题。去重。分类。生成报告。不能有幻觉。
 
-本文记录了我们使用 Claude Code 完成一个真实企业项目的方法：从2.5万多篇新闻文章生成双周舆情监测报告。
+本文：用 Claude Code 做企业数据分析。真实项目。2.5万多篇新闻。双周舆情监测报告。
 
-## 问题：大规模数据分析
+## 问题
 
-核心挑战：给定一个海量数据集，如何：
+给定海量数据集，如何：
 
-1. 识别顶级主题和话题
-2. 对相似内容去重
-3. 按业务相关性分类和排序
-4. 生成摘要且不产生幻觉
+1. 识别顶级主题
+2. 去重相似内容
+3. 按业务相关性分类
+4. 生成摘要不产生幻觉
 5. 产出格式化报告（Excel、PDF）
 
 三种方法。两种不行。一种有效。
 
 ## 方法一：嵌入向量 + 聚类
 
-传统机器学习方法：
+传统机器学习：
 
-1. 生成语义嵌入向量（Qwen3-Embedding-0.6B）
-2. 运行基于密度的聚类（HDBSCAN）
-3. 递归子聚类直到可管理的规模
-4. 使用小模型生成簇摘要
+1. 生成嵌入向量（Qwen3-Embedding-0.6B）
+2. 基于密度的聚类（HDBSCAN）
+3. 递归子聚类
+4. 小模型生成摘要
 
 </div>
 
@@ -78,93 +78,91 @@ Cluster Summaries
 
 <div class="lang-en">
 
-**Why it fails:** News data is sparse, not dense. HDBSCAN works when data naturally forms clusters. News articles cover diverse topics with weak semantic connections.
+**Why it fails:** News data is sparse. Not dense. HDBSCAN needs natural clusters. News articles? Diverse topics. Weak semantic connections.
 
 Results:
-- 50%+ articles remain unclustered
-- Aggressive parameters create too many micro-clusters
-- Even optimized, 30%+ records can't be classified
+- 50%+ unclustered
+- Aggressive params → micro-clusters
+- Best case: 30%+ unclassified
 
-When data is sparse, clustering doesn't work.
+Sparse data. Clustering fails.
 
 ## Approach 2: Large Context LLMs
 
-Modern LLMs have massive context windows:
+Modern context windows:
 - Claude Opus 4.5: 200K tokens
 - Gemini 3 Pro: 1M tokens
 
-Strategies to fit large datasets:
-- **Sampling**: Take 10% of data to fit within context
-- **Chunking**: Split into multiple sub-datasets, process separately
+Strategies:
+- **Sampling**: 10% of data
+- **Chunking**: Split and process separately
 
 **Why it fails:** Hallucination compounds with context length.
 
-As token consumption grows, model attention to facts weakens. Errors accumulate:
+More tokens → weaker attention to facts. Errors accumulate:
 - Dates shift
 - Numbers drift
-- Sources get confused
-- Fabricated details appear
+- Sources confused
+- Details fabricated
 
-Large context is necessary but insufficient. You need verification mechanisms.
+Large context: necessary but insufficient. Need verification.
 
-## Approach 3: Treat It as Codebase File Editing
+## Approach 3: Codebase File Editing
 
-This is the key insight: **coding agents like Claude Code are optimized for file operations.**
+Key insight: **coding agents are optimized for file operations.**
 
-Claude Code has:
-- `Read` tool optimized for files up to 2000 lines
-- `Edit` tool for surgical changes
-- `Write` tool for file creation
-- `Bash` for unix commands
-- Familiar filesystem navigation
+Claude Code tools:
+- `Read`: up to 2000 lines
+- `Edit`: surgical changes
+- `Write`: file creation
+- `Bash`: unix commands
 
-The reframe: convert your dataset problem into a codebase problem.
+Reframe: dataset problem → codebase problem.
 
 </div>
 
 <div class="lang-zh">
 
-**失败原因：** 新闻数据是稀疏的，不是稠密的。HDBSCAN 在数据自然形成簇时有效。新闻文章涵盖多样主题，语义关联弱。
+**失败原因：** 新闻数据是稀疏的。不是稠密的。HDBSCAN 需要自然聚簇。新闻文章？主题多样。语义关联弱。
 
 结果：
-- 50%以上文章无法聚类
-- 激进参数创建太多微型簇
-- 即使优化，仍有30%以上记录无法分类
+- 50%以上无法聚类
+- 激进参数 → 微型簇
+- 最优情况：30%以上无法分类
 
-数据稀疏时，聚类不起作用。
+数据稀疏。聚类失败。
 
 ## 方法二：大上下文 LLM
 
-现代 LLM 拥有巨大上下文窗口：
+现代上下文窗口：
 - Claude Opus 4.5：20万 tokens
 - Gemini 3 Pro：100万 tokens
 
-容纳大数据集的策略：
-- **采样**：取10%数据适应上下文
-- **分块**：拆分成多个子数据集，分别处理
+策略：
+- **采样**：取10%数据
+- **分块**：拆分后分别处理
 
 **失败原因：** 幻觉随上下文长度累积。
 
-随着 token 消耗增长，模型对事实的注意力减弱。错误累积：
+更多 tokens → 事实注意力减弱。错误累积：
 - 日期偏移
 - 数字漂移
 - 来源混淆
-- 虚构细节出现
+- 细节虚构
 
-大上下文是必要的，但不充分。需要验证机制。
+大上下文：必要但不充分。需要验证。
 
 ## 方法三：当作代码库文件编辑
 
-这是关键洞察：**像 Claude Code 这样的编程智能体针对文件操作做了优化。**
+关键洞察：**编程智能体针对文件操作优化。**
 
-Claude Code 拥有：
-- `Read` 工具，针对2000行以内的文件优化
-- `Edit` 工具用于精确修改
-- `Write` 工具用于文件创建
-- `Bash` 用于 unix 命令
-- 熟悉的文件系统导航
+Claude Code 工具：
+- `Read`：最多2000行
+- `Edit`：精确修改
+- `Write`：文件创建
+- `Bash`：unix 命令
 
-重新定义：把数据集问题转换成代码库问题。
+重新定义：数据集问题 → 代码库问题。
 
 </div>
 
@@ -182,12 +180,12 @@ Tagged/Labeled/Merged CSV Files
 
 ### The Conversion
 
-1. **Dump data to CSV**: Export from Excel/JSON to row-based CSV
-2. **Preprocess**: Remove whitespace, normalize to compact format
-3. **Chunk**: Split into files of ~200 records each (fits in 2000 lines)
-4. **Treat as code**: Working with CSV files = working with source code
+1. **Export to CSV**: Row-based format
+2. **Preprocess**: Remove whitespace, compact
+3. **Chunk**: ~200 records per file (fits 2000 lines)
+4. **Treat as code**: CSV files = source code
 
-A 200K record dataset becomes ~1000 CSV files. Normal codebase size. Claude Code handles this naturally.
+200K records → ~1000 CSV files. Normal codebase. Claude Code handles it.
 
 ### Labeling at Scale
 
@@ -197,12 +195,12 @@ A 200K record dataset becomes ~1000 CSV files. Normal codebase size. Claude Code
 
 ### 转换方法
 
-1. **导出为 CSV**：从 Excel/JSON 导出为行式 CSV
-2. **预处理**：移除空白，规范化为紧凑格式
-3. **分块**：每个文件约200条记录（适配2000行）
-4. **当作代码**：操作 CSV 文件 = 操作源代码
+1. **导出 CSV**：行式格式
+2. **预处理**：去空白，压缩
+3. **分块**：每文件约200条（适配2000行）
+4. **当作代码**：CSV 文件 = 源代码
 
-20万条记录的数据集变成约1000个 CSV 文件。正常代码库规模。Claude Code 自然地处理。
+20万条 → 约1000个 CSV。正常代码库。Claude Code 处理。
 
 ### 大规模标注
 
@@ -215,21 +213,21 @@ A 200K record dataset becomes ~1000 CSV files. Normal codebase size. Claude Code
 
 <div class="lang-en">
 
-Claude Code edits each CSV file, adding classification tags to each row. The operation is familiar - just file editing.
+Claude Code edits CSV files. Adds tags to rows. Just file editing.
 
 ## Parallel Task Agents
 
-Claude Code runs up to 10 Task agents simultaneously. For labeling tasks, assign one agent per CSV chunk:
+10 agents. Simultaneously. One agent per CSV chunk:
 
 </div>
 
 <div class="lang-zh">
 
-Claude Code 编辑每个 CSV 文件，为每行添加分类标签。操作很熟悉——就是文件编辑。
+Claude Code 编辑 CSV。为行添加标签。就是文件编辑。
 
 ## 并行 Task 智能体
 
-Claude Code 可同时运行最多10个 Task 智能体。标注任务中，为每个 CSV 块分配一个智能体：
+10个智能体。同时运行。每个 CSV 块一个智能体：
 
 </div>
 
@@ -259,21 +257,21 @@ Running 10 Task agents... (ctrl+o to expand)
 
 <div class="lang-en">
 
-10x parallelism for data processing. The Task tool is Claude Code's most powerful feature for consulting work.
+10x parallelism. Task tool: most powerful feature for consulting.
 
-## The IR Workflow Pattern
+## The IR Pattern
 
-IR = Intermediate Representation. Key architectural pattern for reliable report generation.
+IR = Intermediate Representation. Key pattern for reliable reports.
 
 </div>
 
 <div class="lang-zh">
 
-数据处理获得10倍并行度。Task 工具是 Claude Code 在咨询工作中最强大的功能。
+10倍并行。Task 工具：咨询最强功能。
 
-## IR 工作流模式
+## IR 模式
 
-IR = 中间表示。可靠报告生成的关键架构模式。
+IR = 中间表示。可靠报告的关键模式。
 
 </div>
 
@@ -291,61 +289,61 @@ Final Reports (Markdown → XLSX/PDF)
 
 <div class="lang-en">
 
-### Why IR Matters
+### Why IR
 
-IR provides a checkpoint between data processing and report generation:
+Checkpoint between processing and generation:
 
-1. **Auditable**: IR files can be inspected before final output
-2. **Iterative**: Regenerate reports without reprocessing data
-3. **Verifiable**: Facts in reports trace back to IR
+1. **Auditable**: Inspect before output
+2. **Iterative**: Regenerate without reprocessing
+3. **Verifiable**: Facts trace to IR
 
-### Two-Phase IR Generation
+### Two-Phase Generation
 
 **Phase 1: Raw IR**
-- Query database with tag and source filters
-- Output JSON with candidate articles
+- Query with tag/source filters
+- Output candidate JSON
 
 **Phase 2: Normalized IR**
-- Task agents merge duplicate topics
-- Add translations (multilingual support)
-- Normalize date formats (YYYY-MM-DD)
-- Validate and enrich metadata
+- Merge duplicates
+- Add translations
+- Normalize dates (YYYY-MM-DD)
+- Validate metadata
 
-This separation prevents errors from propagating into final reports.
+Separation prevents error propagation.
 
-## Report Validation: Preventing Hallucinations
+## Report Validation
 
-The critical innovation: **validate every fact in the report has a source reference.**
+Critical: **every fact needs a source reference.**
 
 </div>
 
 <div class="lang-zh">
 
-### 为什么 IR 重要
+### 为什么用 IR
 
-IR 在数据处理和报告生成之间提供检查点：
+处理和生成之间的检查点：
 
-1. **可审计**：最终输出前可检查 IR 文件
-2. **可迭代**：无需重新处理数据即可重新生成报告
-3. **可验证**：报告中的事实可追溯到 IR
+1. **可审计**：输出前检查
+2. **可迭代**：无需重新处理即可重新生成
+3. **可验证**：事实追溯到 IR
 
-### 两阶段 IR 生成
+### 两阶段生成
 
 **第一阶段：原始 IR**
-- 使用标签和来源过滤器查询数据库
-- 输出包含候选文章的 JSON
+- 用标签/来源过滤器查询
+- 输出候选 JSON
 
 **第二阶段：规范化 IR**
-- Task 智能体合并重复主题
-- 添加翻译（多语言支持）
-- 规范化日期格式（YYYY-MM-DD）
-- 验证和丰富元数据
+- 合并重复
+- 添加翻译
+- 规范化日期（YYYY-MM-DD）
+- 验证元数据
 
-这种分离防止错误传播到最终报告。
+分离防止错误传播。
 
-## 报告验证：防止幻觉
+## 报告验证
 
-关键创新：**验证报告中的每个事实都有来源引用。**
+关键：**每个事实都需要来源引用。**
 
 </div>
 
@@ -361,34 +359,34 @@ Check for NOT_FOUND entries
 
 <div class="lang-en">
 
-### The report-validator Skill
+### report-validator Skill
 
-A 3-step workflow:
+3 steps:
 
-1. **Extract Facts**: Script parses markdown, extracts dates/numbers into `.validation.json`
-2. **Fill Sources**: Task agents search IR and dataset files in parallel
-3. **Check Results**: Script verifies no facts marked `"NOT_FOUND"`
+1. **Extract**: Parse markdown → `.validation.json`
+2. **Search**: Task agents find sources in parallel
+3. **Check**: Verify no `"NOT_FOUND"`
 
 ### Smart Matching
 
-The validator handles format variations:
+Handles format variations:
 
-- **Dates**: "2026-01-07", "2026/01/07", "January 7", "1月7日"
+- **Dates**: "2026-01-07" = "January 7" = "1月7日"
 - **Numbers**: "1.8B" = "18亿" = "1.8 billion"
 
-Core numeric values must exist in source, even in different formats.
+Core values must exist in source. Format doesn't matter.
 
 ### Zero Tolerance
 
-If ANY fact lacks a source reference, the report fails validation. This forces:
+Any missing source → validation fails. Forces:
 
-- Accurate transcription from sources
+- Accurate transcription
 - No invented details
 - Traceable claims
 
-## Agent Skills: Encapsulating Expertise
+## Agent Skills
 
-Claude Code skills are reusable instruction sets that encapsulate domain expertise.
+Reusable instruction sets. Encapsulated domain expertise.
 
 </div>
 
@@ -396,32 +394,32 @@ Claude Code skills are reusable instruction sets that encapsulate domain experti
 
 ### report-validator 技能
 
-3步工作流：
+3步：
 
-1. **提取事实**：脚本解析 markdown，将日期/数字提取到 `.validation.json`
-2. **填充来源**：Task 智能体并行搜索 IR 和数据集文件
-3. **检查结果**：脚本验证没有标记为 `"NOT_FOUND"` 的事实
+1. **提取**：解析 markdown → `.validation.json`
+2. **搜索**：Task 智能体并行查找来源
+3. **检查**：验证无 `"NOT_FOUND"`
 
 ### 智能匹配
 
-验证器处理格式变体：
+处理格式变体：
 
-- **日期**："2026-01-07"、"2026/01/07"、"January 7"、"1月7日"
+- **日期**："2026-01-07" = "January 7" = "1月7日"
 - **数字**："1.8B" = "18亿" = "1.8 billion"
 
-核心数值必须存在于来源中，即使格式不同。
+核心值必须存在于来源。格式无所谓。
 
 ### 零容忍
 
-如果任何事实缺少来源引用，报告验证失败。这强制：
+任何缺失来源 → 验证失败。强制：
 
-- 从来源准确转录
-- 不添加虚构细节
-- 声明可追溯
+- 准确转录
+- 无虚构细节
+- 可追溯声明
 
-## Agent 技能：封装专业知识
+## Agent 技能
 
-Claude Code 技能是封装领域专业知识的可复用指令集。
+可复用指令集。封装领域专业知识。
 
 </div>
 
