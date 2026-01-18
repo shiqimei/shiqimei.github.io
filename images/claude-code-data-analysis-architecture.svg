@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 950">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 700">
   <defs>
     <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
@@ -38,95 +38,105 @@
   </defs>
 
   <!-- Background -->
-  <rect width="700" height="950" fill="#000"/>
+  <rect width="800" height="700" fill="#000"/>
 
   <!-- Title -->
-  <text x="350" y="35" font-family="SF Mono, JetBrains Mono, monospace" font-size="18" font-weight="bold" fill="#FFF" text-anchor="middle">Complete Architecture</text>
+  <text x="400" y="35" font-family="SF Mono, JetBrains Mono, monospace" font-size="18" font-weight="bold" fill="#FFF" text-anchor="middle">Complete Architecture</text>
+
+  <!-- LEFT COLUMN -->
 
   <!-- Box 1: Raw Data Sources -->
-  <g transform="translate(50, 60)">
-    <rect x="0" y="0" width="600" height="70" rx="0" fill="url(#grad1)"/>
-    <text x="300" y="28" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="#FFF" text-anchor="middle">Raw Data Sources</text>
-    <text x="300" y="52" font-family="SF Mono, JetBrains Mono, monospace" font-size="11" fill="rgba(255,255,255,0.9)" text-anchor="middle">datasets/*.json (25K+ articles in JSON format)</text>
+  <g transform="translate(30, 60)">
+    <rect x="0" y="0" width="340" height="90" rx="0" fill="url(#grad1)"/>
+    <text x="170" y="30" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="#FFF" text-anchor="middle">Raw Data Sources</text>
+    <text x="170" y="55" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">datasets/*.json (25K+ articles)</text>
+    <text x="170" y="75" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="rgba(255,255,255,0.7)" text-anchor="middle">JSON format with metadata</text>
   </g>
 
   <!-- Arrow 1 -->
-  <path d="M 350 130 L 350 155" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 200 150 L 200 175" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
 
   <!-- Box 2: Preprocessing Scripts -->
-  <g transform="translate(50, 165)">
-    <rect x="0" y="0" width="600" height="90" rx="0" fill="url(#grad2)"/>
-    <text x="300" y="28" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="#FFF" text-anchor="middle">Preprocessing Scripts</text>
-    <text x="300" y="50" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Normalize IDs</text>
-    <text x="300" y="66" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Remove whitespace</text>
-    <text x="300" y="82" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">Split into CSV chunks</text>
+  <g transform="translate(30, 185)">
+    <rect x="0" y="0" width="340" height="110" rx="0" fill="url(#grad2)"/>
+    <text x="170" y="28" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="#FFF" text-anchor="middle">Preprocessing Scripts</text>
+    <text x="170" y="52" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Normalize IDs</text>
+    <text x="170" y="70" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Remove whitespace</text>
+    <text x="170" y="88" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Split into CSV chunks</text>
   </g>
 
   <!-- Arrow 2 -->
-  <path d="M 350 255 L 350 280" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 200 295 L 200 320" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
 
   <!-- Box 3: Parallel Task Agents -->
-  <g transform="translate(50, 290)">
-    <rect x="0" y="0" width="600" height="90" rx="0" fill="url(#grad3)"/>
-    <text x="300" y="28" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="#FFF" text-anchor="middle">Parallel Task Agents (x10)</text>
-    <text x="300" y="50" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">tag-summaries skill</text>
-    <text x="300" y="66" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Multi-label classification</text>
-    <text x="300" y="82" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">Edit CSV files in place</text>
+  <g transform="translate(30, 330)">
+    <rect x="0" y="0" width="340" height="110" rx="0" fill="url(#grad3)"/>
+    <text x="170" y="28" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="#FFF" text-anchor="middle">Parallel Task Agents (x10)</text>
+    <text x="170" y="52" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">tag-summaries skill</text>
+    <text x="170" y="70" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Multi-label classification</text>
+    <text x="170" y="88" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Edit CSV files in place</text>
   </g>
 
   <!-- Arrow 3 -->
-  <path d="M 350 380 L 350 405" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 200 440 L 200 465" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
 
   <!-- Box 4: PostgreSQL Database -->
-  <g transform="translate(50, 415)">
-    <rect x="0" y="0" width="600" height="80" rx="0" fill="url(#grad4)"/>
-    <text x="300" y="28" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="#FFF" text-anchor="middle">PostgreSQL Database</text>
-    <text x="300" y="50" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Tagged articles with metadata</text>
-    <text x="300" y="66" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">Queryable by tag, date, source</text>
+  <g transform="translate(30, 475)">
+    <rect x="0" y="0" width="340" height="100" rx="0" fill="url(#grad4)"/>
+    <text x="170" y="28" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="#FFF" text-anchor="middle">PostgreSQL Database</text>
+    <text x="170" y="52" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Tagged articles with metadata</text>
+    <text x="170" y="70" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Queryable by tag, date, source</text>
+    <text x="170" y="88" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="rgba(255,255,255,0.7)" text-anchor="middle">Structured storage layer</text>
   </g>
 
-  <!-- Arrow 4 -->
-  <path d="M 350 495 L 350 520" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <!-- RIGHT COLUMN -->
+
+  <!-- Dashed connector from Box 4 to Box 5 -->
+  <path d="M 370 525 L 400 525 L 400 105 L 430 105" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)" stroke-dasharray="5,5"/>
 
   <!-- Box 5: IR Generation -->
-  <g transform="translate(50, 530)">
-    <rect x="0" y="0" width="600" height="80" rx="0" fill="url(#grad5)"/>
-    <text x="300" y="28" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="#FFF" text-anchor="middle">IR Generation (Two-Phase)</text>
-    <text x="300" y="50" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Phase 1: Query -> Raw IR (JSON)</text>
-    <text x="300" y="66" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">Phase 2: Normalize -> Deduplicated IR</text>
+  <g transform="translate(430, 60)">
+    <rect x="0" y="0" width="340" height="110" rx="0" fill="url(#grad5)"/>
+    <text x="170" y="28" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="#FFF" text-anchor="middle">IR Generation (Two-Phase)</text>
+    <text x="170" y="55" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Phase 1: Query -> Raw IR (JSON)</text>
+    <text x="170" y="75" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Phase 2: Normalize -> Deduplicated IR</text>
+    <text x="170" y="95" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="rgba(255,255,255,0.7)" text-anchor="middle">Intermediate Representation</text>
   </g>
 
   <!-- Arrow 5 -->
-  <path d="M 350 610 L 350 635" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 600 170 L 600 195" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
 
   <!-- Box 6: Report Generation -->
-  <g transform="translate(50, 645)">
-    <rect x="0" y="0" width="600" height="80" rx="0" fill="url(#grad6)"/>
-    <text x="300" y="28" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="#FFF" text-anchor="middle">Report Generation</text>
-    <text x="300" y="50" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">generate-report skill</text>
-    <text x="300" y="66" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">Markdown -> xlsx skill -> Excel</text>
+  <g transform="translate(430, 205)">
+    <rect x="0" y="0" width="340" height="110" rx="0" fill="url(#grad6)"/>
+    <text x="170" y="28" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="#FFF" text-anchor="middle">Report Generation</text>
+    <text x="170" y="52" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">generate-report skill</text>
+    <text x="170" y="70" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Markdown -> xlsx skill -> Excel</text>
+    <text x="170" y="88" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="rgba(255,255,255,0.7)" text-anchor="middle">Multi-format output</text>
   </g>
 
   <!-- Arrow 6 -->
-  <path d="M 350 725 L 350 750" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 600 315 L 600 340" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
 
   <!-- Box 7: Report Validation -->
-  <g transform="translate(50, 760)">
-    <rect x="0" y="0" width="600" height="90" rx="0" fill="url(#grad7)"/>
-    <text x="300" y="28" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="#FFF" text-anchor="middle">Report Validation</text>
-    <text x="300" y="50" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">report-validator skill</text>
-    <text x="300" y="66" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Extract facts -> Search sources -> Verify</text>
-    <text x="300" y="82" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.8)" text-anchor="middle">Zero NOT_FOUND tolerance</text>
+  <g transform="translate(430, 350)">
+    <rect x="0" y="0" width="340" height="120" rx="0" fill="url(#grad7)"/>
+    <text x="170" y="28" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="#FFF" text-anchor="middle">Report Validation</text>
+    <text x="170" y="52" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">report-validator skill</text>
+    <text x="170" y="70" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Extract facts -> Search sources -> Verify</text>
+    <text x="170" y="88" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Zero NOT_FOUND tolerance</text>
+    <text x="170" y="106" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="rgba(255,255,255,0.7)" text-anchor="middle">Anti-hallucination layer</text>
   </g>
 
   <!-- Arrow 7 -->
-  <path d="M 350 850 L 350 875" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+  <path d="M 600 470 L 600 495" stroke="#6B7280" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
 
   <!-- Box 8: Final Deliverables -->
-  <g transform="translate(50, 885)">
-    <rect x="0" y="0" width="600" height="55" rx="0" fill="url(#grad8)"/>
-    <text x="300" y="22" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="#FFF" text-anchor="middle">Final Deliverables</text>
-    <text x="300" y="42" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Excel reports with 8 sheets | Verified, traceable, enterprise-ready</text>
+  <g transform="translate(430, 505)">
+    <rect x="0" y="0" width="340" height="90" rx="0" fill="url(#grad8)"/>
+    <text x="170" y="30" font-family="SF Mono, JetBrains Mono, monospace" font-size="13" font-weight="bold" fill="#FFF" text-anchor="middle">Final Deliverables</text>
+    <text x="170" y="55" font-family="SF Mono, JetBrains Mono, monospace" font-size="10" fill="rgba(255,255,255,0.9)" text-anchor="middle">Excel reports with 8 sheets</text>
+    <text x="170" y="75" font-family="SF Mono, JetBrains Mono, monospace" font-size="9" fill="rgba(255,255,255,0.7)" text-anchor="middle">Verified, traceable, enterprise-ready</text>
   </g>
 
 </svg>
