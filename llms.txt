@@ -8,6 +8,7 @@ Personal blog by Shiqi Mei, a software engineer focused on AI-powered developer 
 
 ## Posts
 
+- [Claude Code for Consulting & Data Analysis: Treating Large Datasets as Codebases](https://shiqimei.github.io/posts/claude-code-data-analysis-consulting.html) - Jan 18, 2026
 - [Why Building a Web Scraper is Harder Than You Think](https://shiqimei.github.io/posts/web-scraping-infrastructure-complexity.html) - Jan 16, 2026
 - [From Chunks to Graphs: An Overview of RAG Architectures](https://shiqimei.github.io/posts/rag-architectures-overview.html) - Jan 13, 2026
 - [The Human-AI Production Era: A Forecast](https://shiqimei.github.io/posts/human-ai-production-era.html) - Jan 12, 2026
