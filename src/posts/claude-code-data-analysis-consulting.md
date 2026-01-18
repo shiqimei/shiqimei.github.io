@@ -1,5 +1,5 @@
 ---
-title: "Claude Code for Consulting & Data Analysis: Treating Large Datasets as Codebases"
+title: "Claude Code for Data Analysis: Large Datasets as Codebases is All You Need"
 date: 2026-01-18
 excerpt: How to use Claude Code for enterprise data analysis by transforming the problem into codebase file editing. Covers embeddings + clustering limitations, the IR workflow pattern, parallel Task agents, and report validation to prevent hallucinations.
 ---
