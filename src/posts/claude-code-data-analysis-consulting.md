@@ -4,7 +4,7 @@ date: 2026-01-18
 excerpt: How to use Claude Code for enterprise data analysis by transforming the problem into codebase file editing. Covers embeddings + clustering limitations, the IR workflow pattern, parallel Task agents, and report validation to prevent hallucinations.
 ---
 
-<img src="../public/claude-code-data-analysis-pipeline.svg" class="post-hero">
+<img src="../images/claude-code-data-analysis-pipeline.svg" class="post-hero">
 
 <div class="lang-en">
 
