@@ -8,20 +8,20 @@ Personal blog by Shiqi Mei, a software engineer focused on AI-powered developer 
 
 ## Posts
 
-- [Claude Code for Consulting & Data Analysis: Treating Large Datasets as Codebases](https://shiqimei.github.io/posts/claude-code-data-analysis-consulting.html) - Jan 18, 2026
-- [Why Building a Web Scraper is Harder Than You Think](https://shiqimei.github.io/posts/web-scraping-infrastructure-complexity.html) - Jan 16, 2026
-- [From Chunks to Graphs: An Overview of RAG Architectures](https://shiqimei.github.io/posts/rag-architectures-overview.html) - Jan 13, 2026
-- [The Human-AI Production Era: A Forecast](https://shiqimei.github.io/posts/human-ai-production-era.html) - Jan 12, 2026
-- [Claude Code's Fork and Agent Arguments: Running Skills in Sub-Agents](https://shiqimei.github.io/posts/claude-code-fork-agent-subagents.html) - Jan 11, 2026
-- [Why Agent Skills Beat MCP for Context Efficiency](https://shiqimei.github.io/posts/agent-skill-vs-mcp-context-efficiency.html) - Jan 7, 2026
-- [Removing Rounded Corners and Window Borders on macOS](https://shiqimei.github.io/posts/macos-square-corners.html) - Jan 3, 2026
-- [Fixing Claude Code "0 Tokens" Hang: macOS Proxy and SSE Streaming](https://shiqimei.github.io/posts/claude-code-zero-tokens-hang.html) - Dec 16, 2025
-- [AI Agents and the New Tool Paradigm: Code as the Universal Interface](https://shiqimei.github.io/posts/ai-agents-code-universal-tool.html) - Aug 7, 2025
-- [Information Distribution, Deep Thinking, and Building Cognition](https://shiqimei.github.io/posts/information-distribution-cognition.html) - Nov 29, 2023
-- [The Complete Guide to Taking Your Tech Startup Global](https://shiqimei.github.io/posts/tech-company-going-global-guide.html) - Nov 12, 2023
-- [How to Add Karabiner Elements Advanced Mapping Rules](https://shiqimei.github.io/posts/karabiner-elements-advanced-rules.html) - Nov 3, 2021
-- [Deepin Boot Maker Not Recognizing USB Drive](https://shiqimei.github.io/posts/deepin-boot-maker-usb-not-recognized.html) - Feb 21, 2018
-- [Fixing Boot Issues: A Deep Dive into MBR, PBR, and BCD](https://shiqimei.github.io/posts/fixing-boot-issues-mbr-pbr-bcd.html) - Feb 21, 2018
+- [Claude Code for Consulting & Data Analysis: Treating Large Datasets as Codebases](https://shiqimei.github.io/posts/claude-code-data-analysis-consulting) - Jan 18, 2026
+- [Why Building a Web Scraper is Harder Than You Think](https://shiqimei.github.io/posts/web-scraping-infrastructure-complexity) - Jan 16, 2026
+- [From Chunks to Graphs: An Overview of RAG Architectures](https://shiqimei.github.io/posts/rag-architectures-overview) - Jan 13, 2026
+- [The Human-AI Production Era: A Forecast](https://shiqimei.github.io/posts/human-ai-production-era) - Jan 12, 2026
+- [Claude Code's Fork and Agent Arguments: Running Skills in Sub-Agents](https://shiqimei.github.io/posts/claude-code-fork-agent-subagents) - Jan 11, 2026
+- [Why Agent Skills Beat MCP for Context Efficiency](https://shiqimei.github.io/posts/agent-skill-vs-mcp-context-efficiency) - Jan 7, 2026
+- [Removing Rounded Corners and Window Borders on macOS](https://shiqimei.github.io/posts/macos-square-corners) - Jan 3, 2026
+- [Fixing Claude Code "0 Tokens" Hang: macOS Proxy and SSE Streaming](https://shiqimei.github.io/posts/claude-code-zero-tokens-hang) - Dec 16, 2025
+- [AI Agents and the New Tool Paradigm: Code as the Universal Interface](https://shiqimei.github.io/posts/ai-agents-code-universal-tool) - Aug 7, 2025
+- [Information Distribution, Deep Thinking, and Building Cognition](https://shiqimei.github.io/posts/information-distribution-cognition) - Nov 29, 2023
+- [The Complete Guide to Taking Your Tech Startup Global](https://shiqimei.github.io/posts/tech-company-going-global-guide) - Nov 12, 2023
+- [How to Add Karabiner Elements Advanced Mapping Rules](https://shiqimei.github.io/posts/karabiner-elements-advanced-rules) - Nov 3, 2021
+- [Deepin Boot Maker Not Recognizing USB Drive](https://shiqimei.github.io/posts/deepin-boot-maker-usb-not-recognized) - Feb 21, 2018
+- [Fixing Boot Issues: A Deep Dive into MBR, PBR, and BCD](https://shiqimei.github.io/posts/fixing-boot-issues-mbr-pbr-bcd) - Feb 21, 2018
 
 ## Gists
 

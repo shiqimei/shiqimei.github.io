@@ -35,6 +35,11 @@
       const lang = btn.dataset.lang;
       setLanguage(lang);
       localStorage.setItem('preferredLang', lang);
+
+      // Update URL query parameter
+      const url = new URL(window.location);
+      url.searchParams.set('lang', lang);
+      window.history.replaceState({}, '', url);
     });
   });
 

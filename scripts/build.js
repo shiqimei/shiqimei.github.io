@@ -118,7 +118,7 @@ function generateIndex(posts) {
   const timelineHtml = posts.map(post => `      <article class="timeline-item">
         <time class="timeline-date">${formatDate(post.date)}</time>
         <h2 class="timeline-title">
-          <a href="posts/${post.slug}.html">${post.title}</a>
+          <a href="posts/${post.slug}">${post.title}</a>
         </h2>
         <p class="timeline-excerpt">${post.excerpt}</p>
       </article>`).join('\n\n');
@@ -171,7 +171,7 @@ function generateSearchIndex(posts, gists) {
       title: p.title,
       excerpt: p.excerpt,
       date: formatDate(p.date),
-      url: `posts/${p.slug}.html`
+      url: `posts/${p.slug}`
     })),
     ...gists.map(g => ({
       type: 'gist',
@@ -203,7 +203,7 @@ function generateSitemap(posts, gists) {
     SITE_URL + '/about.html',
     SITE_URL + '/gists.html',
     SITE_URL + '/projects.html',
-    ...posts.map(p => `${SITE_URL}/posts/${p.slug}.html`),
+    ...posts.map(p => `${SITE_URL}/posts/${p.slug}`),
     ...gists.map(g => `${SITE_URL}/gists.html#${g.slug}`)
   ];
 
@@ -242,7 +242,7 @@ Personal blog by Shiqi Mei, a software engineer focused on AI-powered developer 
 
 ## Posts
 
-${posts.map(p => `- [${p.title}](${SITE_URL}/posts/${p.slug}.html) - ${formatDate(p.date)}`).join('\n')}
+${posts.map(p => `- [${p.title}](${SITE_URL}/posts/${p.slug}) - ${formatDate(p.date)}`).join('\n')}
 
 ## Gists
 
