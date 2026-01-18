@@ -12,6 +12,16 @@ Working with large datasets (100K-1M records) for consulting is hard. You need t
 
 This post documents our approach using Claude Code for a real enterprise project: generating biweekly media monitoring reports from 25,000+ news articles.
 
+## The Problem: Large-Scale Data Analysis
+
+The core challenge: given a massive dataset, how do you:
+
+1. Identify the top themes and topics
+2. Deduplicate similar content
+3. Categorize and rank by business relevance
+4. Generate summaries without hallucinations
+5. Produce formatted reports (Excel, PDF)
+
 Three approaches exist. Two don't work. One does.
 
 ## Approach 1: Embeddings + Clustering
@@ -22,6 +32,51 @@ The traditional ML approach:
 2. Run density-based clustering (HDBSCAN)
 3. Recursively sub-cluster until manageable sizes
 4. Use small models for cluster summaries
+
+</div>
+
+<div class="lang-zh">
+
+处理大规模数据集（10万-100万条记录）做咨询很难。你需要提取顶级主题、去重内容、按业务相关性分类，并生成无幻觉的报告。
+
+本文记录了我们使用 Claude Code 完成一个真实企业项目的方法：从2.5万多篇新闻文章生成双周舆情监测报告。
+
+## 问题：大规模数据分析
+
+核心挑战：给定一个海量数据集，如何：
+
+1. 识别顶级主题和话题
+2. 对相似内容去重
+3. 按业务相关性分类和排序
+4. 生成摘要且不产生幻觉
+5. 产出格式化报告（Excel、PDF）
+
+三种方法。两种不行。一种有效。
+
+## 方法一：嵌入向量 + 聚类
+
+传统机器学习方法：
+
+1. 生成语义嵌入向量（Qwen3-Embedding-0.6B）
+2. 运行基于密度的聚类（HDBSCAN）
+3. 递归子聚类直到可管理的规模
+4. 使用小模型生成簇摘要
+
+</div>
+
+```
+Raw JSON Data (25K articles)
+    ↓ [Qwen3-Embedding-0.6B, 1024 dims]
+Embedding Vectors
+    ↓ [HDBSCAN, conservative params]
+L1 Clusters (30-150 clusters)
+    ↓ [Recursive if > 10K tokens]
+L2/L3 Sub-clusters
+    ↓ [Qwen3-30B summaries]
+Cluster Summaries
+```
+
+<div class="lang-en">
 
 **Why it fails:** News data is sparse, not dense. HDBSCAN works when data naturally forms clusters. News articles cover diverse topics with weak semantic connections.
 
@@ -44,7 +99,11 @@ Strategies to fit large datasets:
 
 **Why it fails:** Hallucination compounds with context length.
 
-As token consumption grows, model attention to facts weakens. Errors accumulate: dates shift, numbers drift, sources get confused, fabricated details appear.
+As token consumption grows, model attention to facts weakens. Errors accumulate:
+- Dates shift
+- Numbers drift
+- Sources get confused
+- Fabricated details appear
 
 Large context is necessary but insufficient. You need verification mechanisms.
 
@@ -57,38 +116,13 @@ Claude Code has:
 - `Edit` tool for surgical changes
 - `Write` tool for file creation
 - `Bash` for unix commands
+- Familiar filesystem navigation
 
 The reframe: convert your dataset problem into a codebase problem.
-
-### The Conversion
-
-1. **Dump data to CSV**: Export from Excel/JSON to row-based CSV
-2. **Preprocess**: Remove whitespace, normalize to compact format
-3. **Chunk**: Split into files of ~200 records each (fits in 2000 lines)
-4. **Treat as code**: Working with CSV files = working with source code
-
-A 200K record dataset becomes ~1000 CSV files. Normal codebase size. Claude Code handles this naturally.
-
-### Labeling at Scale
 
 </div>
 
 <div class="lang-zh">
-
-处理大规模数据集（10万-100万条记录）做咨询很难。你需要提取顶级主题、去重内容、按业务相关性分类，并生成无幻觉的报告。
-
-本文记录了我们使用 Claude Code 完成一个真实企业项目的方法：从2.5万多篇新闻文章生成双周舆情监测报告。
-
-三种方法。两种不行。一种有效。
-
-## 方法一：嵌入向量 + 聚类
-
-传统机器学习方法：
-
-1. 生成语义嵌入向量（Qwen3-Embedding-0.6B）
-2. 运行基于密度的聚类（HDBSCAN）
-3. 递归子聚类直到可管理的规模
-4. 使用小模型生成簇摘要
 
 **失败原因：** 新闻数据是稀疏的，不是稠密的。HDBSCAN 在数据自然形成簇时有效。新闻文章涵盖多样主题，语义关联弱。
 
@@ -111,7 +145,11 @@ A 200K record dataset becomes ~1000 CSV files. Normal codebase size. Claude Code
 
 **失败原因：** 幻觉随上下文长度累积。
 
-随着 token 消耗增长，模型对事实的注意力减弱。错误累积：日期偏移、数字漂移、来源混淆、虚构细节出现。
+随着 token 消耗增长，模型对事实的注意力减弱。错误累积：
+- 日期偏移
+- 数字漂移
+- 来源混淆
+- 虚构细节出现
 
 大上下文是必要的，但不充分。需要验证机制。
 
@@ -124,8 +162,38 @@ Claude Code 拥有：
 - `Edit` 工具用于精确修改
 - `Write` 工具用于文件创建
 - `Bash` 用于 unix 命令
+- 熟悉的文件系统导航
 
 重新定义：把数据集问题转换成代码库问题。
+
+</div>
+
+```
+Excel/JSON Data
+    ↓ [Preprocessing scripts]
+CSV Files (row-based, compact format)
+    ↓ [Split into chunks]
+200 lines per file × N files
+    ↓ [Claude Code operates on files]
+Tagged/Labeled/Merged CSV Files
+```
+
+<div class="lang-en">
+
+### The Conversion
+
+1. **Dump data to CSV**: Export from Excel/JSON to row-based CSV
+2. **Preprocess**: Remove whitespace, normalize to compact format
+3. **Chunk**: Split into files of ~200 records each (fits in 2000 lines)
+4. **Treat as code**: Working with CSV files = working with source code
+
+A 200K record dataset becomes ~1000 CSV files. Normal codebase size. Claude Code handles this naturally.
+
+### Labeling at Scale
+
+</div>
+
+<div class="lang-zh">
 
 ### 转换方法
 
@@ -167,11 +235,26 @@ Claude Code 可同时运行最多10个 Task 智能体。标注任务中，为每
 
 ```
 Running 10 Task agents... (ctrl+o to expand)
-   ├─ Tag batch 1 · Processing summary_01.csv...
-   ├─ Tag batch 2 · Processing summary_02.csv...
-   ├─ Tag batch 3 · Processing summary_03.csv...
-   ...
-   └─ Tag batch 10 · Processing summary_10.csv...
+   ├─ Tag batch 1 summaries · 12 tool uses
+   │  ⎿  Processing summary_01.csv...
+   ├─ Tag batch 2 summaries · 8 tool uses
+   │  ⎿  Processing summary_02.csv...
+   ├─ Tag batch 3 summaries · 15 tool uses
+   │  ⎿  Processing summary_03.csv...
+   ├─ Tag batch 4 summaries · 11 tool uses
+   │  ⎿  Processing summary_04.csv...
+   ├─ Tag batch 5 summaries · 9 tool uses
+   │  ⎿  Processing summary_05.csv...
+   ├─ Tag batch 6 summaries · 14 tool uses
+   │  ⎿  Processing summary_06.csv...
+   ├─ Tag batch 7 summaries · 7 tool uses
+   │  ⎿  Processing summary_07.csv...
+   ├─ Tag batch 8 summaries · 13 tool uses
+   │  ⎿  Processing summary_08.csv...
+   ├─ Tag batch 9 summaries · 10 tool uses
+   │  ⎿  Processing summary_09.csv...
+   └─ Tag batch 10 summaries · 6 tool uses
+      ⎿  Processing summary_10.csv...
 ```
 
 <div class="lang-en">
@@ -226,6 +309,7 @@ IR provides a checkpoint between data processing and report generation:
 - Task agents merge duplicate topics
 - Add translations (multilingual support)
 - Normalize date formats (YYYY-MM-DD)
+- Validate and enrich metadata
 
 This separation prevents errors from propagating into final reports.
 
@@ -255,6 +339,7 @@ IR 在数据处理和报告生成之间提供检查点：
 - Task 智能体合并重复主题
 - 添加翻译（多语言支持）
 - 规范化日期格式（YYYY-MM-DD）
+- 验证和丰富元数据
 
 这种分离防止错误传播到最终报告。
 
@@ -345,25 +430,126 @@ Claude Code 技能是封装领域专业知识的可复用指令集。
 ├── generate-report/     # Two-phase IR → Report workflow
 ├── tag-summaries/       # Multi-tag classification
 ├── report-validator/    # Fact verification
-└── xlsx/                # Excel generation with formulas
+├── xlsx/                # Excel generation with formulas
+└── analyze-cluster/     # Cluster metadata extraction
 ```
 
 <div class="lang-en">
 
 ### Key Skills for Data Analysis
 
-| Skill | Purpose |
-|-------|---------|
-| `generate-report` | Orchestrates full pipeline: dedup → IR → normalize → markdown → Excel |
-| `tag-summaries` | Multi-label classification with primary/secondary/social tags |
-| `report-validator` | Extracts facts, searches sources, verifies coverage |
-| `xlsx` | Enterprise Excel with formulas, error checking, styling |
+**generate-report**: Orchestrates the full pipeline
+- Phase 0: Database deduplication
+- Phase 1: Raw IR generation
+- Phase 2: IR normalization
+- Phase 3: Markdown generation
+- Phase 4: Excel export
+
+**tag-summaries**: Multi-label classification
+- Primary tags: market policy, opportunity, company news, competitor, industry
+- Secondary tags: negative sentiment categories
+- Social media tags: platform-specific variants
+
+**xlsx**: Enterprise Excel generation
+- Formula preservation (never hardcode calculated values)
+- Error checking (zero #REF!, #DIV/0!, etc.)
+- Professional styling (column widths, alignment, wrapping)
+
+## The Complete Architecture
+
+</div>
+
+<div class="lang-zh">
+
+### 数据分析的关键技能
+
+**generate-report**：编排完整流程
+- 第0阶段：数据库去重
+- 第1阶段：原始 IR 生成
+- 第2阶段：IR 规范化
+- 第3阶段：Markdown 生成
+- 第4阶段：Excel 导出
+
+**tag-summaries**：多标签分类
+- 主标签：市场政策、市场机会、公司新闻、竞品、行业
+- 次标签：负面情绪分类
+- 社媒标签：平台特定变体
+
+**xlsx**：企业级 Excel 生成
+- 公式保留（永不硬编码计算值）
+- 错误检查（零 #REF!、#DIV/0! 等）
+- 专业样式（列宽、对齐、自动换行）
+
+## 完整架构
+
+</div>
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        Raw Data Sources                          │
+│  datasets/*.json (25K+ articles in JSON format)                  │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Preprocessing Scripts                         │
+│  - Normalize IDs                                                 │
+│  - Remove whitespace                                             │
+│  - Split into CSV chunks                                         │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   Parallel Task Agents (×10)                     │
+│  - tag-summaries skill                                           │
+│  - Multi-label classification                                    │
+│  - Edit CSV files in place                                       │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      PostgreSQL Database                         │
+│  - Tagged articles with metadata                                 │
+│  - Queryable by tag, date, source                                │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    IR Generation (Two-Phase)                     │
+│  Phase 1: Query → Raw IR (JSON)                                  │
+│  Phase 2: Normalize → Deduplicated IR                            │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Report Generation                             │
+│  - generate-report skill                                         │
+│  - Markdown → xlsx skill → Excel                                 │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Report Validation                             │
+│  - report-validator skill                                        │
+│  - Extract facts → Search sources → Verify                       │
+│  - Zero NOT_FOUND tolerance                                      │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      Final Deliverables                          │
+│  - Excel reports with 8 sheets                                   │
+│  - Verified, traceable, enterprise-ready                         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+<div class="lang-en">
 
 ## Key Takeaways
 
 1. **Reframe the problem**: Data analysis → codebase file editing. Claude Code is optimized for this.
 
-2. **Chunk strategically**: 200 records per file, 2000 lines max. Fits Claude Code's tools.
+2. **Chunk strategically**: 200 records per file, 2000 lines max. Fits Claude Code's tools perfectly.
 
 3. **Parallelize with Task agents**: 10x throughput for labeling, classification, validation.
 
@@ -381,20 +567,11 @@ Claude Code isn't just for writing code. It's a general-purpose agent for any ta
 
 <div class="lang-zh">
 
-### 数据分析的关键技能
-
-| 技能 | 用途 |
-|-----|------|
-| `generate-report` | 编排完整流程：去重 → IR → 规范化 → markdown → Excel |
-| `tag-summaries` | 带主/次/社媒标签的多标签分类 |
-| `report-validator` | 提取事实、搜索来源、验证覆盖 |
-| `xlsx` | 企业级 Excel，带公式、错误检查、样式 |
-
 ## 关键要点
 
 1. **重新定义问题**：数据分析 → 代码库文件编辑。Claude Code 针对此做了优化。
 
-2. **策略性分块**：每文件200条记录，最多2000行。适配 Claude Code 的工具。
+2. **策略性分块**：每文件200条记录，最多2000行。完美适配 Claude Code 的工具。
 
 3. **用 Task 智能体并行化**：标注、分类、验证获得10倍吞吐量。
 
