@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Removing Rounded Corners and Window Borders on macOS - Shiqi Mei</title>
+  <link rel="icon" type="image/png" href="../avatar.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">&larr; back</a>
+
+    <article>
+      <header class="post-header">
+        <div class="post-header-row">
+          <h1 class="post-title">Removing Rounded Corners and Window Borders on macOS</h1>
+          <div class="lang-toggle" id="langToggle">
+            <button data-lang="en" class="active">EN</button>
+            <button data-lang="zh">CN</button>
+          </div>
+        </div>
+        <p class="post-meta">Jan 3, 2026</p>
+      </header>
+
+      <div class="post-content">
+        <img src="../images/macos-square-corners.webp" alt="macOS window with square corners" class="post-hero">
+
+<div class="lang-en">
+
+<p>macOS has a distinctive look with its rounded window corners and subtle 1px window border. While aesthetically pleasing for most users, some prefer a sharper, more utilitarian appearance—especially when using terminal emulators like WezTerm with dark themes.</p>
+<p>This guide documents the process of modifying macOS system assets to achieve square window corners and remove the window border.</p>
+<h2>Prerequisites</h2>
+<p>This modification requires disabling macOS security features. <strong>Proceed at your own risk.</strong></p>
+<ol>
+<li>Boot into Recovery Mode (hold Power button on Apple Silicon, or Cmd+R on Intel)</li>
+<li>Open Terminal from Utilities menu</li>
+<li>Disable SIP: <code>csrutil disable</code></li>
+<li>Disable Authenticated Root: <code>csrutil authenticated-root disable</code></li>
+<li>Restart</li>
+</ol>
+<h2>Tools Required</h2>
+<ul>
+<li><strong>ThemeEngine</strong> - A tool for editing .car (compiled asset catalog) files. <a href="https://github.com/jslegendre/ThemeEngine/releases/download/v1.0.0(119)/ThemeEngine.zip">Download</a>.</li>
+<li><strong>ImageMagick</strong> - For batch editing images: <code>brew install imagemagick</code></li>
+</ul>
+<h2>Understanding the Asset Structure</h2>
+<p>Window appearance is controlled by assets in:</p>
+<pre><code class="language-text">/System/Library/CoreServices/SystemAppearance.bundle/Contents/Resources/Aqua.car</code></pre><p>The key assets for window corners are:</p>
+<table>
+<thead>
+<tr>
+<th>Asset Name</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>WindowFrame_WindowShapeEdges_Regular</code></td>
+<td>Standard window corner shape (1x)</td>
+</tr>
+<tr>
+<td><code>WindowFrame_WindowShapeEdges_Regular@2x</code></td>
+<td>Retina window corner shape (2x)</td>
+</tr>
+<tr>
+<td><code>WindowFrame_WindowShapeEdges_Small</code></td>
+<td>Small window variant</td>
+</tr>
+</tbody></table>
+<h2>Extracting and Modifying Assets</h2>
+<h3>Step 1: Backup the Original</h3>
+<pre><code class="language-bash">cp /System/Library/CoreServices/SystemAppearance.bundle/Contents/Resources/Aqua.car ~/Downloads/Aqua.car</code></pre><h3>Step 2: Open in ThemeEngine</h3>
+<p>Open <code>~/Downloads/Aqua.car</code> in ThemeEngine and navigate to the WindowFrame_WindowShapeEdges assets.</p>
+<h3>Step 3: Export and Edit Images</h3>
+<p>Export each WindowShapeEdges image. The original images have:</p>
+<ul>
+<li>Transparent center (window content area)</li>
+<li>Semi-opaque corners (creating the rounded effect)</li>
+</ul>
+<p>To create square corners, fill the entire image with the corner color. Using ImageMagick:</p>
+<pre><code class="language-bash"># For shape images (fill with corner color)
+magick -size 54x54 xc:&#039;graya(255,0.54902)&#039; output.png
+
+# For base images (make fully transparent)
+magick -size 54x54 xc:&#039;rgba(0,0,0,0)&#039; output.png</code></pre><h3>Step 4: Import Back to ThemeEngine</h3>
+<p>Drag the edited PNGs back into ThemeEngine on their corresponding asset slots and save (Cmd+Shift+S).</p>
+<h2>Applying the Modified Assets</h2>
+<p>With SIP and Authenticated Root disabled:</p>
+<pre><code class="language-bash"># 1. Backup current system file
+sudo cp /System/Library/CoreServices/SystemAppearance.bundle/Contents/Resources/Aqua.car ~/Documents/Aqua.car.backup
+
+# 2. Find and mount the root disk
+ROOT_DISK=$(df / | tail -1 | awk &#039;{print $1}&#039;)
+BASE_DISK=$(echo $ROOT_DISK | sed &#039;s/s[0-9]*$//&#039;)
+mkdir -p ~/live_disk_mnt
+sudo mount -o nobrowse -t apfs $BASE_DISK ~/live_disk_mnt
+
+# 3. Copy modified Aqua.car
+sudo cp ~/Downloads/Aqua.car ~/live_disk_mnt/System/Library/CoreServices/SystemAppearance.bundle/Contents/Resources/Aqua.car
+
+# 4. Create bootable snapshot
+sudo bless --mount ~/live_disk_mnt --bootefi --create-snapshot
+
+# 5. Restart
+sudo shutdown -r now</code></pre><h2>Reverting Changes</h2>
+<p>To restore the original appearance:</p>
+<pre><code class="language-bash"># Copy backup back
+sudo cp ~/Documents/Aqua.car.backup ~/live_disk_mnt/System/Library/CoreServices/SystemAppearance.bundle/Contents/Resources/Aqua.car
+
+# Re-bless and restart
+sudo bless --mount ~/live_disk_mnt --bootefi --create-snapshot
+sudo shutdown -r now</code></pre><p>Or re-enable SIP and Authenticated Root in Recovery Mode to restore system integrity.</p>
+<h2>Alternative: JankyBorders</h2>
+<p>For a less invasive approach, <a href="https://github.com/FelixKratz/JankyBorders">JankyBorders</a> can add custom window borders (but cannot remove the native border):</p>
+<pre><code class="language-bash">brew install FelixKratz/formulae/borders
+borders style=square active_color=0xff000000 width=2.0</code></pre><h2>References</h2>
+<ul>
+<li><a href="https://github.com/ZimengXiong/osx-square-window-corners">osx-square-window-corners</a></li>
+<li><a href="https://github.com/andres1138/macOS_DisableRoundedWindowCorners">macOS_DisableRoundedWindowCorners</a></li>
+<li><a href="https://github.com/jslegendre/ThemeEngine">ThemeEngine</a></li>
+</ul>
+</div>
+
+<div class="lang-zh">
+
+<p>macOS 以其圆角窗口和微妙的 1px 窗口边框著称。虽然对大多数用户来说这很美观，但有些人更喜欢更锐利、更实用的外观——尤其是在使用 WezTerm 等深色主题终端模拟器时。</p>
+<p>本指南记录了修改 macOS 系统资源以实现方角窗口和移除窗口边框的过程。</p>
+<h2>前提条件</h2>
+<p>此修改需要禁用 macOS 安全功能。<strong>风险自负。</strong></p>
+<ol>
+<li>启动进入恢复模式（Apple Silicon 按住电源键，Intel 按 Cmd+R）</li>
+<li>从实用工具菜单打开终端</li>
+<li>禁用 SIP：<code>csrutil disable</code></li>
+<li>禁用 Authenticated Root：<code>csrutil authenticated-root disable</code></li>
+<li>重启</li>
+</ol>
+<h2>所需工具</h2>
+<ul>
+<li><strong>ThemeEngine</strong> - 用于编辑 .car（编译资源目录）文件的工具。<a href="https://github.com/jslegendre/ThemeEngine/releases/download/v1.0.0(119)/ThemeEngine.zip">下载</a>。</li>
+<li><strong>ImageMagick</strong> - 用于批量编辑图片：<code>brew install imagemagick</code></li>
+</ul>
+<h2>理解资源结构</h2>
+<p>窗口外观由以下位置的资源控制：</p>
+<pre><code class="language-text">/System/Library/CoreServices/SystemAppearance.bundle/Contents/Resources/Aqua.car</code></pre><p>窗口圆角相关的关键资源：</p>
+<table>
+<thead>
+<tr>
+<th>资源名称</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>WindowFrame_WindowShapeEdges_Regular</code></td>
+<td>标准窗口圆角形状 (1x)</td>
+</tr>
+<tr>
+<td><code>WindowFrame_WindowShapeEdges_Regular@2x</code></td>
+<td>Retina 窗口圆角形状 (2x)</td>
+</tr>
+<tr>
+<td><code>WindowFrame_WindowShapeEdges_Small</code></td>
+<td>小窗口变体</td>
+</tr>
+</tbody></table>
+<h2>提取和修改资源</h2>
+<h3>步骤 1：备份原始文件</h3>
+<pre><code class="language-bash">cp /System/Library/CoreServices/SystemAppearance.bundle/Contents/Resources/Aqua.car ~/Downloads/Aqua.car</code></pre><h3>步骤 2：在 ThemeEngine 中打开</h3>
+<p>在 ThemeEngine 中打开 <code>~/Downloads/Aqua.car</code>，找到 WindowFrame_WindowShapeEdges 资源。</p>
+<h3>步骤 3：导出并编辑图片</h3>
+<p>导出每个 WindowShapeEdges 图片。原始图片包含：</p>
+<ul>
+<li>透明的中心区域（窗口内容区）</li>
+<li>半透明的角落（产生圆角效果）</li>
+</ul>
+<p>要创建方角，用角落颜色填充整个图片。使用 ImageMagick：</p>
+<pre><code class="language-bash"># 形状图片（用角落颜色填充）
+magick -size 54x54 xc:&#039;graya(255,0.54902)&#039; output.png
+
+# 基础图片（完全透明）
+magick -size 54x54 xc:&#039;rgba(0,0,0,0)&#039; output.png</code></pre><h3>步骤 4：导入回 ThemeEngine</h3>
+<p>将编辑后的 PNG 拖回 ThemeEngine 对应的资源槽位，保存（Cmd+Shift+S）。</p>
+<h2>应用修改后的资源</h2>
+<p>在禁用 SIP 和 Authenticated Root 的情况下：</p>
+<pre><code class="language-bash"># 1. 备份当前系统文件
+sudo cp /System/Library/CoreServices/SystemAppearance.bundle/Contents/Resources/Aqua.car ~/Documents/Aqua.car.backup
+
+# 2. 查找并挂载根磁盘
+ROOT_DISK=$(df / | tail -1 | awk &#039;{print $1}&#039;)
+BASE_DISK=$(echo $ROOT_DISK | sed &#039;s/s[0-9]*$//&#039;)
+mkdir -p ~/live_disk_mnt
+sudo mount -o nobrowse -t apfs $BASE_DISK ~/live_disk_mnt
+
+# 3. 复制修改后的 Aqua.car
+sudo cp ~/Downloads/Aqua.car ~/live_disk_mnt/System/Library/CoreServices/SystemAppearance.bundle/Contents/Resources/Aqua.car
+
+# 4. 创建可启动快照
+sudo bless --mount ~/live_disk_mnt --bootefi --create-snapshot
+
+# 5. 重启
+sudo shutdown -r now</code></pre><h2>还原修改</h2>
+<p>要恢复原始外观：</p>
+<pre><code class="language-bash"># 复制备份
+sudo cp ~/Documents/Aqua.car.backup ~/live_disk_mnt/System/Library/CoreServices/SystemAppearance.bundle/Contents/Resources/Aqua.car
+
+# 重新 bless 并重启
+sudo bless --mount ~/live_disk_mnt --bootefi --create-snapshot
+sudo shutdown -r now</code></pre><p>或者在恢复模式中重新启用 SIP 和 Authenticated Root 来恢复系统完整性。</p>
+<h2>替代方案：JankyBorders</h2>
+<p>如果想要侵入性更小的方法，<a href="https://github.com/FelixKratz/JankyBorders">JankyBorders</a> 可以添加自定义窗口边框（但无法移除原生边框）：</p>
+<pre><code class="language-bash">brew install FelixKratz/formulae/borders
+borders style=square active_color=0xff000000 width=2.0</code></pre><h2>参考资料</h2>
+<ul>
+<li><a href="https://github.com/ZimengXiong/osx-square-window-corners">osx-square-window-corners</a></li>
+<li><a href="https://github.com/andres1138/macOS_DisableRoundedWindowCorners">macOS_DisableRoundedWindowCorners</a></li>
+<li><a href="https://github.com/jslegendre/ThemeEngine">ThemeEngine</a></li>
+</ul>
+</div>
+
+      </div>
+    </article>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Shiqi Mei</p>
+    </footer>
+  </div>
+  <script type="module" src="../js/highlight.js"></script>
+  <script src="../js/lang-toggle.js"></script>
+</body>
+</html>

@@ -82,6 +82,7 @@ function readTemplate(name) {
 }
 
 // Generate post HTML files
+// Creates both /posts/slug.html AND /posts/slug/index.html for extensionless URL support
 function generatePosts(posts) {
   const template = readTemplate('post.html');
   const postsDir = path.join(ROOT, 'posts');
@@ -96,7 +97,15 @@ function generatePosts(posts) {
       .replace(/\{\{DATE\}\}/g, formatDate(post.date))
       .replace(/\{\{CONTENT\}\}/g, post.html);
 
+    // Generate /posts/slug.html (traditional)
     fs.writeFileSync(path.join(postsDir, `${post.slug}.html`), html);
+
+    // Generate /posts/slug/index.html (extensionless URL support)
+    const slugDir = path.join(postsDir, post.slug);
+    if (!fs.existsSync(slugDir)) {
+      fs.mkdirSync(slugDir, { recursive: true });
+    }
+    fs.writeFileSync(path.join(slugDir, 'index.html'), html);
   }
 
   console.log(`Generated ${posts.length} posts`);

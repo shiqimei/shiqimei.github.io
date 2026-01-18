@@ -12,11 +12,22 @@
   // Show the toggle
   toggle.classList.add('visible');
 
-  // Get saved language preference or default to 'en'
-  const savedLang = localStorage.getItem('preferredLang') || 'en';
+  // Check for ?lang=zh or ?lang=en query parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const queryLang = urlParams.get('lang');
+
+  // If query param exists and is valid, use it and update localStorage
+  let initialLang;
+  if (queryLang === 'zh' || queryLang === 'en') {
+    initialLang = queryLang;
+    localStorage.setItem('preferredLang', queryLang);
+  } else {
+    // Otherwise use saved preference or default to 'en'
+    initialLang = localStorage.getItem('preferredLang') || 'en';
+  }
 
   // Set initial state
-  setLanguage(savedLang);
+  setLanguage(initialLang);
 
   // Add click handlers
   toggle.querySelectorAll('button').forEach(btn => {

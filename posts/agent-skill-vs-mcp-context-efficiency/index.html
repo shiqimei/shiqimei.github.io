@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Why Agent Skills Beat MCP for Context Efficiency - Shiqi Mei</title>
+  <link rel="icon" type="image/png" href="../avatar.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">&larr; back</a>
+
+    <article>
+      <header class="post-header">
+        <div class="post-header-row">
+          <h1 class="post-title">Why Agent Skills Beat MCP for Context Efficiency</h1>
+          <div class="lang-toggle" id="langToggle">
+            <button data-lang="en" class="active">EN</button>
+            <button data-lang="zh">CN</button>
+          </div>
+        </div>
+        <p class="post-meta">Jan 7, 2026</p>
+      </header>
+
+      <div class="post-content">
+        <div class="lang-en">
+
+<p>MCP (Model Context Protocol) has become the standard way to extend LLM agents with external tools. But there&#39;s an alternative architecture that&#39;s significantly more context-efficient: Agent Skills.</p>
+<p>This post breaks down why Agent Skills consume far less context than MCP, and why that matters for building capable agents.</p>
+<h2>The Context Budget Problem</h2>
+<p>Every LLM has a finite context window. Even with 128K or 200K token models, context is a scarce resource. Tool definitions, conversation history, and working memory all compete for the same space.</p>
+<p>MCP&#39;s approach: load all tool definitions upfront. Each tool&#39;s JSON Schema - parameters, types, descriptions, examples - gets injected into every request.</p>
+<p>A typical MCP tool definition runs 5,000 to 6,000 tokens. Load 10 tools and you&#39;ve consumed 50K tokens before the agent does anything useful. That&#39;s nearly half of a 128K context window, gone to tool definitions alone.</p>
+<h2>Progressive Disclosure: Load What You Need</h2>
+<p>Agent Skills take a different approach: progressive disclosure.</p>
+<p>At startup, only the frontmatter of each skill gets loaded - just the name and a one-line description. A single skill&#39;s frontmatter is roughly 10-20 tokens.</p>
+<pre><code class="language-yaml">---
+name: git-commit
+description: Stage and commit changes with conventional commit messages
+---</code></pre><p>The math changes dramatically:</p>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>10 Tools</th>
+<th>100 Tools</th>
+<th>1000 Tools</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MCP</td>
+<td>~50K tokens</td>
+<td>~500K tokens</td>
+<td>Not feasible</td>
+</tr>
+<tr>
+<td>Skills (frontmatter only)</td>
+<td>~150 tokens</td>
+<td>~1.5K tokens</td>
+<td>~15K tokens</td>
+</tr>
+</tbody></table>
+<p>With Skills, you can have thousands of capabilities available while only consuming 15K tokens. The full skill content - documentation, examples, implementation details - only loads when the agent decides to use that specific skill.</p>
+<p>This is progressive disclosure: show the menu first, load the recipe only when cooking.</p>
+<h2>Script Execution: Keep Intermediate Steps Out of Context</h2>
+<p>The second efficiency gain comes from how Skills execute.</p>
+<p>Many agent operations are idempotent - they produce the same result every time. Reading a config file. Checking directory structure. Installing dependencies. Running a build.</p>
+<p>MCP treats each tool call as a context event. Every input, every output, every intermediate step gets recorded in the conversation history. A 20-step task means 20 tool calls polluting your context.</p>
+<p>Agent Skills can encapsulate stable operations into bash scripts. The script runs outside the context window. Only the final result returns to the model.</p>
+<pre><code class="language-bash"># This entire script executes without touching context
+#!/bin/bash
+npm install
+npm run lint
+npm run test
+npm run build
+
+# Only this summary enters context
+echo &quot;Build completed: 0 errors, 0 warnings&quot;</code></pre><p>For complex workflows, this difference compounds. A deployment pipeline might have 50 steps internally but only report &quot;Deployment successful&quot; back to the model.</p>
+<h2>Unix: The Native Language of LLMs</h2>
+<p>There&#39;s a deeper reason why Skills work well: they&#39;re built on bash and the filesystem.</p>
+<p>Unix has existed since the 1970s. The internet is saturated with shell scripts, command-line tutorials, man pages, and pipeline examples. All of this was consumed during LLM pretraining.</p>
+<p>LLMs don&#39;t need to learn a new protocol to use Skills. They already understand:</p>
+<ul>
+<li>File paths and directory navigation</li>
+<li>Piping and redirection</li>
+<li>Common utilities (grep, sed, awk, curl)</li>
+<li>Environment variables and shell expansion</li>
+</ul>
+<p>MCP requires models to learn a custom protocol - specific JSON structures, particular calling conventions, tool-specific quirks. Skills leverage knowledge the model already has baked into its weights.</p>
+<p>This isn&#39;t just about familiarity. It&#39;s about error rates. Models make fewer mistakes with patterns they&#39;ve seen millions of times during training.</p>
+<h2>When MCP Still Makes Sense</h2>
+<p>MCP has legitimate use cases:</p>
+<ul>
+<li><strong>Stateful connections</strong>: Database sessions, WebSocket connections, authenticated API clients</li>
+<li><strong>Binary protocols</strong>: Services that can&#39;t be accessed via shell commands</li>
+<li><strong>Strict typing</strong>: When you need runtime validation of complex parameter structures</li>
+<li><strong>Cross-platform</strong>: When bash isn&#39;t available or reliable</li>
+</ul>
+<p>But for the common case - file operations, API calls, build tools, git workflows - Skills offer better context economics.</p>
+<h2>The Practical Impact</h2>
+<p>Context efficiency isn&#39;t abstract. It directly affects what agents can accomplish:</p>
+<ul>
+<li><strong>Longer conversations</strong>: More context for actual work, less for tool overhead</li>
+<li><strong>More tools available</strong>: Thousands of skills vs. dozens of MCP tools</li>
+<li><strong>Better reasoning</strong>: More space for chain-of-thought and working memory</li>
+<li><strong>Lower costs</strong>: Fewer tokens means lower API bills</li>
+</ul>
+<p>The constraint isn&#39;t capability - it&#39;s context. Architectures that respect this constraint scale better.</p>
+<h2>Current Limitations</h2>
+<p>Agent Skills are promising, but the standard is still immature. Two significant gaps:</p>
+<p><strong>1. Specification is too loose</strong></p>
+<p>The current skill definition is essentially &quot;a markdown file with frontmatter.&quot; There&#39;s no formal spec for:</p>
+<ul>
+<li>Parameter declarations and type constraints</li>
+<li>Input/output contracts</li>
+<li>Error handling conventions</li>
+<li>Dependency declarations between skills</li>
+<li>Versioning and compatibility</li>
+</ul>
+<p>MCP, for all its verbosity, has a rigorous JSON Schema spec. Skills rely on the LLM to infer structure from natural language descriptions. This works surprisingly well in practice, but it&#39;s not a foundation for tooling, validation, or cross-agent interoperability.</p>
+<p><strong>2. No nested skill support</strong></p>
+<p>Complex workflows naturally decompose into sub-tasks. A &quot;deploy-application&quot; skill might internally need &quot;run-tests&quot;, &quot;build-artifacts&quot;, and &quot;push-to-registry&quot; as sub-skills.</p>
+<p>Currently, there&#39;s no standard way to:</p>
+<ul>
+<li>Declare skill dependencies</li>
+<li>Invoke one skill from another</li>
+<li>Share context between parent and child skills</li>
+<li>Handle partial failures in skill chains</li>
+</ul>
+<p>Each skill is a flat, isolated unit. Composition happens ad-hoc through bash scripts or manual orchestration.</p>
+<h2>Outlook</h2>
+<p>The path forward is clear:</p>
+<p><strong>Formal specification</strong>: A minimal but precise schema for skill definitions. Parameter types, required vs optional fields, return value contracts. Enough structure for tooling without MCP&#39;s verbosity.</p>
+<p><strong>Hierarchical skills</strong>: First-class support for sub-skills. A skill should be able to declare dependencies on other skills, invoke them with proper context isolation, and handle their results programmatically.</p>
+<p><strong>Skill registries</strong>: Discoverability beyond local filesystems. Shared repositories of community skills with versioning, ratings, and compatibility metadata.</p>
+<p><strong>Hybrid architectures</strong>: Skills and MCP aren&#39;t mutually exclusive. Use Skills for the common case (context-efficient, Unix-native), fall back to MCP for stateful protocols and strict typing. Let the agent choose based on the task.</p>
+<p>The efficiency advantages of Skills are real. The ecosystem just needs to mature.</p>
+<h2>Conclusion</h2>
+<p>Agent Skills beat MCP on context efficiency through two mechanisms:</p>
+<ol>
+<li><strong>Progressive disclosure</strong>: Load frontmatter at startup (~20 tokens per skill), full content on-demand</li>
+<li><strong>Script execution</strong>: Intermediate steps stay outside context, only results return</li>
+</ol>
+<p>Combined with LLMs&#39; native understanding of Unix patterns, Skills offer a more scalable foundation for building capable agents.</p>
+<p>Context is the bottleneck. Spend it wisely.</p>
+</div>
+
+<div class="lang-zh">
+
+<p>MCP（Model Context Protocol）已成为用外部工具扩展 LLM 智能体的标准方式。但有一种替代架构在上下文效率上明显更高：Agent Skills。</p>
+<p>本文分析了为什么 Agent Skills 比 MCP 消耗更少的上下文，以及这对构建强大智能体的重要性。</p>
+<h2>上下文预算问题</h2>
+<p>每个 LLM 都有有限的上下文窗口。即使是 128K 或 200K token 的模型，上下文也是稀缺资源。工具定义、对话历史和工作记忆都在竞争同一空间。</p>
+<p>MCP 的方法：预先加载所有工具定义。每个工具的 JSON Schema——参数、类型、描述、示例——被注入到每个请求中。</p>
+<p>一个典型的 MCP 工具定义约 5,000 到 6,000 tokens。加载 10 个工具，你在智能体做任何有用的事情之前就消耗了 50K tokens。这几乎是 128K 上下文窗口的一半，仅用于工具定义。</p>
+<h2>渐进式披露：按需加载</h2>
+<p>Agent Skills 采用不同的方法：渐进式披露。</p>
+<p>启动时，只加载每个技能的 frontmatter——仅名称和一行描述。单个技能的 frontmatter 大约 10-20 tokens。</p>
+<pre><code class="language-yaml">---
+name: git-commit
+description: Stage and commit changes with conventional commit messages
+---</code></pre><p>数学计算发生了巨大变化：</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>10 个工具</th>
+<th>100 个工具</th>
+<th>1000 个工具</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MCP</td>
+<td>~50K tokens</td>
+<td>~500K tokens</td>
+<td>不可行</td>
+</tr>
+<tr>
+<td>Skills（仅 frontmatter）</td>
+<td>~150 tokens</td>
+<td>~1.5K tokens</td>
+<td>~15K tokens</td>
+</tr>
+</tbody></table>
+<p>使用 Skills，你可以有数千个可用能力，同时只消耗 15K tokens。完整的技能内容——文档、示例、实现细节——只在智能体决定使用该特定技能时才加载。</p>
+<p>这就是渐进式披露：先展示菜单，做菜时才加载食谱。</p>
+<h2>脚本执行：将中间步骤排除在上下文之外</h2>
+<p>第二个效率提升来自 Skills 的执行方式。</p>
+<p>许多智能体操作是幂等的——每次产生相同的结果。读取配置文件。检查目录结构。安装依赖。运行构建。</p>
+<p>MCP 将每个工具调用视为上下文事件。每个输入、每个输出、每个中间步骤都记录在对话历史中。一个 20 步任务意味着 20 个工具调用污染你的上下文。</p>
+<p>Agent Skills 可以将稳定操作封装到 bash 脚本中。脚本在上下文窗口之外运行。只有最终结果返回给模型。</p>
+<pre><code class="language-bash"># 整个脚本执行不触及上下文
+#!/bin/bash
+npm install
+npm run lint
+npm run test
+npm run build
+
+# 只有这个摘要进入上下文
+echo &quot;Build completed: 0 errors, 0 warnings&quot;</code></pre><p>对于复杂工作流，这种差异会累积。一个部署流水线内部可能有 50 个步骤，但只向模型报告&quot;部署成功&quot;。</p>
+<h2>Unix：LLM 的原生语言</h2>
+<p>Skills 工作良好有一个更深层的原因：它们建立在 bash 和文件系统之上。</p>
+<p>Unix 自 1970 年代就存在。互联网上充满了 shell 脚本、命令行教程、man 页面和管道示例。所有这些都在 LLM 预训练期间被消费。</p>
+<p>LLM 不需要学习新协议来使用 Skills。它们已经理解：</p>
+<ul>
+<li>文件路径和目录导航</li>
+<li>管道和重定向</li>
+<li>常用工具（grep、sed、awk、curl）</li>
+<li>环境变量和 shell 展开</li>
+</ul>
+<p>MCP 要求模型学习自定义协议——特定的 JSON 结构、特定的调用约定、工具特定的怪癖。Skills 利用模型已经烘焙在权重中的知识。</p>
+<p>这不仅仅是熟悉度的问题。这是关于错误率的。模型在训练期间见过数百万次的模式上犯更少的错误。</p>
+<h2>MCP 仍然有意义的场景</h2>
+<p>MCP 有合理的用例：</p>
+<ul>
+<li><strong>有状态连接</strong>：数据库会话、WebSocket 连接、已认证的 API 客户端</li>
+<li><strong>二进制协议</strong>：无法通过 shell 命令访问的服务</li>
+<li><strong>严格类型</strong>：当你需要复杂参数结构的运行时验证时</li>
+<li><strong>跨平台</strong>：当 bash 不可用或不可靠时</li>
+</ul>
+<p>但对于常见情况——文件操作、API 调用、构建工具、git 工作流——Skills 提供更好的上下文经济性。</p>
+<h2>实际影响</h2>
+<p>上下文效率不是抽象的。它直接影响智能体能完成什么：</p>
+<ul>
+<li><strong>更长的对话</strong>：更多上下文用于实际工作，更少用于工具开销</li>
+<li><strong>更多可用工具</strong>：数千个技能 vs 几十个 MCP 工具</li>
+<li><strong>更好的推理</strong>：更多空间用于思维链和工作记忆</li>
+<li><strong>更低成本</strong>：更少的 tokens 意味着更低的 API 账单</li>
+</ul>
+<p>约束不是能力——是上下文。尊重这一约束的架构能更好地扩展。</p>
+<h2>当前局限性</h2>
+<p>Agent Skills 很有前途，但标准仍然不成熟。两个重要差距：</p>
+<p><strong>1. 规范太松散</strong></p>
+<p>当前的技能定义本质上是&quot;带 frontmatter 的 markdown 文件&quot;。没有正式规范用于：</p>
+<ul>
+<li>参数声明和类型约束</li>
+<li>输入/输出契约</li>
+<li>错误处理约定</li>
+<li>技能间的依赖声明</li>
+<li>版本控制和兼容性</li>
+</ul>
+<p>MCP 尽管冗长，但有严格的 JSON Schema 规范。Skills 依赖 LLM 从自然语言描述推断结构。这在实践中效果出奇地好，但它不是工具、验证或跨智能体互操作性的基础。</p>
+<p><strong>2. 不支持嵌套技能</strong></p>
+<p>复杂工作流自然分解为子任务。一个&quot;部署应用&quot;技能内部可能需要&quot;运行测试&quot;、&quot;构建产物&quot;和&quot;推送到注册表&quot;作为子技能。</p>
+<p>目前，没有标准方式来：</p>
+<ul>
+<li>声明技能依赖</li>
+<li>从一个技能调用另一个</li>
+<li>在父子技能之间共享上下文</li>
+<li>处理技能链中的部分失败</li>
+</ul>
+<p>每个技能都是扁平、隔离的单元。组合通过 bash 脚本或手动编排临时发生。</p>
+<h2>展望</h2>
+<p>前进的道路很清晰：</p>
+<p><strong>正式规范</strong>：技能定义的最小但精确的模式。参数类型、必需 vs 可选字段、返回值契约。足够的结构用于工具，但没有 MCP 的冗长。</p>
+<p><strong>层级技能</strong>：对子技能的一等支持。技能应该能够声明对其他技能的依赖，以适当的上下文隔离调用它们，并程序化地处理它们的结果。</p>
+<p><strong>技能注册表</strong>：超越本地文件系统的可发现性。带有版本控制、评级和兼容性元数据的社区技能共享仓库。</p>
+<p><strong>混合架构</strong>：Skills 和 MCP 不是互斥的。对常见情况使用 Skills（上下文高效、Unix 原生），对有状态协议和严格类型回退到 MCP。让智能体根据任务选择。</p>
+<p>Skills 的效率优势是真实的。生态系统只需要成熟。</p>
+<h2>结论</h2>
+<p>Agent Skills 在上下文效率上通过两种机制击败 MCP：</p>
+<ol>
+<li><strong>渐进式披露</strong>：启动时加载 frontmatter（每个技能约 20 tokens），按需加载完整内容</li>
+<li><strong>脚本执行</strong>：中间步骤保留在上下文之外，只返回结果</li>
+</ol>
+<p>结合 LLM 对 Unix 模式的原生理解，Skills 为构建强大智能体提供了更可扩展的基础。</p>
+<p>上下文是瓶颈。明智地使用它。</p>
+</div>
+
+      </div>
+    </article>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Shiqi Mei</p>
+    </footer>
+  </div>
+  <script type="module" src="../js/highlight.js"></script>
+  <script src="../js/lang-toggle.js"></script>
+</body>
+</html>

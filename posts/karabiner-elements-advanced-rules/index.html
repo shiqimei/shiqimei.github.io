@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Add Karabiner Elements Advanced Mapping Rules - Shiqi Mei</title>
+  <link rel="icon" type="image/png" href="../avatar.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">&larr; back</a>
+
+    <article>
+      <header class="post-header">
+        <div class="post-header-row">
+          <h1 class="post-title">How to Add Karabiner Elements Advanced Mapping Rules</h1>
+          <div class="lang-toggle" id="langToggle">
+            <button data-lang="en" class="active">EN</button>
+            <button data-lang="zh">CN</button>
+          </div>
+        </div>
+        <p class="post-meta">Nov 3, 2021</p>
+      </header>
+
+      <div class="post-content">
+        <div class="lang-en">
+
+<p>I&#39;ve been using <a href="https://karabiner-elements.pqrs.org/">Karabiner Elements</a> as my Mac&#39;s key remapping tool. My personal preference is to swap left-command and left-control, which works well for most applications. However, there are some applications where I don&#39;t want this swap to happen. This is where Karabiner Elements&#39; advanced rules come in.</p>
+<h2>The Problem</h2>
+<p>Simple key remapping works globally across all applications. But what if you need:</p>
+<ul>
+<li>Different mappings for specific applications</li>
+<li>Exclude certain apps from your remapping rules</li>
+<li>Complex conditional key behaviors</li>
+</ul>
+<p>Karabiner Elements solves this with Complex Modifications - JSON configuration files that define advanced remapping rules with conditions.</p>
+<h2>Creating Complex Modifications</h2>
+<p>You can use the online editor <a href="https://genesy.github.io/karabiner-complex-rules-generator/">Karabiner Complex Modification Generator</a> to create complex configurations. Here&#39;s an example that swaps left-command and left-control, but excludes specific applications:</p>
+<pre><code class="language-json">{
+  &quot;title&quot;: &quot;basic key-remapping&quot;,
+  &quot;rules&quot;: [
+    {
+      &quot;description&quot;: &quot;Exchange Left-Command Left-Control&quot;,
+      &quot;manipulators&quot;: [
+        {
+          &quot;type&quot;: &quot;basic&quot;,
+          &quot;from&quot;: {
+            &quot;key_code&quot;: &quot;left_gui&quot;
+          },
+          &quot;conditions&quot;: [
+            {
+              &quot;type&quot;: &quot;frontmost_application_unless&quot;,
+              &quot;bundle_identifiers&quot;: [
+                &quot;^com\\.adobe\\.AfterEffects{{CONTENT}}quot;
+              ]
+            }
+          ],
+          &quot;to&quot;: [
+            {
+              &quot;repeat&quot;: true,
+              &quot;modifiers&quot;: [],
+              &quot;key_code&quot;: &quot;left_control&quot;
+            }
+          ]
+        },
+        {
+          &quot;type&quot;: &quot;basic&quot;,
+          &quot;from&quot;: {
+            &quot;key_code&quot;: &quot;left_control&quot;
+          },
+          &quot;conditions&quot;: [
+            {
+              &quot;type&quot;: &quot;frontmost_application_unless&quot;,
+              &quot;bundle_identifiers&quot;: [
+                &quot;^com\\.adobe\\.AfterEffects{{CONTENT}}quot;
+              ]
+            }
+          ],
+          &quot;to&quot;: [
+            {
+              &quot;repeat&quot;: true,
+              &quot;modifiers&quot;: [],
+              &quot;key_code&quot;: &quot;left_gui&quot;
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}</code></pre><h2>Understanding the Configuration</h2>
+<p>Key elements of this configuration:</p>
+<ul>
+<li><code>from.key_code</code>: The key to remap (<code>left_gui</code> is Command, <code>left_control</code> is Control)</li>
+<li><code>conditions</code>: When to apply the rule</li>
+<li><code>frontmost_application_unless</code>: Apply everywhere EXCEPT the listed apps</li>
+<li><code>bundle_identifiers</code>: Regex patterns matching app bundle IDs</li>
+<li><code>to.key_code</code>: The key to map to</li>
+</ul>
+<h2>Finding an App&#39;s Bundle Identifier</h2>
+<p>To get any application&#39;s bundle identifier, use this script:</p>
+<pre><code class="language-bash">osascript -e &#039;id of app &quot;After Effects&quot;&#039;
+# Output: com.adobe.AfterEffects</code></pre><p>Some common bundle identifiers:</p>
+<table>
+<thead>
+<tr>
+<th>Application</th>
+<th>Bundle Identifier</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>After Effects</td>
+<td><code>com.adobe.AfterEffects</code></td>
+</tr>
+<tr>
+<td>Premiere Pro</td>
+<td><code>com.adobe.PremierePro</code></td>
+</tr>
+<tr>
+<td>Terminal</td>
+<td><code>com.apple.Terminal</code></td>
+</tr>
+<tr>
+<td>VS Code</td>
+<td><code>com.microsoft.VSCode</code></td>
+</tr>
+</tbody></table>
+<h2>Installing the Configuration</h2>
+<ol>
+<li>Save your JSON file with a <code>.json</code> extension</li>
+<li>Place it in <code>~/.config/karabiner/assets/complex_modifications/</code></li>
+<li>Open Karabiner Elements Preferences</li>
+<li>Go to &quot;Complex Modifications&quot; tab</li>
+<li>Click &quot;Add rule&quot; and enable your new rule</li>
+</ol>
+<p>Alternatively, you can import configurations directly from the online editor or paste your JSON into the Karabiner Elements preferences.</p>
+<h2>Other Useful Condition Types</h2>
+<ul>
+<li><code>frontmost_application_if</code>: Only apply to specific apps</li>
+<li><code>device_if</code>: Only apply to specific keyboards</li>
+<li><code>keyboard_type_if</code>: Based on keyboard type (ANSI, ISO, JIS)</li>
+<li><code>variable_if</code>: Based on custom variables (for modal behavior)</li>
+</ul>
+</div>
+
+<div class="lang-zh">
+
+<p>我一直在使用 <a href="https://karabiner-elements.pqrs.org/">Karabiner Elements</a> 作为 Mac 的按键映射工具。我个人偏好是交换左 Command 和左 Control，这在大多数应用中效果很好。然而，有些应用我不希望进行这种交换。这就是 Karabiner Elements 高级规则发挥作用的地方。</p>
+<h2>问题</h2>
+<p>简单的按键映射在所有应用中全局生效。但如果你需要：</p>
+<ul>
+<li>针对特定应用使用不同的映射</li>
+<li>将某些应用排除在映射规则之外</li>
+<li>复杂的条件按键行为</li>
+</ul>
+<p>Karabiner Elements 通过复杂修改（Complex Modifications）解决了这个问题——这是定义带条件的高级映射规则的 JSON 配置文件。</p>
+<h2>创建复杂修改</h2>
+<p>你可以使用在线编辑器 <a href="https://genesy.github.io/karabiner-complex-rules-generator/">Karabiner Complex Modification Generator</a> 来创建复杂配置。这是一个交换左 Command 和左 Control 但排除特定应用的示例：</p>
+<pre><code class="language-json">{
+  &quot;title&quot;: &quot;basic key-remapping&quot;,
+  &quot;rules&quot;: [
+    {
+      &quot;description&quot;: &quot;Exchange Left-Command Left-Control&quot;,
+      &quot;manipulators&quot;: [
+        {
+          &quot;type&quot;: &quot;basic&quot;,
+          &quot;from&quot;: {
+            &quot;key_code&quot;: &quot;left_gui&quot;
+          },
+          &quot;conditions&quot;: [
+            {
+              &quot;type&quot;: &quot;frontmost_application_unless&quot;,
+              &quot;bundle_identifiers&quot;: [
+                &quot;^com\\.adobe\\.AfterEffects{{CONTENT}}quot;
+              ]
+            }
+          ],
+          &quot;to&quot;: [
+            {
+              &quot;repeat&quot;: true,
+              &quot;modifiers&quot;: [],
+              &quot;key_code&quot;: &quot;left_control&quot;
+            }
+          ]
+        },
+        {
+          &quot;type&quot;: &quot;basic&quot;,
+          &quot;from&quot;: {
+            &quot;key_code&quot;: &quot;left_control&quot;
+          },
+          &quot;conditions&quot;: [
+            {
+              &quot;type&quot;: &quot;frontmost_application_unless&quot;,
+              &quot;bundle_identifiers&quot;: [
+                &quot;^com\\.adobe\\.AfterEffects{{CONTENT}}quot;
+              ]
+            }
+          ],
+          &quot;to&quot;: [
+            {
+              &quot;repeat&quot;: true,
+              &quot;modifiers&quot;: [],
+              &quot;key_code&quot;: &quot;left_gui&quot;
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}</code></pre><h2>理解配置</h2>
+<p>此配置的关键元素：</p>
+<ul>
+<li><code>from.key_code</code>：要重映射的按键（<code>left_gui</code> 是 Command，<code>left_control</code> 是 Control）</li>
+<li><code>conditions</code>：何时应用规则</li>
+<li><code>frontmost_application_unless</code>：除列出的应用外全部应用</li>
+<li><code>bundle_identifiers</code>：匹配应用 Bundle ID 的正则表达式</li>
+<li><code>to.key_code</code>：映射到的按键</li>
+</ul>
+<h2>查找应用的 Bundle Identifier</h2>
+<p>要获取任何应用的 bundle identifier，使用此脚本：</p>
+<pre><code class="language-bash">osascript -e &#039;id of app &quot;After Effects&quot;&#039;
+# 输出: com.adobe.AfterEffects</code></pre><p>一些常见的 bundle identifier：</p>
+<table>
+<thead>
+<tr>
+<th>应用</th>
+<th>Bundle Identifier</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>After Effects</td>
+<td><code>com.adobe.AfterEffects</code></td>
+</tr>
+<tr>
+<td>Premiere Pro</td>
+<td><code>com.adobe.PremierePro</code></td>
+</tr>
+<tr>
+<td>Terminal</td>
+<td><code>com.apple.Terminal</code></td>
+</tr>
+<tr>
+<td>VS Code</td>
+<td><code>com.microsoft.VSCode</code></td>
+</tr>
+</tbody></table>
+<h2>安装配置</h2>
+<ol>
+<li>将你的 JSON 文件保存为 <code>.json</code> 扩展名</li>
+<li>放置到 <code>~/.config/karabiner/assets/complex_modifications/</code></li>
+<li>打开 Karabiner Elements 偏好设置</li>
+<li>进入 &quot;Complex Modifications&quot; 标签页</li>
+<li>点击 &quot;Add rule&quot; 并启用你的新规则</li>
+</ol>
+<p>或者，你可以直接从在线编辑器导入配置，或将 JSON 粘贴到 Karabiner Elements 偏好设置中。</p>
+<h2>其他有用的条件类型</h2>
+<ul>
+<li><code>frontmost_application_if</code>：仅对特定应用生效</li>
+<li><code>device_if</code>：仅对特定键盘生效</li>
+<li><code>keyboard_type_if</code>：基于键盘类型（ANSI、ISO、JIS）</li>
+<li><code>variable_if</code>：基于自定义变量（用于模态行为）</li>
+</ul>
+</div>
+
+      </div>
+    </article>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Shiqi Mei</p>
+    </footer>
+  </div>
+  <script type="module" src="../js/highlight.js"></script>
+  <script src="../js/lang-toggle.js"></script>
+</body>
+</html>

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Why Building a Web Scraper is Harder Than You Think - Shiqi Mei</title>
+  <link rel="icon" type="image/png" href="../avatar.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">&larr; back</a>
+
+    <article>
+      <header class="post-header">
+        <div class="post-header-row">
+          <h1 class="post-title">Why Building a Web Scraper is Harder Than You Think</h1>
+          <div class="lang-toggle" id="langToggle">
+            <button data-lang="en" class="active">EN</button>
+            <button data-lang="zh">CN</button>
+          </div>
+        </div>
+        <p class="post-meta">Jan 16, 2026</p>
+      </header>
+
+      <div class="post-content">
+        <div class="lang-en">
+
+<p>You want to scrape some data from the web. How hard can it be? A few HTTP requests, parse some HTML, done.</p>
+<p>Then reality hits. Your IP gets blocked after 100 requests. Cloudflare throws a challenge page. The site requires login. Your &quot;simple scraper&quot; needs infrastructure you didn&#39;t plan for.</p>
+<p>This post breaks down what production web scraping actually requires. Not an ad for any service - just an honest look at the problem space.</p>
+<h2>1. The Proxy Problem</h2>
+<p>The moment you send more than a handful of requests to any serious website, you&#39;ll get blocked. Your IP address is your identity, and websites track it.</p>
+<h3>The IP Hierarchy</h3>
+<p>Not all proxies are created equal. There&#39;s a clear hierarchy:</p>
+<table>
+<thead>
+<tr>
+<th>Proxy Type</th>
+<th>Description</th>
+<th>Detection Risk</th>
+<th>Cost</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Data Center IPs</strong></td>
+<td>IPs from cloud providers (AWS, GCP, etc.)</td>
+<td>Very High</td>
+<td>$</td>
+</tr>
+<tr>
+<td><strong>Residential IPs</strong></td>
+<td>IPs from real ISP customers</td>
+<td>Medium</td>
+<td>$</td>
+</tr>
+<tr>
+<td><strong>ISP/Static Residential</strong></td>
+<td>Static IPs from ISPs, residential-like</td>
+<td>Low</td>
+<td>$$</td>
+</tr>
+<tr>
+<td><strong>Mobile IPs</strong></td>
+<td>IPs from cellular networks (4G/5G)</td>
+<td>Very Low</td>
+<td>$$</td>
+</tr>
+</tbody></table>
+<p><strong>Data Center IPs</strong> are cheap but essentially useless for any serious scraping. Websites maintain blocklists of known data center IP ranges. One request and you&#39;re flagged.</p>
+<p><strong>Residential IPs</strong> come from real home internet connections. They look like normal users. The catch: they&#39;re shared across many scrapers, rotate frequently, and quality varies wildly.</p>
+<p><strong>ISP/Static Residential</strong> are the sweet spot for many use cases. Static, legitimate residential addresses. Expensive but reliable.</p>
+<p><strong>Mobile IPs</strong> are the gold standard. Cellular carriers use CGNAT (Carrier-Grade NAT), meaning thousands of legitimate users share the same IP. Blocking a mobile IP means blocking real customers. Sites are extremely hesitant to do this.</p>
+<h3>The Pool Problem</h3>
+<p>You don&#39;t just need one proxy - you need thousands. A proxy pool with:</p>
+<ul>
+<li>Geographic distribution (many sites geo-restrict)</li>
+<li>Rotation logic (avoid hitting same IP twice in a row)</li>
+<li>Health monitoring (dead proxies need removal)</li>
+<li>Session stickiness (some sites require consistent IP during a session)</li>
+</ul>
+<p>Building this yourself means:</p>
+<ul>
+<li>Sourcing proxy providers (multiple, for redundancy)</li>
+<li>Building rotation infrastructure</li>
+<li>Monitoring and replacing dead proxies</li>
+<li>Handling authentication and bandwidth billing</li>
+</ul>
+<p>Most teams underestimate this. It&#39;s not a one-time setup - it&#39;s ongoing operations.</p>
+<h2>2. The Anti-Bot Arms Race</h2>
+<p>Having good proxies is just the entry ticket. Modern websites deploy sophisticated anti-bot systems.</p>
+<h3>Cloudflare and Friends</h3>
+<p>Cloudflare, Akamai, PerimeterX, DataDome - these services protect millions of websites. They analyze:</p>
+<ul>
+<li><strong>TLS fingerprints</strong>: Your HTTP client&#39;s TLS handshake reveals what software you&#39;re using</li>
+<li><strong>JavaScript challenges</strong>: Browser automation? They can tell</li>
+<li><strong>Behavioral analysis</strong>: Mouse movements, scroll patterns, timing</li>
+<li><strong>Cookie/session tracking</strong>: Inconsistent sessions get flagged</li>
+<li><strong>Request patterns</strong>: Too fast? Too regular? Blocked</li>
+</ul>
+<h3>CAPTCHA Hell</h3>
+<p>When behavioral detection fails, CAPTCHAs appear:</p>
+<ul>
+<li><strong>reCAPTCHA v2</strong>: The classic checkbox</li>
+<li><strong>reCAPTCHA v3</strong>: Invisible, score-based</li>
+<li><strong>hCaptcha</strong>: reCAPTCHA alternative</li>
+<li><strong>Custom challenges</strong>: Image selection, puzzle solving</li>
+</ul>
+<p>Solving CAPTCHAs at scale requires either:</p>
+<ul>
+<li>Human solving services (slow, expensive)</li>
+<li>Machine learning models (unreliable, arms race)</li>
+<li>Avoiding detection in the first place (best option)</li>
+</ul>
+<h3>The Unblocker Concept</h3>
+<p>This is where &quot;unblocker&quot; services come in. They handle:</p>
+<ul>
+<li>TLS fingerprint spoofing</li>
+<li>JavaScript rendering</li>
+<li>CAPTCHA solving</li>
+<li>Cookie management</li>
+<li>Retry logic with different configurations</li>
+</ul>
+<p>You send a URL, they return the content. Simple API, complex infrastructure behind it.</p>
+<h2>3. Hosted Scrapers: The Lambda Model</h2>
+<p>Even with proxies and anti-bot bypass solved, you still need:</p>
+<ul>
+<li>Servers to run your scraper code</li>
+<li>Job queuing and scheduling</li>
+<li>Result storage</li>
+<li>Error handling and retries</li>
+<li>Monitoring and alerting</li>
+</ul>
+<h3>The Traditional Approach</h3>
+<p>Run EC2 instances, deploy your scraper, manage a queue (SQS, Redis), store results in PostgreSQL or S3. You&#39;re now maintaining:</p>
+<ul>
+<li>Server infrastructure</li>
+<li>Database operations</li>
+<li>Job orchestration</li>
+<li>Scraper code updates</li>
+<li>Scaling logic</li>
+</ul>
+<h3>The Hosted Alternative</h3>
+<p>Services like Brightdata, Apify, and others offer a &quot;serverless scraper&quot; model:</p>
+<ol>
+<li>Write your scraper logic (JavaScript/Python)</li>
+<li>Upload to their platform</li>
+<li>Trigger on-demand or schedule</li>
+<li>Results delivered to your storage</li>
+</ol>
+<p>Similar to AWS Lambda - you write the function, they handle execution. Benefits:</p>
+<ul>
+<li>No infrastructure to maintain</li>
+<li>Pay per execution</li>
+<li>Built-in proxy integration</li>
+<li>Automatic retries and error handling</li>
+</ul>
+<p>Trade-off: vendor lock-in and less control over execution environment.</p>
+<h2>4. The Login Problem</h2>
+<p>Public data is one thing. But many valuable data sources require authentication:</p>
+<ul>
+<li>Social media (Facebook, X/Twitter, LinkedIn)</li>
+<li>E-commerce (order history, pricing after login)</li>
+<li>SaaS platforms (dashboards, reports)</li>
+</ul>
+<h3>Why Login Scraping is Hard</h3>
+<ol>
+<li><strong>Session management</strong>: Maintain cookies across requests</li>
+<li><strong>2FA/MFA</strong>: Many sites require additional verification</li>
+<li><strong>Rate limiting per account</strong>: Even with valid login, aggressive scraping gets accounts banned</li>
+<li><strong>Terms of Service</strong>: Often explicitly prohibits automation</li>
+</ol>
+<h3>The Dataset Approach</h3>
+<p>Some scraping services maintain pre-crawled datasets. For example, Brightdata claims 45M+ records for Facebook data.</p>
+<p>How does this work? A few possibilities:</p>
+<ul>
+<li>They&#39;ve already crawled with authenticated accounts</li>
+<li>They aggregate data from multiple sources</li>
+<li>They use APIs where available (official or unofficial)</li>
+</ul>
+<p>When you query their &quot;Facebook dataset,&quot; you&#39;re not scraping Facebook in real-time. You&#39;re querying their cached database.</p>
+<p>This raises questions:</p>
+<ul>
+<li>How fresh is the data?</li>
+<li>What&#39;s the coverage?</li>
+<li>Is this compliant with the source site&#39;s ToS?</li>
+</ul>
+<p>For well-known sites, this approach often makes more sense than building custom scrapers. The data already exists - why reinvent the wheel?</p>
+<h3>The Edge Case: Login-Required Non-Famous Sites</h3>
+<p>Here&#39;s where things get complicated. If you need to scrape a niche B2B platform or internal tool that:</p>
+<ul>
+<li>Requires login</li>
+<li>Has no pre-existing datasets</li>
+<li>Has custom anti-bot measures</li>
+</ul>
+<p>You&#39;re back to building custom infrastructure:</p>
+<ul>
+<li>Secure credential management</li>
+<li>Session handling</li>
+<li>Custom anti-detection logic</li>
+<li>Monitoring for account bans</li>
+</ul>
+<p>No SaaS solution covers every site. For truly custom needs, you still need engineering work.</p>
+<h2>5. Compliance: The Invisible Constraint</h2>
+<p>Technical capability isn&#39;t everything. Legal and ethical constraints matter.</p>
+<h3>What You Can&#39;t Scrape</h3>
+<p>Most scraping services explicitly exclude certain sites:</p>
+<ul>
+<li>Apple.com (strict legal enforcement)</li>
+<li>Government sites (legal restrictions)</li>
+<li>Sites with explicit scraping bans in ToS</li>
+<li>Personal data without consent (GDPR/CCPA)</li>
+</ul>
+<p>Brightdata, for example, maintains a blocklist. Try to scrape apple.com and you&#39;ll get rejected.</p>
+<h3>The Risk Calculus</h3>
+<p>Even if technically possible, consider:</p>
+<ul>
+<li><strong>Legal risk</strong>: CFAA in the US, similar laws elsewhere</li>
+<li><strong>Business risk</strong>: Cease and desist letters, lawsuits</li>
+<li><strong>Ethical risk</strong>: Scraping personal data at scale has consequences</li>
+</ul>
+<p>The hiQ vs LinkedIn case established some legal precedent for scraping public data, but the law remains murky. When in doubt, consult legal counsel.</p>
+<h2>6. Build vs Buy: The Real Calculus</h2>
+<p>So should you build scraping infrastructure or buy from a SaaS provider?</p>
+<h3>Build When:</h3>
+<ul>
+<li>You have a small, specific target (one or two sites)</li>
+<li>Sites have minimal anti-bot protection</li>
+<li>You need full control over execution</li>
+<li>Cost sensitivity at very high scale</li>
+<li>Compliance requires owning the infrastructure</li>
+</ul>
+<h3>Buy When:</h3>
+<ul>
+<li>You&#39;re targeting multiple sites</li>
+<li>Sites have sophisticated anti-bot measures</li>
+<li>You need to move fast</li>
+<li>Infrastructure isn&#39;t your core competency</li>
+<li>Pre-existing datasets cover your needs</li>
+</ul>
+<h3>The Hybrid Approach</h3>
+<p>Many teams end up with a hybrid:</p>
+<ul>
+<li>SaaS for difficult sites (Cloudflare-protected, login-required)</li>
+<li>Custom scrapers for simple targets</li>
+<li>Pre-crawled datasets for common data sources</li>
+</ul>
+<h2>7. Conclusion</h2>
+<p>Web scraping looks simple until you try to do it at scale. The real infrastructure includes:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>DIY Complexity</th>
+<th>SaaS Solution</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Proxy Pool</td>
+<td>High - sourcing, rotation, monitoring</td>
+<td>Included</td>
+</tr>
+<tr>
+<td>Anti-Bot Bypass</td>
+<td>Very High - TLS, JS, CAPTCHAs</td>
+<td>Unblocker API</td>
+</tr>
+<tr>
+<td>Execution Environment</td>
+<td>Medium - servers, queues, storage</td>
+<td>Hosted Scraper</td>
+</tr>
+<tr>
+<td>Login Handling</td>
+<td>High - sessions, 2FA, account management</td>
+<td>Datasets (partial)</td>
+</tr>
+<tr>
+<td>Compliance</td>
+<td>Ongoing - legal review, blocklists</td>
+<td>Built-in restrictions</td>
+</tr>
+</tbody></table>
+<p>The complexity multiplies across layers. Each solved problem reveals the next.</p>
+<p>SaaS scraping services exist because this problem is genuinely hard. They&#39;ve invested years in infrastructure most teams can&#39;t justify building. Whether their pricing makes sense depends on your scale and needs.</p>
+<p>For most teams, the answer isn&#39;t &quot;build everything&quot; or &quot;buy everything&quot; - it&#39;s understanding which layers need custom solutions and which can be outsourced.</p>
+<hr>
+<p><em>The web scraping landscape keeps evolving. Anti-bot systems get smarter. Scrapers adapt. The arms race continues. What works today may not work tomorrow - factor that into your build vs buy decision.</em></p>
+</div>
+
+<div class="lang-zh">
+
+<p>你想从网上抓取一些数据。能有多难？几个HTTP请求，解析一些HTML，搞定。</p>
+<p>然后现实给你一击。100个请求后IP被封了。Cloudflare抛出验证页面。网站需要登录。你的&quot;简单爬虫&quot;需要你没计划到的基础设施。</p>
+<p>这篇文章拆解生产级网络爬虫实际需要什么。不是给任何服务做广告——只是诚实地审视这个问题领域。</p>
+<h2>1. 代理问题</h2>
+<p>当你向任何正规网站发送超过几个请求时，你就会被封禁。你的IP地址就是你的身份，网站会追踪它。</p>
+<h3>IP等级制度</h3>
+<p>代理并非生而平等。有明确的等级：</p>
+<table>
+<thead>
+<tr>
+<th>代理类型</th>
+<th>描述</th>
+<th>检测风险</th>
+<th>成本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>数据中心IP</strong></td>
+<td>来自云服务商的IP（AWS、GCP等）</td>
+<td>极高</td>
+<td>$</td>
+</tr>
+<tr>
+<td><strong>住宅IP</strong></td>
+<td>来自真实ISP客户的IP</td>
+<td>中等</td>
+<td>$</td>
+</tr>
+<tr>
+<td><strong>ISP/静态住宅</strong></td>
+<td>来自ISP的静态IP，类住宅性质</td>
+<td>低</td>
+<td>$$</td>
+</tr>
+<tr>
+<td><strong>移动IP</strong></td>
+<td>来自蜂窝网络的IP（4G/5G）</td>
+<td>极低</td>
+<td>$$</td>
+</tr>
+</tbody></table>
+<p><strong>数据中心IP</strong>便宜但对任何认真的爬取基本无用。网站维护着已知数据中心IP段的黑名单。一个请求就被标记。</p>
+<p><strong>住宅IP</strong>来自真实的家庭网络连接。看起来像普通用户。问题是：它们在多个爬虫间共享，频繁轮换，质量参差不齐。</p>
+<p><strong>ISP/静态住宅</strong>是许多场景的最佳选择。静态、合法的住宅地址。贵但可靠。</p>
+<p><strong>移动IP</strong>是黄金标准。蜂窝运营商使用CGNAT（运营商级NAT），意味着数千个合法用户共享同一个IP。封禁移动IP意味着封禁真实客户。网站对此极其谨慎。</p>
+<h3>池化问题</h3>
+<p>你不只需要一个代理——你需要数千个。一个代理池需要：</p>
+<ul>
+<li>地理分布（很多网站有地域限制）</li>
+<li>轮换逻辑（避免连续命中同一IP）</li>
+<li>健康监控（失效代理需要移除）</li>
+<li>会话粘性（某些网站要求会话期间IP一致）</li>
+</ul>
+<p>自建意味着：</p>
+<ul>
+<li>寻找代理供应商（多个，保证冗余）</li>
+<li>构建轮换基础设施</li>
+<li>监控和替换失效代理</li>
+<li>处理认证和带宽计费</li>
+</ul>
+<p>大多数团队低估了这点。这不是一次性设置——是持续运维。</p>
+<h2>2. 反机器人军备竞赛</h2>
+<p>有好的代理只是入场券。现代网站部署了复杂的反机器人系统。</p>
+<h3>Cloudflare及其同类</h3>
+<p>Cloudflare、Akamai、PerimeterX、DataDome——这些服务保护着数百万网站。它们分析：</p>
+<ul>
+<li><strong>TLS指纹</strong>：HTTP客户端的TLS握手暴露你使用的软件</li>
+<li><strong>JavaScript挑战</strong>：浏览器自动化？它们能识别</li>
+<li><strong>行为分析</strong>：鼠标移动、滚动模式、时间特征</li>
+<li><strong>Cookie/会话追踪</strong>：不一致的会话会被标记</li>
+<li><strong>请求模式</strong>：太快？太规律？封禁</li>
+</ul>
+<h3>CAPTCHA地狱</h3>
+<p>当行为检测失效时，CAPTCHA出现：</p>
+<ul>
+<li><strong>reCAPTCHA v2</strong>：经典复选框</li>
+<li><strong>reCAPTCHA v3</strong>：隐形的，基于评分</li>
+<li><strong>hCaptcha</strong>：reCAPTCHA替代品</li>
+<li><strong>自定义挑战</strong>：图片选择、拼图解谜</li>
+</ul>
+<p>规模化解决CAPTCHA需要：</p>
+<ul>
+<li>人工解答服务（慢、贵）</li>
+<li>机器学习模型（不可靠、军备竞赛）</li>
+<li>从一开始就避免被检测（最佳选项）</li>
+</ul>
+<h3>解封器概念</h3>
+<p>这就是&quot;解封器&quot;服务的用武之地。它们处理：</p>
+<ul>
+<li>TLS指纹伪造</li>
+<li>JavaScript渲染</li>
+<li>CAPTCHA求解</li>
+<li>Cookie管理</li>
+<li>用不同配置重试</li>
+</ul>
+<p>你发送URL，它们返回内容。简单的API，背后是复杂的基础设施。</p>
+<h2>3. 托管爬虫：Lambda模式</h2>
+<p>即使代理和反机器人绕过都解决了，你仍需要：</p>
+<ul>
+<li>运行爬虫代码的服务器</li>
+<li>任务队列和调度</li>
+<li>结果存储</li>
+<li>错误处理和重试</li>
+<li>监控和告警</li>
+</ul>
+<h3>传统方式</h3>
+<p>运行EC2实例，部署爬虫，管理队列（SQS、Redis），将结果存储在PostgreSQL或S3。现在你需要维护：</p>
+<ul>
+<li>服务器基础设施</li>
+<li>数据库运维</li>
+<li>任务编排</li>
+<li>爬虫代码更新</li>
+<li>扩缩容逻辑</li>
+</ul>
+<h3>托管替代方案</h3>
+<p>Brightdata、Apify等服务提供&quot;无服务器爬虫&quot;模式：</p>
+<ol>
+<li>编写爬虫逻辑（JavaScript/Python）</li>
+<li>上传到他们的平台</li>
+<li>按需触发或定时调度</li>
+<li>结果传送到你的存储</li>
+</ol>
+<p>类似AWS Lambda——你写函数，他们处理执行。好处：</p>
+<ul>
+<li>无需维护基础设施</li>
+<li>按执行付费</li>
+<li>内置代理集成</li>
+<li>自动重试和错误处理</li>
+</ul>
+<p>代价：供应商锁定，对执行环境控制较少。</p>
+<h2>4. 登录问题</h2>
+<p>公开数据是一回事。但许多有价值的数据源需要认证：</p>
+<ul>
+<li>社交媒体（Facebook、X/Twitter、LinkedIn）</li>
+<li>电商（订单历史、登录后价格）</li>
+<li>SaaS平台（仪表盘、报告）</li>
+</ul>
+<h3>为何登录爬取很难</h3>
+<ol>
+<li><strong>会话管理</strong>：跨请求维护Cookie</li>
+<li><strong>双因素/多因素认证</strong>：很多网站需要额外验证</li>
+<li><strong>账户级限速</strong>：即使有效登录，激进爬取也会导致账户被封</li>
+<li><strong>服务条款</strong>：通常明确禁止自动化</li>
+</ol>
+<h3>数据集方式</h3>
+<p>一些爬取服务维护预爬取的数据集。例如，Brightdata声称有4500万+条Facebook数据记录。</p>
+<p>这是怎么做到的？几种可能：</p>
+<ul>
+<li>他们已经用认证账户爬取过了</li>
+<li>他们从多个来源聚合数据</li>
+<li>他们使用可用的API（官方或非官方）</li>
+</ul>
+<p>当你查询他们的&quot;Facebook数据集&quot;时，你并非实时爬取Facebook。你是在查询他们的缓存数据库。</p>
+<p>这引发了问题：</p>
+<ul>
+<li>数据有多新鲜？</li>
+<li>覆盖范围如何？</li>
+<li>这符合源站的服务条款吗？</li>
+</ul>
+<p>对于知名网站，这种方法通常比构建自定义爬虫更有意义。数据已经存在——何必重复造轮子？</p>
+<h3>边缘场景：需要登录的非知名网站</h3>
+<p>这就是事情变复杂的地方。如果你需要爬取一个小众B2B平台或内部工具，它：</p>
+<ul>
+<li>需要登录</li>
+<li>没有现成数据集</li>
+<li>有自定义反机器人措施</li>
+</ul>
+<p>你又回到了构建自定义基础设施的状态：</p>
+<ul>
+<li>安全的凭证管理</li>
+<li>会话处理</li>
+<li>自定义反检测逻辑</li>
+<li>监控账户封禁</li>
+</ul>
+<p>没有SaaS方案能覆盖所有网站。对于真正的定制需求，你仍需要工程投入。</p>
+<h2>5. 合规：隐形约束</h2>
+<p>技术能力不是全部。法律和道德约束很重要。</p>
+<h3>不能爬的内容</h3>
+<p>大多数爬取服务明确排除某些网站：</p>
+<ul>
+<li>Apple.com（严格的法律执行）</li>
+<li>政府网站（法律限制）</li>
+<li>ToS中明确禁止爬取的网站</li>
+<li>未经同意的个人数据（GDPR/CCPA）</li>
+</ul>
+<p>例如，Brightdata维护着一个黑名单。试图爬取apple.com会被拒绝。</p>
+<h3>风险计算</h3>
+<p>即使技术上可行，也要考虑：</p>
+<ul>
+<li><strong>法律风险</strong>：美国的CFAA，其他地区的类似法律</li>
+<li><strong>商业风险</strong>：停止函、诉讼</li>
+<li><strong>道德风险</strong>：大规模爬取个人数据有后果</li>
+</ul>
+<p>hiQ诉LinkedIn案为爬取公开数据确立了一些法律先例，但法律仍然模糊。有疑问时，咨询法律顾问。</p>
+<h2>6. 自建还是购买：真正的考量</h2>
+<p>那么你应该自建爬取基础设施还是从SaaS供应商购买？</p>
+<h3>自建适合：</h3>
+<ul>
+<li>你有小的、特定的目标（一两个网站）</li>
+<li>网站反机器人保护最小</li>
+<li>你需要完全控制执行</li>
+<li>超大规模时对成本敏感</li>
+<li>合规要求自有基础设施</li>
+</ul>
+<h3>购买适合：</h3>
+<ul>
+<li>你的目标是多个网站</li>
+<li>网站有复杂的反机器人措施</li>
+<li>你需要快速推进</li>
+<li>基础设施不是你的核心能力</li>
+<li>现有数据集覆盖你的需求</li>
+</ul>
+<h3>混合方式</h3>
+<p>很多团队最终采用混合：</p>
+<ul>
+<li>SaaS用于困难网站（Cloudflare保护、需要登录）</li>
+<li>自定义爬虫用于简单目标</li>
+<li>预爬取数据集用于常见数据源</li>
+</ul>
+<h2>7. 结论</h2>
+<p>网络爬取看起来简单，直到你尝试规模化。真正的基础设施包括：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>DIY复杂度</th>
+<th>SaaS方案</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>代理池</td>
+<td>高 - 寻源、轮换、监控</td>
+<td>内置</td>
+</tr>
+<tr>
+<td>反机器人绕过</td>
+<td>极高 - TLS、JS、CAPTCHA</td>
+<td>解封器API</td>
+</tr>
+<tr>
+<td>执行环境</td>
+<td>中等 - 服务器、队列、存储</td>
+<td>托管爬虫</td>
+</tr>
+<tr>
+<td>登录处理</td>
+<td>高 - 会话、2FA、账户管理</td>
+<td>数据集（部分）</td>
+</tr>
+<tr>
+<td>合规</td>
+<td>持续 - 法律审查、黑名单</td>
+<td>内置限制</td>
+</tr>
+</tbody></table>
+<p>复杂度跨层级倍增。每解决一个问题就暴露下一个。</p>
+<p>SaaS爬取服务存在是因为这个问题确实很难。他们在大多数团队无法证明值得自建的基础设施上投入了多年。他们的定价是否合理取决于你的规模和需求。</p>
+<p>对于大多数团队，答案不是&quot;全部自建&quot;或&quot;全部购买&quot;——而是理解哪些层需要定制方案，哪些可以外包。</p>
+<hr>
+<p><em>网络爬取领域持续演变。反机器人系统变得更聪明。爬虫适应。军备竞赛继续。今天有效的方法明天可能失效——在你的自建还是购买决策中考虑这一点。</em></p>
+</div>
+
+      </div>
+    </article>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Shiqi Mei</p>
+    </footer>
+  </div>
+  <script type="module" src="../js/highlight.js"></script>
+  <script src="../js/lang-toggle.js"></script>
+</body>
+</html>
