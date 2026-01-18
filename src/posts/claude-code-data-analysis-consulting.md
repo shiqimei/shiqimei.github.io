@@ -512,7 +512,7 @@ Claude Code isn't just for writing code. It's a general-purpose agent for any ta
 
 1. **重新定义问题**：数据分析 → 代码库文件编辑。Claude Code 针对此做了优化。
 
-2. **策略性分块**：每文件200条记录，最多2000行。完美适配 Claude Code 的工具。
+2. **策略性分块**：每文件200条记录，最多2000行。适配 Claude Code 的工具。
 
 3. **用 Task 智能体并行化**：标注、分类、验证获得10倍吞吐量。
 
