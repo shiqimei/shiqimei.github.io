@@ -36,7 +36,7 @@ When data is sparse, clustering doesn't work.
 
 Modern LLMs have massive context windows:
 - Claude Opus 4.5: 200K tokens
-- Gemini 2.5 Pro: 1M tokens
+- Gemini 3 Pro: 1M tokens
 
 Strategies to fit large datasets:
 - **Sampling**: Take 10% of data to fit within context
@@ -103,7 +103,7 @@ A 200K record dataset becomes ~1000 CSV files. Normal codebase size. Claude Code
 
 现代 LLM 拥有巨大上下文窗口：
 - Claude Opus 4.5：20万 tokens
-- Gemini 2.5 Pro：100万 tokens
+- Gemini 3 Pro：100万 tokens
 
 容纳大数据集的策略：
 - **采样**：取10%数据适应上下文
