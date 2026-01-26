@@ -8,6 +8,7 @@ Personal blog by Shiqi Mei, a software engineer focused on AI-powered developer 
 
 ## Posts
 
+- [Mixing High-Quality Data into Large Datasets with Exponential Decay](https://shiqimei.github.io/posts/exponential-decay-data-mixing) - Jan 26, 2026
 - [Claude Code for Data Analysis: Large Datasets as Codebases is All You Need](https://shiqimei.github.io/posts/claude-code-data-analysis-codebases-all-you-need) - Jan 18, 2026
 - [Why Building a Web Scraper is Harder Than You Think](https://shiqimei.github.io/posts/web-scraping-infrastructure-complexity) - Jan 16, 2026
 - [From Chunks to Graphs: An Overview of RAG Architectures](https://shiqimei.github.io/posts/rag-architectures-overview) - Jan 13, 2026

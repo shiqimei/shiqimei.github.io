@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mixing High-Quality Data into Large Datasets with Exponential Decay - Shiqi Mei</title>
+  <link rel="icon" type="image/png" href="../avatar.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">&larr; back</a>
+
+    <article>
+      <header class="post-header">
+        <div class="post-header-row">
+          <h1 class="post-title">Mixing High-Quality Data into Large Datasets with Exponential Decay</h1>
+          <div class="lang-toggle" id="langToggle">
+            <button data-lang="en" class="active">EN</button>
+            <button data-lang="zh">CN</button>
+          </div>
+        </div>
+        <p class="post-meta">Jan 26, 2026</p>
+      </header>
+
+      <div class="post-content">
+        <div class="lang-en">
+
+<p>You have 1,000 high-quality records. You have 10,000 total records, most of which are noise. How do you mix them so users encounter quality early, but don&#39;t run out of it halfway through?</p>
+<p>This problem appears everywhere: search result ranking, content feeds, training data curation, annotation prioritization. The naive approaches fail:</p>
+<ul>
+<li><strong>Front-loading</strong>: Put all quality at the top. Users who go deep find nothing.</li>
+<li><strong>Uniform distribution</strong>: 10% quality everywhere. Users must wade through noise to find gems.</li>
+<li><strong>Random shuffle</strong>: Unpredictable. Sometimes quality clusters, sometimes it doesn&#39;t.</li>
+</ul>
+<p>Exponential decay offers a better solution.</p>
+<h2>The Problem</h2>
+<p>Given:</p>
+<ul>
+<li>1,000 high-quality records (curated, verified, important)</li>
+<li>10,000 total positions in the dataset</li>
+<li>Goal: Quality should appear early and taper off gradually</li>
+</ul>
+<p>Constraints:</p>
+<ul>
+<li>First 1,000 positions should have ~30% quality (300 records)</li>
+<li>Quality should never completely disappear</li>
+<li>Distribution should feel natural, not abrupt</li>
+</ul>
+<h2>The Math</h2>
+<p>Exponential decay follows the formula:</p>
+<pre><code class="language-text">count(bucket_i) = initial_count × decay_factor^i</code></pre><p>For our case with 1,000 quality records across 10,000 positions (10 buckets of 1,000 each):</p>
+<ul>
+<li>We want ~300 in the first bucket (30% density)</li>
+<li>We need to find a decay factor that distributes the remaining 700 across buckets 2-10</li>
+</ul>
+<p>Solving for decay factor <code>k</code>:</p>
+<pre><code class="language-text">300 × (1 + k + k² + ... + k⁹) = 1000
+300 × (1 - k¹⁰) / (1 - k) = 1000</code></pre><p>This gives us <code>k ≈ 0.72</code>.</p>
+<h2>The Distribution</h2>
+<p>With initial count = 300 and decay factor = 0.72:</p>
+<table>
+<thead>
+<tr>
+<th>Bucket</th>
+<th>Positions</th>
+<th>Quality Records</th>
+<th>Density</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>1-1000</td>
+<td>300</td>
+<td>30.0%</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1001-2000</td>
+<td>216</td>
+<td>21.6%</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2001-3000</td>
+<td>156</td>
+<td>15.6%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3001-4000</td>
+<td>112</td>
+<td>11.2%</td>
+</tr>
+<tr>
+<td>5</td>
+<td>4001-5000</td>
+<td>81</td>
+<td>8.1%</td>
+</tr>
+<tr>
+<td>6</td>
+<td>5001-6000</td>
+<td>58</td>
+<td>5.8%</td>
+</tr>
+<tr>
+<td>7</td>
+<td>6001-7000</td>
+<td>42</td>
+<td>4.2%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>7001-8000</td>
+<td>30</td>
+<td>3.0%</td>
+</tr>
+<tr>
+<td>9</td>
+<td>8001-9000</td>
+<td>22</td>
+<td>2.2%</td>
+</tr>
+<tr>
+<td>10</td>
+<td>9001-10000</td>
+<td>16</td>
+<td>1.6%</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td><strong>1033</strong></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>Key properties:</p>
+<ul>
+<li>First 3,000 positions contain 672 quality records (67%)</li>
+<li>First 5,000 positions contain 865 quality records (87%)</li>
+<li>Even the last bucket has 16 quality records (not zero)</li>
+<li>Ratio from first to last: 30% → 1.6% (roughly 20:1)</li>
+</ul>
+<h2>Implementation</h2>
+<p>The algorithm has three steps:</p>
+<p><strong>Step 1: Calculate bucket targets</strong></p>
+<pre><code class="language-typescript">function calculateBucketTargets(
+  totalPositions: number,
+  totalQuality: number,
+  firstBucketCount: number,
+  decayFactor: number,
+  bucketSize: number
+): number[] {
+  const numBuckets = Math.ceil(totalPositions / bucketSize);
+  const targets: number[] = [];
+
+  let count = firstBucketCount;
+  for (let i = 0; i &lt; numBuckets; i++) {
+    targets.push(Math.round(count));
+    count *= decayFactor;
+  }
+
+  // Scale to match total
+  const sum = targets.reduce((a, b) =&gt; a + b, 0);
+  const scale = totalQuality / sum;
+  return targets.map(t =&gt; Math.round(t * scale));
+}</code></pre><p><strong>Step 2: Randomly assign positions within each bucket</strong></p>
+<pre><code class="language-typescript">function randomPositions(
+  start: number,
+  end: number,
+  count: number
+): number[] {
+  const available = Array.from(
+    { length: end - start },
+    (_, i) =&gt; start + i
+  );
+  const selected: number[] = [];
+
+  for (let i = 0; i &lt; count &amp;&amp; available.length &gt; 0; i++) {
+    const idx = Math.floor(Math.random() * available.length);
+    selected.push(available[idx]);
+    available.splice(idx, 1);
+  }
+
+  return selected;
+}</code></pre><p><strong>Step 3: Build the final dataset</strong></p>
+<pre><code class="language-typescript">// Assign quality records to positions
+const qualityPositions = new Set&lt;number&gt;();
+let qualityIdx = 0;
+
+for (let bucket = 0; bucket &lt; bucketTargets.length; bucket++) {
+  const start = bucket * BUCKET_SIZE;
+  const end = Math.min((bucket + 1) * BUCKET_SIZE, totalPositions);
+  const count = bucketTargets[bucket];
+
+  const positions = randomPositions(start, end, count);
+  positions.forEach(p =&gt; qualityPositions.add(p));
+}
+
+// Place records
+const result = new Array(totalPositions);
+const shuffledQuality = shuffle(qualityRecords);
+
+let qIdx = 0;
+let nIdx = 0;
+
+for (let i = 0; i &lt; totalPositions; i++) {
+  if (qualityPositions.has(i)) {
+    result[i] = shuffledQuality[qIdx++];
+  } else {
+    result[i] = noiseRecords[nIdx++];
+  }
+}</code></pre><h2>Tuning the Parameters</h2>
+<p><strong>Decay factor controls the curve steepness:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Decay Factor</th>
+<th>First Bucket</th>
+<th>Last Bucket</th>
+<th>Ratio</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0.90</td>
+<td>14%</td>
+<td>5%</td>
+<td>3:1</td>
+</tr>
+<tr>
+<td>0.80</td>
+<td>22%</td>
+<td>2%</td>
+<td>11:1</td>
+</tr>
+<tr>
+<td>0.72</td>
+<td>30%</td>
+<td>1.6%</td>
+<td>19:1</td>
+</tr>
+<tr>
+<td>0.60</td>
+<td>40%</td>
+<td>0.2%</td>
+<td>200:1</td>
+</tr>
+</tbody></table>
+<p><strong>First bucket count controls the starting density:</strong></p>
+<ul>
+<li>Want aggressive front-loading? Start at 40-50%</li>
+<li>Want gentler distribution? Start at 15-20%</li>
+<li>The decay factor will determine how fast it tapers</li>
+</ul>
+<p><strong>Bucket size controls granularity:</strong></p>
+<ul>
+<li>Larger buckets (1000): Smoother distribution, less computation</li>
+<li>Smaller buckets (100): Finer control, more natural decay</li>
+</ul>
+<h2>When to Use This</h2>
+<p><strong>Good fit:</strong></p>
+<ul>
+<li>Search results where relevance decreases with position</li>
+<li>Content feeds where engagement drops over scroll depth</li>
+<li>Annotation queues where you want reviewers to see good examples first</li>
+<li>Training data where curriculum learning benefits from quality gradients</li>
+</ul>
+<p><strong>Poor fit:</strong></p>
+<ul>
+<li>When position doesn&#39;t correlate with consumption probability</li>
+<li>When uniform quality distribution is actually desired</li>
+<li>When quality records exceed 50% of total (just sort by quality instead)</li>
+</ul>
+<h2>Variations</h2>
+<p><strong>Multi-tier quality</strong>: Instead of binary quality/noise, you might have tiers (excellent, good, fair, poor). Apply exponential decay to each tier with different parameters.</p>
+<p><strong>Adaptive decay</strong>: If you have engagement data, adjust the decay factor based on actual user behavior. If users go deeper than expected, flatten the curve.</p>
+<p><strong>Bucketed randomization</strong>: Instead of pure random assignment within buckets, you can further stratify by secondary attributes (date, source, topic) to ensure diversity.</p>
+<h2>The Key Insight</h2>
+<p>Exponential decay matches human attention patterns. Users are most likely to engage with early items, less likely with later ones. By front-loading quality with gradual decay, you:</p>
+<ol>
+<li>Maximize early engagement (quality when attention is highest)</li>
+<li>Maintain discovery (quality never hits zero)</li>
+<li>Feel natural (gradual decline, not cliff edges)</li>
+</ol>
+<p>The math is simple. The impact on user experience is significant.</p>
+</div>
+
+<div class="lang-zh">
+
+<p>你有1000条高质量记录，还有10000条总记录，大部分是噪声。如何混合它们，让用户尽早遇到高质量内容，同时不会在中途就耗尽？</p>
+<p>这个问题随处可见：搜索结果排序、内容信息流、训练数据筛选、标注优先级排序。朴素的方法都会失败：</p>
+<ul>
+<li><strong>前置集中</strong>：把所有高质量放在最前面。深入浏览的用户什么都找不到。</li>
+<li><strong>均匀分布</strong>：到处都是10%的高质量。用户必须在噪声中艰难寻找。</li>
+<li><strong>随机打乱</strong>：不可预测。有时高质量聚集，有时不会。</li>
+</ul>
+<p>指数衰减提供了更好的解决方案。</p>
+<h2>问题定义</h2>
+<p>已知：</p>
+<ul>
+<li>1000条高质量记录（经过筛选、验证、重要的）</li>
+<li>数据集中共10000个位置</li>
+<li>目标：高质量应该早出现，然后逐渐减少</li>
+</ul>
+<p>约束：</p>
+<ul>
+<li>前1000个位置应有约30%的高质量（300条记录）</li>
+<li>高质量永远不应完全消失</li>
+<li>分布应该自然，不要突兀</li>
+</ul>
+<h2>数学原理</h2>
+<p>指数衰减遵循公式：</p>
+<pre><code class="language-text">count(bucket_i) = initial_count × decay_factor^i</code></pre><p>对于我们的案例，1000条高质量记录分布在10000个位置（10个各1000的桶）：</p>
+<ul>
+<li>我们希望第一个桶有约300条（30%密度）</li>
+<li>我们需要找到一个衰减因子，将剩余700条分布在第2-10个桶</li>
+</ul>
+<p>求解衰减因子<code>k</code>：</p>
+<pre><code class="language-text">300 × (1 + k + k² + ... + k⁹) = 1000
+300 × (1 - k¹⁰) / (1 - k) = 1000</code></pre><p>得到<code>k ≈ 0.72</code>。</p>
+<h2>分布结果</h2>
+<p>初始数量 = 300，衰减因子 = 0.72：</p>
+<table>
+<thead>
+<tr>
+<th>桶</th>
+<th>位置</th>
+<th>高质量记录</th>
+<th>密度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>1-1000</td>
+<td>300</td>
+<td>30.0%</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1001-2000</td>
+<td>216</td>
+<td>21.6%</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2001-3000</td>
+<td>156</td>
+<td>15.6%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3001-4000</td>
+<td>112</td>
+<td>11.2%</td>
+</tr>
+<tr>
+<td>5</td>
+<td>4001-5000</td>
+<td>81</td>
+<td>8.1%</td>
+</tr>
+<tr>
+<td>6</td>
+<td>5001-6000</td>
+<td>58</td>
+<td>5.8%</td>
+</tr>
+<tr>
+<td>7</td>
+<td>6001-7000</td>
+<td>42</td>
+<td>4.2%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>7001-8000</td>
+<td>30</td>
+<td>3.0%</td>
+</tr>
+<tr>
+<td>9</td>
+<td>8001-9000</td>
+<td>22</td>
+<td>2.2%</td>
+</tr>
+<tr>
+<td>10</td>
+<td>9001-10000</td>
+<td>16</td>
+<td>1.6%</td>
+</tr>
+<tr>
+<td><strong>总计</strong></td>
+<td></td>
+<td><strong>1033</strong></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>关键特性：</p>
+<ul>
+<li>前3000个位置包含672条高质量记录（67%）</li>
+<li>前5000个位置包含865条高质量记录（87%）</li>
+<li>即使最后一个桶也有16条高质量记录（不是零）</li>
+<li>首尾比例：30% → 1.6%（约20:1）</li>
+</ul>
+<h2>实现</h2>
+<p>算法分三步：</p>
+<p><strong>步骤1：计算各桶目标数量</strong></p>
+<pre><code class="language-typescript">function calculateBucketTargets(
+  totalPositions: number,
+  totalQuality: number,
+  firstBucketCount: number,
+  decayFactor: number,
+  bucketSize: number
+): number[] {
+  const numBuckets = Math.ceil(totalPositions / bucketSize);
+  const targets: number[] = [];
+
+  let count = firstBucketCount;
+  for (let i = 0; i &lt; numBuckets; i++) {
+    targets.push(Math.round(count));
+    count *= decayFactor;
+  }
+
+  // 缩放以匹配总数
+  const sum = targets.reduce((a, b) =&gt; a + b, 0);
+  const scale = totalQuality / sum;
+  return targets.map(t =&gt; Math.round(t * scale));
+}</code></pre><p><strong>步骤2：在每个桶内随机分配位置</strong></p>
+<pre><code class="language-typescript">function randomPositions(
+  start: number,
+  end: number,
+  count: number
+): number[] {
+  const available = Array.from(
+    { length: end - start },
+    (_, i) =&gt; start + i
+  );
+  const selected: number[] = [];
+
+  for (let i = 0; i &lt; count &amp;&amp; available.length &gt; 0; i++) {
+    const idx = Math.floor(Math.random() * available.length);
+    selected.push(available[idx]);
+    available.splice(idx, 1);
+  }
+
+  return selected;
+}</code></pre><p><strong>步骤3：构建最终数据集</strong></p>
+<pre><code class="language-typescript">// 将高质量记录分配到位置
+const qualityPositions = new Set&lt;number&gt;();
+let qualityIdx = 0;
+
+for (let bucket = 0; bucket &lt; bucketTargets.length; bucket++) {
+  const start = bucket * BUCKET_SIZE;
+  const end = Math.min((bucket + 1) * BUCKET_SIZE, totalPositions);
+  const count = bucketTargets[bucket];
+
+  const positions = randomPositions(start, end, count);
+  positions.forEach(p =&gt; qualityPositions.add(p));
+}
+
+// 放置记录
+const result = new Array(totalPositions);
+const shuffledQuality = shuffle(qualityRecords);
+
+let qIdx = 0;
+let nIdx = 0;
+
+for (let i = 0; i &lt; totalPositions; i++) {
+  if (qualityPositions.has(i)) {
+    result[i] = shuffledQuality[qIdx++];
+  } else {
+    result[i] = noiseRecords[nIdx++];
+  }
+}</code></pre><h2>参数调优</h2>
+<p><strong>衰减因子控制曲线陡峭程度：</strong></p>
+<table>
+<thead>
+<tr>
+<th>衰减因子</th>
+<th>第一桶</th>
+<th>最后一桶</th>
+<th>比例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0.90</td>
+<td>14%</td>
+<td>5%</td>
+<td>3:1</td>
+</tr>
+<tr>
+<td>0.80</td>
+<td>22%</td>
+<td>2%</td>
+<td>11:1</td>
+</tr>
+<tr>
+<td>0.72</td>
+<td>30%</td>
+<td>1.6%</td>
+<td>19:1</td>
+</tr>
+<tr>
+<td>0.60</td>
+<td>40%</td>
+<td>0.2%</td>
+<td>200:1</td>
+</tr>
+</tbody></table>
+<p><strong>第一桶数量控制起始密度：</strong></p>
+<ul>
+<li>想要激进的前置？从40-50%开始</li>
+<li>想要温和的分布？从15-20%开始</li>
+<li>衰减因子决定下降速度</li>
+</ul>
+<p><strong>桶大小控制粒度：</strong></p>
+<ul>
+<li>较大的桶（1000）：分布更平滑，计算更少</li>
+<li>较小的桶（100）：控制更精细，衰减更自然</li>
+</ul>
+<h2>适用场景</h2>
+<p><strong>适合使用：</strong></p>
+<ul>
+<li>相关性随位置下降的搜索结果</li>
+<li>互动率随滚动深度下降的内容信息流</li>
+<li>希望审核员先看到好样本的标注队列</li>
+<li>课程学习受益于质量梯度的训练数据</li>
+</ul>
+<p><strong>不适合使用：</strong></p>
+<ul>
+<li>位置与消费概率不相关时</li>
+<li>确实需要均匀质量分布时</li>
+<li>高质量记录超过总量50%时（直接按质量排序即可）</li>
+</ul>
+<h2>变体</h2>
+<p><strong>多层质量</strong>：不是二元的质量/噪声，可能有多个层级（优秀、良好、一般、差）。对每个层级使用不同参数应用指数衰减。</p>
+<p><strong>自适应衰减</strong>：如果有互动数据，根据实际用户行为调整衰减因子。如果用户比预期走得更深，就把曲线压平。</p>
+<p><strong>分桶随机化</strong>：不是在桶内纯随机分配，可以按次级属性（日期、来源、主题）进一步分层，确保多样性。</p>
+<h2>核心洞察</h2>
+<p>指数衰减符合人类注意力模式。用户最可能与早期项目互动，后期项目的可能性递减。通过前置高质量内容并逐渐衰减，你可以：</p>
+<ol>
+<li>最大化早期互动（注意力最高时呈现质量）</li>
+<li>保持发现性（质量永不归零）</li>
+<li>感觉自然（渐进下降，没有断崖）</li>
+</ol>
+<p>数学很简单，对用户体验的影响却很显著。</p>
+</div>
+
+      </div>
+    </article>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Shiqi Mei</p>
+    </footer>
+  </div>
+  <script type="module" src="../js/highlight.js"></script>
+  <script src="../js/lang-toggle.js"></script>
+</body>
+</html>
