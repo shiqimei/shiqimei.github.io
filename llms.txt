@@ -8,6 +8,7 @@ Personal blog by Shiqi Mei, a software engineer focused on AI-powered developer 
 
 ## Posts
 
+- [Adding Shift+Enter for Multiline Input in xterm.js](https://shiqimei.github.io/posts/xterm-shift-enter-multiline) - Jan 29, 2026
 - [Fixing Unicode Rendering in xterm.js: It's Not the Frontend](https://shiqimei.github.io/posts/xterm-unicode-docker-exec-locale) - Jan 28, 2026
 - [Mixing High-Quality Data into Large Datasets with Exponential Decay](https://shiqimei.github.io/posts/exponential-decay-data-mixing) - Jan 26, 2026
 - [Claude Code for Data Analysis: Large Datasets as Codebases is All You Need](https://shiqimei.github.io/posts/claude-code-data-analysis-codebases-all-you-need) - Jan 18, 2026

@@ -3,8 +3,15 @@
     "type": "project",
     "title": "LinguaCoach",
     "excerpt": "Interactive English language tutor that talks with you",
-    "date": "Jan 28, 2026",
+    "date": "Jan 29, 2026",
     "url": "projects.html#linguacoach"
+  },
+  {
+    "type": "post",
+    "title": "Adding Shift+Enter for Multiline Input in xterm.js",
+    "excerpt": "How to map Shift+Enter to Alt+Enter for multiline shell commands in xterm.js, and the gotcha that causes double newlines.",
+    "date": "Jan 29, 2026",
+    "url": "posts/xterm-shift-enter-multiline"
   },
   {
     "type": "post",

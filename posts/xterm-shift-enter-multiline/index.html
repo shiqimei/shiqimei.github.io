@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adding Shift+Enter for Multiline Input in xterm.js - Shiqi Mei</title>
+  <link rel="icon" type="image/png" href="../avatar.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">&larr; back</a>
+
+    <article>
+      <header class="post-header">
+        <div class="post-header-row">
+          <h1 class="post-title">Adding Shift+Enter for Multiline Input in xterm.js</h1>
+          <div class="lang-toggle" id="langToggle">
+            <button data-lang="en" class="active">EN</button>
+            <button data-lang="zh">CN</button>
+          </div>
+        </div>
+        <p class="post-meta">Jan 29, 2026</p>
+      </header>
+
+      <div class="post-content">
+        <div class="lang-en">
+
+<p>When building a web terminal with xterm.js, users expect Shift+Enter to insert a newline without executing the command. This is standard behavior in chat apps and code editors. But xterm.js doesn&#39;t support this out of the box.</p>
+<p>This post shows how to implement it by mapping Shift+Enter to Alt+Enter (which zsh natively supports), and the subtle bug that causes double newlines.</p>
+<h2>The Goal</h2>
+<p>Allow users to write multiline shell commands:</p>
+<pre><code class="language-bash">echo &quot;line 1&quot; &amp;&amp; \
+echo &quot;line 2&quot; &amp;&amp; \
+echo &quot;line 3&quot;</code></pre><p>By pressing Shift+Enter instead of manually typing <code>\</code> and Enter.</p>
+<h2>The Solution: Map to Alt+Enter</h2>
+<p>Zsh natively supports Alt+Enter (Esc+Return) for inserting a literal newline. The escape sequence is <code>\x1b\r</code> (Escape + Carriage Return).</p>
+<p>Use <code>attachCustomKeyEventHandler</code> to intercept Shift+Enter:</p>
+<pre><code class="language-javascript">terminal.attachCustomKeyEventHandler((ev) =&gt; {
+  if (ev.key === &quot;Enter&quot; &amp;&amp; ev.shiftKey) {
+    if (ev.type === &quot;keydown&quot;) {
+      // Send Esc + Return (same as Alt+Enter in zsh)
+      ws.send({ type: &quot;input&quot;, data: &quot;\x1b\r&quot; });
+    }
+    return false; // Block the event
+  }
+  return true;
+});</code></pre><h2>The Double Newline Bug</h2>
+<p>The first implementation looked like this:</p>
+<pre><code class="language-javascript">terminal.attachCustomKeyEventHandler((ev) =&gt; {
+  if (ev.type === &quot;keydown&quot; &amp;&amp; ev.key === &quot;Enter&quot; &amp;&amp; ev.shiftKey) {
+    ws.send({ type: &quot;input&quot;, data: &quot;\x1b\r&quot; });
+    return false;
+  }
+  return true;
+});</code></pre><p><strong>Problem:</strong> This created two newlines instead of one.</p>
+<p><strong>Why:</strong> The handler only blocked <code>keydown</code>, but <code>keypress</code> and <code>keyup</code> events still fired. One of these triggered additional input processing.</p>
+<p><strong>Fix:</strong> Block all event types for Shift+Enter, but only send the escape sequence on <code>keydown</code>:</p>
+<pre><code class="language-javascript">terminal.attachCustomKeyEventHandler((ev) =&gt; {
+  if (ev.key === &quot;Enter&quot; &amp;&amp; ev.shiftKey) {
+    // Only send on keydown, ignore keyup/keypress
+    if (ev.type === &quot;keydown&quot;) {
+      ws.send({ type: &quot;input&quot;, data: &quot;\x1b\r&quot; });
+    }
+    // Block ALL Shift+Enter events
+    return false;
+  }
+  return true;
+});</code></pre><h2>Why Alt+Enter Works in Zsh</h2>
+<p>In zsh, <code>\e\r</code> (Esc + Return) is bound to <code>self-insert-unmeta</code>. This command strips the escape prefix and inserts the character literally. So Esc+Return inserts a literal carriage return, creating a newline in the command buffer without executing.</p>
+<p>From the <a href="https://zsh.sourceforge.io/Doc/Release/Zsh-Line-Editor.html">Zsh Line Editor documentation</a>:</p>
+<blockquote>
+<p><code>self-insert-unmeta</code>: Insert the character you get by stripping the escape or top bit from what was typed.</p>
+</blockquote>
+<h2>Other Approaches That Failed</h2>
+<p>Before finding the Alt+Enter mapping, I tried several approaches:</p>
+<p><strong>1. Ctrl+V, Ctrl+J (<code>\x16\x0a</code>):</strong></p>
+<pre><code class="language-javascript">ws.send({ type: &quot;input&quot;, data: &quot;\x16\x0a&quot; });</code></pre><p>Created two newlines. The quoted newline plus echo created extra output.</p>
+<p><strong>2. Bracketed paste mode:</strong></p>
+<pre><code class="language-javascript">ws.send({ type: &quot;input&quot;, data: &quot;\x1b[200~\n\x1b[201~&quot; });</code></pre><p>Didn&#39;t work at all. The shell didn&#39;t recognize the bracketed paste.</p>
+<p><strong>3. Backslash + newline:</strong></p>
+<pre><code class="language-javascript">ws.send({ type: &quot;input&quot;, data: &quot; \\\n&quot; });</code></pre><p>Inserted the backslash but didn&#39;t continue the line properly.</p>
+<h2>Full Implementation</h2>
+<p>Here&#39;s the complete handler with the WebSocket integration:</p>
+<pre><code class="language-javascript">// Handle Shift+Enter for multiline input
+terminal.attachCustomKeyEventHandler((ev) =&gt; {
+  if (ev.key === &quot;Enter&quot; &amp;&amp; ev.shiftKey) {
+    if (ev.type === &quot;keydown&quot;) {
+      wsRef.current?.send({ type: &quot;input&quot;, data: &quot;\x1b\r&quot; });
+    }
+    return false;
+  }
+  return true;
+});
+
+// Normal input handling
+terminal.onData((data) =&gt; {
+  wsRef.current?.send({ type: &quot;input&quot;, data });
+});</code></pre><h2>Key Takeaways</h2>
+<ol>
+<li><p><strong>Use native shell bindings</strong> - Don&#39;t reinvent multiline input. Zsh already has Alt+Enter.</p>
+</li>
+<li><p><strong>Block all event types</strong> - Returning <code>false</code> only for <code>keydown</code> isn&#39;t enough. You must block <code>keyup</code> and <code>keypress</code> too.</p>
+</li>
+<li><p><strong>Test the escape sequence</strong> - <code>\x1b\r</code> works in zsh. For bash, you may need different handling or add a binding to <code>.inputrc</code>.</p>
+</li>
+</ol>
+</div>
+
+<div class="lang-zh">
+
+<p>在使用 xterm.js 构建 Web 终端时，用户期望 Shift+Enter 能插入换行而不执行命令。这在聊天应用和代码编辑器中是标准行为，但 xterm.js 原生不支持。</p>
+<p>本文介绍如何通过映射 Shift+Enter 到 Alt+Enter（zsh 原生支持）来实现这个功能，以及导致双重换行的隐蔽 bug。</p>
+<h2>目标</h2>
+<p>让用户能够编写多行 shell 命令：</p>
+<pre><code class="language-bash">echo &quot;line 1&quot; &amp;&amp; \
+echo &quot;line 2&quot; &amp;&amp; \
+echo &quot;line 3&quot;</code></pre><p>通过按 Shift+Enter 而不是手动输入 <code>\</code> 和 Enter。</p>
+<h2>解决方案：映射到 Alt+Enter</h2>
+<p>Zsh 原生支持 Alt+Enter（Esc+Return）来插入字面换行符。转义序列是 <code>\x1b\r</code>（Escape + 回车）。</p>
+<p>使用 <code>attachCustomKeyEventHandler</code> 拦截 Shift+Enter：</p>
+<pre><code class="language-javascript">terminal.attachCustomKeyEventHandler((ev) =&gt; {
+  if (ev.key === &quot;Enter&quot; &amp;&amp; ev.shiftKey) {
+    if (ev.type === &quot;keydown&quot;) {
+      // 发送 Esc + Return（与 zsh 中的 Alt+Enter 相同）
+      ws.send({ type: &quot;input&quot;, data: &quot;\x1b\r&quot; });
+    }
+    return false; // 阻止事件
+  }
+  return true;
+});</code></pre><h2>双重换行的 Bug</h2>
+<p>最初的实现是这样的：</p>
+<pre><code class="language-javascript">terminal.attachCustomKeyEventHandler((ev) =&gt; {
+  if (ev.type === &quot;keydown&quot; &amp;&amp; ev.key === &quot;Enter&quot; &amp;&amp; ev.shiftKey) {
+    ws.send({ type: &quot;input&quot;, data: &quot;\x1b\r&quot; });
+    return false;
+  }
+  return true;
+});</code></pre><p><strong>问题：</strong> 这会产生两个换行而不是一个。</p>
+<p><strong>原因：</strong> 处理程序只阻止了 <code>keydown</code>，但 <code>keypress</code> 和 <code>keyup</code> 事件仍然触发。其中一个触发了额外的输入处理。</p>
+<p><strong>修复：</strong> 阻止所有 Shift+Enter 事件类型，但只在 <code>keydown</code> 时发送转义序列：</p>
+<pre><code class="language-javascript">terminal.attachCustomKeyEventHandler((ev) =&gt; {
+  if (ev.key === &quot;Enter&quot; &amp;&amp; ev.shiftKey) {
+    // 只在 keydown 时发送，忽略 keyup/keypress
+    if (ev.type === &quot;keydown&quot;) {
+      ws.send({ type: &quot;input&quot;, data: &quot;\x1b\r&quot; });
+    }
+    // 阻止所有 Shift+Enter 事件
+    return false;
+  }
+  return true;
+});</code></pre><h2>为什么 Alt+Enter 在 Zsh 中有效</h2>
+<p>在 zsh 中，<code>\e\r</code>（Esc + Return）绑定到 <code>self-insert-unmeta</code>。这个命令会去掉 escape 前缀并直接插入字符。所以 Esc+Return 会插入一个字面回车符，在命令缓冲区中创建换行而不执行。</p>
+<p>来自 <a href="https://zsh.sourceforge.io/Doc/Release/Zsh-Line-Editor.html">Zsh Line Editor 文档</a>：</p>
+<blockquote>
+<p><code>self-insert-unmeta</code>：插入去掉 escape 或最高位后得到的字符。</p>
+</blockquote>
+<h2>其他失败的尝试</h2>
+<p>在找到 Alt+Enter 映射之前，我尝试了几种方法：</p>
+<p><strong>1. Ctrl+V, Ctrl+J (<code>\x16\x0a</code>)：</strong></p>
+<pre><code class="language-javascript">ws.send({ type: &quot;input&quot;, data: &quot;\x16\x0a&quot; });</code></pre><p>产生了两个换行。引用的换行加上回显产生了额外输出。</p>
+<p><strong>2. 括号粘贴模式：</strong></p>
+<pre><code class="language-javascript">ws.send({ type: &quot;input&quot;, data: &quot;\x1b[200~\n\x1b[201~&quot; });</code></pre><p>完全不起作用。shell 不识别括号粘贴。</p>
+<p><strong>3. 反斜杠 + 换行：</strong></p>
+<pre><code class="language-javascript">ws.send({ type: &quot;input&quot;, data: &quot; \\\n&quot; });</code></pre><p>插入了反斜杠但没有正确续行。</p>
+<h2>完整实现</h2>
+<p>以下是包含 WebSocket 集成的完整处理程序：</p>
+<pre><code class="language-javascript">// 处理 Shift+Enter 的多行输入
+terminal.attachCustomKeyEventHandler((ev) =&gt; {
+  if (ev.key === &quot;Enter&quot; &amp;&amp; ev.shiftKey) {
+    if (ev.type === &quot;keydown&quot;) {
+      wsRef.current?.send({ type: &quot;input&quot;, data: &quot;\x1b\r&quot; });
+    }
+    return false;
+  }
+  return true;
+});
+
+// 正常输入处理
+terminal.onData((data) =&gt; {
+  wsRef.current?.send({ type: &quot;input&quot;, data });
+});</code></pre><h2>要点总结</h2>
+<ol>
+<li><p><strong>使用原生 shell 绑定</strong> - 不要重新发明多行输入。Zsh 已经有 Alt+Enter。</p>
+</li>
+<li><p><strong>阻止所有事件类型</strong> - 只对 <code>keydown</code> 返回 <code>false</code> 是不够的。必须同时阻止 <code>keyup</code> 和 <code>keypress</code>。</p>
+</li>
+<li><p><strong>测试转义序列</strong> - <code>\x1b\r</code> 在 zsh 中有效。对于 bash，可能需要不同的处理或在 <code>.inputrc</code> 中添加绑定。</p>
+</li>
+</ol>
+</div>
+
+      </div>
+    </article>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Shiqi Mei</p>
+    </footer>
+  </div>
+  <script type="module" src="../js/highlight.js"></script>
+  <script src="../js/lang-toggle.js"></script>
+</body>
+</html>
