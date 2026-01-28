@@ -3,8 +3,15 @@
     "type": "project",
     "title": "LinguaCoach",
     "excerpt": "Interactive English language tutor that talks with you",
-    "date": "Jan 26, 2026",
+    "date": "Jan 28, 2026",
     "url": "projects.html#linguacoach"
+  },
+  {
+    "type": "post",
+    "title": "Fixing Unicode Rendering in xterm.js: It's Not the Frontend",
+    "excerpt": "Why Unicode characters render as underscores in web terminals, and how the real fix is passing LANG/LC_ALL to docker exec.",
+    "date": "Jan 28, 2026",
+    "url": "posts/xterm-unicode-docker-exec-locale"
   },
   {
     "type": "post",

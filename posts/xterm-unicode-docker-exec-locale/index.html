@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixing Unicode Rendering in xterm.js: It's Not the Frontend - Shiqi Mei</title>
+  <link rel="icon" type="image/png" href="../avatar.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">&larr; back</a>
+
+    <article>
+      <header class="post-header">
+        <div class="post-header-row">
+          <h1 class="post-title">Fixing Unicode Rendering in xterm.js: It's Not the Frontend</h1>
+          <div class="lang-toggle" id="langToggle">
+            <button data-lang="en" class="active">EN</button>
+            <button data-lang="zh">CN</button>
+          </div>
+        </div>
+        <p class="post-meta">Jan 28, 2026</p>
+      </header>
+
+      <div class="post-content">
+        <div class="lang-en">
+
+<p>Building a web-based terminal using xterm.js, I encountered a frustrating issue: Unicode characters like <code>»</code> and CJK characters (你好) rendered as underscores or blank boxes. After hours of debugging font loading, WebGL renderers, and CSS font-face declarations, the fix was a single line change in the backend.</p>
+<p>This post documents the debugging journey and the actual solution.</p>
+<h2>The Symptom</h2>
+<p>In a web terminal powered by xterm.js connecting to Docker containers via WebSocket:</p>
+<ul>
+<li>ASCII characters rendered fine</li>
+<li>Unicode symbols like <code>»</code>, <code>→</code>, <code>←</code> showed as underscores</li>
+<li>CJK characters (Chinese, Japanese, Korean) showed as blank boxes</li>
+<li>The PS1 prompt <code>%F{63}» %f</code> displayed as <code>_</code> instead of <code>»</code></li>
+</ul>
+<h2>The Wrong Direction: Frontend Debugging</h2>
+<p>I spent hours trying to fix this on the frontend:</p>
+<p><strong>1. Font loading attempts:</strong></p>
+<pre><code class="language-javascript">// Tried loading multiple fonts
+fontFamily: &#039;&quot;JetBrains Mono&quot;, &quot;Noto Sans Mono&quot;, &quot;PingFang SC&quot;, monospace&#039;
+
+// Waited for fonts to load
+await document.fonts.load(&#039;13px &quot;JetBrains Mono&quot;&#039;);
+await document.fonts.ready;</code></pre><p><strong>2. WebGL renderer suspicion:</strong></p>
+<pre><code class="language-javascript">// Disabled WebGL thinking it was the issue
+// const webglAddon = new WebglAddon();
+// terminal.loadAddon(webglAddon);</code></pre><p><strong>3. CSS @font-face with unicode-range:</strong></p>
+<pre><code class="language-css">@font-face {
+  font-family: &#039;TerminalFont&#039;;
+  src: local(&#039;PingFang SC&#039;), local(&#039;Microsoft YaHei&#039;);
+  unicode-range: U+4E00-9FFF; /* CJK characters */
+}</code></pre><p><strong>4. Unicode11 addon:</strong></p>
+<pre><code class="language-javascript">const unicode11Addon = new Unicode11Addon();
+terminal.loadAddon(unicode11Addon);
+terminal.unicode.activeVersion = &#039;11&#039;;</code></pre><p>None of these worked.</p>
+<h2>The Breakthrough: A Self-Contained Test</h2>
+<p>I created a standalone xterm.js demo that wrote Unicode directly to the terminal:</p>
+<pre><code class="language-javascript">terminal.writeln(&#039;Chinese: 你好世界 中文测试&#039;);
+terminal.writeln(&#039;Unicode: » « → ← ↑ ↓&#039;);</code></pre><p><strong>Result: Everything rendered perfectly.</strong></p>
+<p>This proved xterm.js and WebGL were not the problem. The issue was somewhere in the data pipeline from the Docker container to the browser.</p>
+<h2>Finding the Real Cause</h2>
+<p>I tested the Docker container directly:</p>
+<pre><code class="language-bash">docker run --rm --entrypoint /bin/sh worker:latest -c &#039;
+  echo &quot;Direct: » 你好&quot;
+  tmux new-session -d -s test
+  tmux send-keys &quot;echo » 你好&quot; Enter
+  tmux capture-pane -p
+&#039;</code></pre><p>Output showed Unicode correctly. But the container&#39;s locale was set:</p>
+<pre><code class="language-text">LANG=C.UTF-8
+LC_ALL=C.UTF-8</code></pre><p>Then I checked how the shell was being spawned. The <code>docker exec</code> command was:</p>
+<pre><code class="language-javascript">const dockerCmd = [
+  &quot;/usr/bin/docker&quot;,
+  &quot;exec&quot;,
+  &quot;-it&quot;,
+  &quot;-e&quot;, &quot;TERM=xterm-256color&quot;,
+  containerName,
+  &quot;/bin/sh&quot;, &quot;-c&quot;, tmuxCmd,
+];</code></pre><p><strong>The problem:</strong> <code>TERM</code> was set, but <code>LANG</code> and <code>LC_ALL</code> were not passed to the exec environment. Even though the container had these set in the Dockerfile, <code>docker exec</code> creates a new environment that doesn&#39;t inherit all container environment variables.</p>
+<h2>The Fix</h2>
+<p>Add <code>LANG</code> and <code>LC_ALL</code> to the docker exec command:</p>
+<pre><code class="language-javascript">const dockerCmd = [
+  &quot;/usr/bin/docker&quot;,
+  &quot;exec&quot;,
+  &quot;-it&quot;,
+  &quot;-e&quot;, &quot;TERM=xterm-256color&quot;,
+  &quot;-e&quot;, &quot;LANG=C.UTF-8&quot;,
+  &quot;-e&quot;, &quot;LC_ALL=C.UTF-8&quot;,
+  containerName,
+  &quot;/bin/sh&quot;, &quot;-c&quot;, tmuxCmd,
+];</code></pre><p><strong>That&#39;s it.</strong> Unicode rendering worked immediately.</p>
+<h2>Why This Happens</h2>
+<ol>
+<li><p><strong>Container environment ≠ exec environment</strong>: Setting <code>ENV LANG=C.UTF-8</code> in Dockerfile sets the variable for processes started by the container&#39;s entrypoint. But <code>docker exec</code> creates a new process with a minimal environment.</p>
+</li>
+<li><p><strong>Shell needs locale for Unicode</strong>: Without <code>LANG</code>/<code>LC_ALL</code>, the shell (zsh/bash) may not properly handle multi-byte characters. It might output escape sequences or replacement characters instead.</p>
+</li>
+<li><p><strong>The browser receives corrupted data</strong>: By the time the data reaches xterm.js via WebSocket, the Unicode characters are already mangled at the source.</p>
+</li>
+</ol>
+<h2>Diagnostic Checklist</h2>
+<p>When debugging Unicode issues in web terminals:</p>
+<ol>
+<li><p><strong>Test xterm.js in isolation</strong> - Write Unicode directly to terminal. If it renders, the frontend is fine.</p>
+</li>
+<li><p><strong>Test the container directly</strong> - Run <code>echo &quot;你好&quot;</code> via <code>docker exec</code> in a regular terminal.</p>
+</li>
+<li><p><strong>Check the exec environment</strong> - Print <code>$LANG</code> and <code>$LC_ALL</code> in the exec session, not just <code>docker inspect</code>.</p>
+</li>
+<li><p><strong>Verify the data pipeline</strong> - Log the raw bytes at each stage (container → API → WebSocket → browser).</p>
+</li>
+</ol>
+<h2>Key Takeaway</h2>
+<p>When Unicode doesn&#39;t render in a web terminal:</p>
+<ul>
+<li>It&#39;s probably <strong>not</strong> xterm.js</li>
+<li>It&#39;s probably <strong>not</strong> font loading</li>
+<li>It&#39;s probably <strong>not</strong> the WebGL renderer</li>
+</ul>
+<p>Check how the shell process is spawned. Specifically, verify that <code>LANG</code> and <code>LC_ALL</code> are set to a UTF-8 locale in the exec environment, not just in the container&#39;s Dockerfile.</p>
+</div>
+
+<div class="lang-zh">
+
+<p>在使用 xterm.js 构建 Web 终端时，我遇到了一个令人沮丧的问题：Unicode 字符如 <code>»</code> 和中日韩字符（你好）渲染成下划线或空白方块。在花了数小时调试字体加载、WebGL 渲染器和 CSS font-face 声明后，最终的修复只是后端的一行代码改动。</p>
+<p>本文记录了调试过程和真正的解决方案。</p>
+<h2>症状</h2>
+<p>在一个通过 WebSocket 连接到 Docker 容器的 xterm.js Web 终端中：</p>
+<ul>
+<li>ASCII 字符正常渲染</li>
+<li>Unicode 符号如 <code>»</code>、<code>→</code>、<code>←</code> 显示为下划线</li>
+<li>中日韩字符显示为空白方块</li>
+<li>PS1 提示符 <code>%F{63}» %f</code> 显示为 <code>_</code> 而不是 <code>»</code></li>
+</ul>
+<h2>错误的方向：前端调试</h2>
+<p>我花了数小时试图在前端修复这个问题：</p>
+<p><strong>1. 字体加载尝试：</strong></p>
+<pre><code class="language-javascript">// 尝试加载多种字体
+fontFamily: &#039;&quot;JetBrains Mono&quot;, &quot;Noto Sans Mono&quot;, &quot;PingFang SC&quot;, monospace&#039;
+
+// 等待字体加载
+await document.fonts.load(&#039;13px &quot;JetBrains Mono&quot;&#039;);
+await document.fonts.ready;</code></pre><p><strong>2. 怀疑 WebGL 渲染器：</strong></p>
+<pre><code class="language-javascript">// 禁用 WebGL，以为是它的问题
+// const webglAddon = new WebglAddon();
+// terminal.loadAddon(webglAddon);</code></pre><p><strong>3. 使用 unicode-range 的 CSS @font-face：</strong></p>
+<pre><code class="language-css">@font-face {
+  font-family: &#039;TerminalFont&#039;;
+  src: local(&#039;PingFang SC&#039;), local(&#039;Microsoft YaHei&#039;);
+  unicode-range: U+4E00-9FFF; /* CJK 字符 */
+}</code></pre><p><strong>4. Unicode11 插件：</strong></p>
+<pre><code class="language-javascript">const unicode11Addon = new Unicode11Addon();
+terminal.loadAddon(unicode11Addon);
+terminal.unicode.activeVersion = &#039;11&#039;;</code></pre><p>这些都没有用。</p>
+<h2>突破口：独立测试</h2>
+<p>我创建了一个独立的 xterm.js 演示，直接向终端写入 Unicode：</p>
+<pre><code class="language-javascript">terminal.writeln(&#039;Chinese: 你好世界 中文测试&#039;);
+terminal.writeln(&#039;Unicode: » « → ← ↑ ↓&#039;);</code></pre><p><strong>结果：一切渲染完美。</strong></p>
+<p>这证明了 xterm.js 和 WebGL 不是问题所在。问题在于从 Docker 容器到浏览器的数据传输管道中的某个环节。</p>
+<h2>找到真正的原因</h2>
+<p>我直接测试了 Docker 容器：</p>
+<pre><code class="language-bash">docker run --rm --entrypoint /bin/sh worker:latest -c &#039;
+  echo &quot;Direct: » 你好&quot;
+  tmux new-session -d -s test
+  tmux send-keys &quot;echo » 你好&quot; Enter
+  tmux capture-pane -p
+&#039;</code></pre><p>输出正确显示了 Unicode。容器的 locale 设置如下：</p>
+<pre><code class="language-text">LANG=C.UTF-8
+LC_ALL=C.UTF-8</code></pre><p>然后我检查了 shell 是如何启动的。<code>docker exec</code> 命令是：</p>
+<pre><code class="language-javascript">const dockerCmd = [
+  &quot;/usr/bin/docker&quot;,
+  &quot;exec&quot;,
+  &quot;-it&quot;,
+  &quot;-e&quot;, &quot;TERM=xterm-256color&quot;,
+  containerName,
+  &quot;/bin/sh&quot;, &quot;-c&quot;, tmuxCmd,
+];</code></pre><p><strong>问题所在：</strong> 设置了 <code>TERM</code>，但没有传递 <code>LANG</code> 和 <code>LC_ALL</code> 到 exec 环境。尽管容器在 Dockerfile 中设置了这些变量，<code>docker exec</code> 会创建一个新环境，不会继承所有容器环境变量。</p>
+<h2>修复方法</h2>
+<p>在 docker exec 命令中添加 <code>LANG</code> 和 <code>LC_ALL</code>：</p>
+<pre><code class="language-javascript">const dockerCmd = [
+  &quot;/usr/bin/docker&quot;,
+  &quot;exec&quot;,
+  &quot;-it&quot;,
+  &quot;-e&quot;, &quot;TERM=xterm-256color&quot;,
+  &quot;-e&quot;, &quot;LANG=C.UTF-8&quot;,
+  &quot;-e&quot;, &quot;LC_ALL=C.UTF-8&quot;,
+  containerName,
+  &quot;/bin/sh&quot;, &quot;-c&quot;, tmuxCmd,
+];</code></pre><p><strong>就这样。</strong> Unicode 渲染立即正常了。</p>
+<h2>为什么会这样</h2>
+<ol>
+<li><p><strong>容器环境 ≠ exec 环境</strong>：在 Dockerfile 中设置 <code>ENV LANG=C.UTF-8</code> 只对容器入口点启动的进程生效。但 <code>docker exec</code> 会创建一个带有最小环境的新进程。</p>
+</li>
+<li><p><strong>Shell 需要 locale 支持 Unicode</strong>：没有 <code>LANG</code>/<code>LC_ALL</code>，shell（zsh/bash）可能无法正确处理多字节字符，会输出转义序列或替换字符。</p>
+</li>
+<li><p><strong>浏览器收到的是损坏的数据</strong>：当数据通过 WebSocket 到达 xterm.js 时，Unicode 字符在源头就已经被破坏了。</p>
+</li>
+</ol>
+<h2>诊断清单</h2>
+<p>调试 Web 终端的 Unicode 问题时：</p>
+<ol>
+<li><p><strong>单独测试 xterm.js</strong> - 直接向终端写入 Unicode。如果能渲染，前端没问题。</p>
+</li>
+<li><p><strong>直接测试容器</strong> - 在普通终端中通过 <code>docker exec</code> 运行 <code>echo &quot;你好&quot;</code>。</p>
+</li>
+<li><p><strong>检查 exec 环境</strong> - 在 exec 会话中打印 <code>$LANG</code> 和 <code>$LC_ALL</code>，而不只是 <code>docker inspect</code>。</p>
+</li>
+<li><p><strong>验证数据管道</strong> - 在每个阶段记录原始字节（容器 → API → WebSocket → 浏览器）。</p>
+</li>
+</ol>
+<h2>关键要点</h2>
+<p>当 Web 终端中 Unicode 无法渲染时：</p>
+<ul>
+<li><strong>可能不是</strong> xterm.js 的问题</li>
+<li><strong>可能不是</strong>字体加载的问题</li>
+<li><strong>可能不是</strong> WebGL 渲染器的问题</li>
+</ul>
+<p>检查 shell 进程是如何启动的。具体来说，验证 <code>LANG</code> 和 <code>LC_ALL</code> 在 exec 环境中是否设置为 UTF-8 locale，而不仅仅是在容器的 Dockerfile 中。</p>
+</div>
+
+      </div>
+    </article>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Shiqi Mei</p>
+    </footer>
+  </div>
+  <script type="module" src="../js/highlight.js"></script>
+  <script src="../js/lang-toggle.js"></script>
+</body>
+</html>
