@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Building a Better Remote Terminal: Clipboard, Multiline, and Image Paste in xterm.js - Shiqi Mei</title>
+  <link rel="icon" type="image/png" href="../avatar.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">&larr; back</a>
+
+    <article>
+      <header class="post-header">
+        <div class="post-header-row">
+          <h1 class="post-title">Building a Better Remote Terminal: Clipboard, Multiline, and Image Paste in xterm.js</h1>
+          <div class="lang-toggle" id="langToggle">
+            <button data-lang="en" class="active">EN</button>
+            <button data-lang="zh">CN</button>
+          </div>
+        </div>
+        <p class="post-meta">Jan 29, 2026</p>
+      </header>
+
+      <div class="post-content">
+        <div class="lang-en">
+
+<p>When building a web terminal with xterm.js that connects to a remote server via PTY, you quickly discover that basic terminal features don&#39;t work out of the box. Users expect:</p>
+<ol>
+<li><strong>Shift+Enter</strong> to insert newlines without executing</li>
+<li><strong>Yank in tmux</strong> to copy to their local clipboard</li>
+<li><strong>Ctrl+V</strong> to paste images (for tools like Claude Code)</li>
+</ol>
+<p>This post covers the implementation of all three, including the subtle bugs encountered along the way.</p>
+<h2>Architecture Overview</h2>
+<p>The setup: xterm.js in the browser connects via WebSocket to a backend that runs <code>docker exec</code> with PTY allocation. Inside the container, tmux provides session persistence, and Claude Code runs as the primary application.</p>
+<pre><code class="language-text">Browser (xterm.js) &lt;--WebSocket--&gt; API Server &lt;--docker exec--&gt; Container (tmux + Claude Code)</code></pre><p>The challenge is bridging the gap between browser APIs and the remote terminal environment.</p>
+<h2>1. Shift+Enter for Multiline Input</h2>
+<p>Users expect Shift+Enter to insert a newline without executing the command. This is standard in chat apps and code editors.</p>
+<h3>The Solution: Map to Alt+Enter</h3>
+<p>Zsh natively supports Alt+Enter (Esc+Return) for inserting a literal newline. The escape sequence is <code>\x1b\r</code>.</p>
+</div>
+
+<pre><code class="language-javascript">terminal.attachCustomKeyEventHandler((ev) =&gt; {
+  if (ev.key === &quot;Enter&quot; &amp;&amp; ev.shiftKey) {
+    if (ev.type === &quot;keydown&quot;) {
+      // Send Esc + Return (same as Alt+Enter in zsh)
+      ws.send({ type: &quot;input&quot;, data: &quot;\x1b\r&quot; });
+    }
+    return false; // Block the event
+  }
+  return true;
+});</code></pre><div class="lang-zh">
+
+<p>使用 xterm.js 构建连接远程服务器的 Web 终端时，你会发现基本的终端功能并不是开箱即用的。用户期望：</p>
+<ol>
+<li><strong>Shift+Enter</strong> 插入换行而不执行命令</li>
+<li><strong>tmux 复制模式</strong> 能将内容复制到本地剪贴板</li>
+<li><strong>Ctrl+V</strong> 粘贴图片（用于 Claude Code 等工具）</li>
+</ol>
+<p>本文涵盖这三个功能的实现，包括过程中遇到的隐蔽 bug。</p>
+<h2>架构概述</h2>
+<p>整体架构：浏览器中的 xterm.js 通过 WebSocket 连接到后端，后端运行带 PTY 的 <code>docker exec</code>。容器内，tmux 提供会话持久化，Claude Code 作为主要应用运行。</p>
+<pre><code class="language-text">浏览器 (xterm.js) &lt;--WebSocket--&gt; API 服务器 &lt;--docker exec--&gt; 容器 (tmux + Claude Code)</code></pre><p>挑战在于打通浏览器 API 和远程终端环境之间的鸿沟。</p>
+<h2>1. Shift+Enter 多行输入</h2>
+<p>用户期望 Shift+Enter 能插入换行而不执行命令。这在聊天应用和代码编辑器中是标准行为。</p>
+<h3>解决方案：映射到 Alt+Enter</h3>
+<p>Zsh 原生支持 Alt+Enter（Esc+Return）插入字面换行符。转义序列是 <code>\x1b\r</code>。</p>
+</div>
+
+<div class="lang-en">
+
+<h3>The Double Newline Bug</h3>
+<p>The first implementation only blocked <code>keydown</code>:</p>
+</div>
+
+<pre><code class="language-javascript">// BUG: Creates two newlines
+terminal.attachCustomKeyEventHandler((ev) =&gt; {
+  if (ev.type === &quot;keydown&quot; &amp;&amp; ev.key === &quot;Enter&quot; &amp;&amp; ev.shiftKey) {
+    ws.send({ type: &quot;input&quot;, data: &quot;\x1b\r&quot; });
+    return false;
+  }
+  return true;
+});</code></pre><div class="lang-zh">
+
+<h3>双重换行的 Bug</h3>
+<p>最初的实现只阻止了 <code>keydown</code>：</p>
+</div>
+
+<div class="lang-en">
+
+<p><strong>Problem:</strong> Two newlines appeared instead of one.</p>
+<p><strong>Why:</strong> The handler only blocked <code>keydown</code>, but <code>keypress</code> and <code>keyup</code> events still fired, triggering additional input processing.</p>
+<p><strong>Fix:</strong> Block all event types, but only send the escape sequence on <code>keydown</code>:</p>
+</div>
+
+<pre><code class="language-javascript">terminal.attachCustomKeyEventHandler((ev) =&gt; {
+  if (ev.key === &quot;Enter&quot; &amp;&amp; ev.shiftKey) {
+    if (ev.type === &quot;keydown&quot;) {
+      ws.send({ type: &quot;input&quot;, data: &quot;\x1b\r&quot; });
+    }
+    // Block ALL Shift+Enter events (keydown, keyup, keypress)
+    return false;
+  }
+  return true;
+});</code></pre><div class="lang-zh">
+
+<p><strong>问题：</strong> 出现两个换行而不是一个。</p>
+<p><strong>原因：</strong> 处理程序只阻止了 <code>keydown</code>，但 <code>keypress</code> 和 <code>keyup</code> 事件仍然触发，导致额外的输入处理。</p>
+<p><strong>修复：</strong> 阻止所有事件类型，但只在 <code>keydown</code> 时发送转义序列。</p>
+</div>
+
+<div class="lang-en">
+
+<h2>2. tmux Yank to Local Clipboard</h2>
+<p>When you select text in tmux copy mode and press <code>y</code> to yank, you expect it in your system clipboard. But by default, tmux&#39;s clipboard is isolated inside the container.</p>
+<h3>The Solution: OSC 52 Escape Sequences</h3>
+<p>OSC 52 is a terminal escape sequence that tells the terminal emulator to set the system clipboard. Modern terminals (iTerm2, Windows Terminal, etc.) support it, and so does xterm.js with the <code>@xterm/addon-clipboard</code>.</p>
+<p><strong>Step 1:</strong> Configure tmux to emit OSC 52:</p>
+</div>
+
+<pre><code class="language-bash"># ~/.tmux.conf
+set -g set-clipboard on</code></pre><div class="lang-zh">
+
+<h2>2. tmux 复制到本地剪贴板</h2>
+<p>在 tmux 复制模式中选择文本并按 <code>y</code> 复制时，你期望内容出现在系统剪贴板中。但默认情况下，tmux 的剪贴板被隔离在容器内。</p>
+<h3>解决方案：OSC 52 转义序列</h3>
+<p>OSC 52 是一种终端转义序列，告诉终端模拟器设置系统剪贴板。现代终端（iTerm2、Windows Terminal 等）都支持它，xterm.js 通过 <code>@xterm/addon-clipboard</code> 也支持。</p>
+<p><strong>第一步：</strong> 配置 tmux 发送 OSC 52：</p>
+</div>
+
+<div class="lang-en">
+
+<p><strong>Step 2:</strong> Add the ClipboardAddon to xterm.js:</p>
+</div>
+
+<pre><code class="language-javascript">import { ClipboardAddon } from &quot;@xterm/addon-clipboard&quot;;
+
+// Custom provider to handle tmux&#039;s selection type
+const clipboardProvider = {
+  readText: async (selection) =&gt; {
+    if (selection !== &quot;c&quot;) return &quot;&quot;;
+    return navigator.clipboard.readText();
+  },
+  writeText: async (selection, text) =&gt; {
+    if (!text) return;
+    await navigator.clipboard.writeText(text);
+  }
+};
+
+const clipboardAddon = new ClipboardAddon(undefined, clipboardProvider);
+terminal.loadAddon(clipboardAddon);</code></pre><div class="lang-zh">
+
+<p><strong>第二步：</strong> 在 xterm.js 中添加 ClipboardAddon：</p>
+</div>
+
+<div class="lang-en">
+
+<h3>The Selection Type Gotcha</h3>
+<p>The default ClipboardAddon only accepts selection type <code>&quot;c&quot;</code> (clipboard). But tmux sends an empty selection type. The custom provider above accepts any selection type, which fixes the issue.</p>
+<p><strong>Debugging tip:</strong> Add logging to see what tmux sends:</p>
+</div>
+
+<pre><code class="language-javascript">writeText: async (selection, text) =&gt; {
+  console.log(`[Clipboard] selection: ${selection}, text length: ${text.length}`);
+  await navigator.clipboard.writeText(text);
+}</code></pre><div class="lang-zh">
+
+<h3>选择类型的坑</h3>
+<p>默认的 ClipboardAddon 只接受选择类型 <code>&quot;c&quot;</code>（剪贴板）。但 tmux 发送的是空的选择类型。上面的自定义 provider 接受任何选择类型，解决了这个问题。</p>
+<p><strong>调试技巧：</strong> 添加日志查看 tmux 发送的内容。</p>
+</div>
+
+<div class="lang-en">
+
+<h2>3. Ctrl+V Image Paste for Claude Code</h2>
+<p>Claude Code supports pasting images with Ctrl+V. On a local terminal, it reads from the system clipboard. But in a web terminal, we need to:</p>
+<ol>
+<li>Intercept Ctrl+V in the browser</li>
+<li>Read the image from the browser&#39;s clipboard</li>
+<li>Transfer it to the container</li>
+<li>Set the container&#39;s X clipboard</li>
+<li>Send Ctrl+V to Claude Code</li>
+</ol>
+<h3>Container Setup</h3>
+<p>The container needs X clipboard support even in headless mode:</p>
+</div>
+
+<pre><code class="language-dockerfile"># Dockerfile
+RUN apk add --no-cache xclip xvfb</code></pre><div class="lang-zh">
+
+<h2>3. Ctrl+V 图片粘贴支持 Claude Code</h2>
+<p>Claude Code 支持用 Ctrl+V 粘贴图片。在本地终端，它从系统剪贴板读取。但在 Web 终端中，我们需要：</p>
+<ol>
+<li>在浏览器中拦截 Ctrl+V</li>
+<li>从浏览器剪贴板读取图片</li>
+<li>传输到容器</li>
+<li>设置容器的 X 剪贴板</li>
+<li>向 Claude Code 发送 Ctrl+V</li>
+</ol>
+<h3>容器配置</h3>
+<p>容器需要 X 剪贴板支持，即使在无头模式下：</p>
+</div>
+
+<div class="lang-en">
+
+<h3>Frontend: Intercept Ctrl+V</h3>
+<p>On Mac, Cmd+V is for text paste, Ctrl+V is for image paste to Claude Code:</p>
+</div>
+
+<pre><code class="language-javascript">const isMac = navigator.platform.toUpperCase().indexOf(&quot;MAC&quot;) &gt;= 0;
+const isImagePasteShortcut = isMac
+  ? ev.key === &quot;v&quot; &amp;&amp; ev.ctrlKey &amp;&amp; !ev.metaKey &amp;&amp; !ev.shiftKey
+  : false;
+
+if (isImagePasteShortcut &amp;&amp; ev.type === &quot;keydown&quot;) {
+  navigator.clipboard.read().then(async (items) =&gt; {
+    for (const item of items) {
+      const imageType = item.types.find(type =&gt; type.startsWith(&quot;image/&quot;));
+      if (imageType) {
+        const blob = await item.getType(imageType);
+        // Upload to container, then send Ctrl+V
+        await api.uploadClipboardImage(sessionId, blob);
+        ws.send({ type: &quot;input&quot;, data: &quot;\x16&quot; }); // Ctrl+V = \x16
+        return;
+      }
+    }
+    // No image found, send Ctrl+V as normal
+    ws.send({ type: &quot;input&quot;, data: &quot;\x16&quot; });
+  });
+  return false;
+}</code></pre><div class="lang-zh">
+
+<h3>前端：拦截 Ctrl+V</h3>
+<p>在 Mac 上，Cmd+V 用于文本粘贴，Ctrl+V 用于向 Claude Code 粘贴图片。</p>
+</div>
+
+<div class="lang-en">
+
+<h3>Backend: Set Container Clipboard</h3>
+<p>The backend receives the image, copies it to the container, and sets the X clipboard:</p>
+</div>
+
+<pre><code class="language-typescript">async setClipboardImage(sessionId: string, imageData: Uint8Array, mimeType: string) {
+  // Ensure Xvfb is running
+  await this.ensureXvfb(sessionId);
+
+  // Copy image to container
+  const tempPath = `/tmp/clipboard_${Date.now()}.png`;
+  await docker.cp(imageData, `${containerName}:${tempPath}`);
+
+  // Set clipboard using xclip in detached mode
+  await docker.exec(&quot;-d&quot;, &quot;-e&quot;, &quot;DISPLAY=:99&quot;, containerName,
+    &quot;sh&quot;, &quot;-c&quot;, `xclip -selection clipboard -t ${mimeType} -i ${tempPath}`);
+}
+
+async ensureXvfb(sessionId: string) {
+  // Check if Xvfb already running
+  const running = await docker.exec(containerName, &quot;pgrep&quot;, &quot;-x&quot;, &quot;Xvfb&quot;);
+  if (running) return;
+
+  // Start Xvfb in background
+  await docker.exec(&quot;-d&quot;, containerName, &quot;Xvfb&quot;, &quot;:99&quot;, &quot;-screen&quot;, &quot;0&quot;, &quot;1024x768x24&quot;);
+  await sleep(500); // Wait for Xvfb to start
+}</code></pre><div class="lang-zh">
+
+<h3>后端：设置容器剪贴板</h3>
+<p>后端接收图片，复制到容器，并设置 X 剪贴板。</p>
+</div>
+
+<div class="lang-en">
+
+<h3>Critical: DISPLAY Environment Variable</h3>
+<p>The shell session must have <code>DISPLAY=:99</code> set so Claude Code can find the X clipboard:</p>
+</div>
+
+<pre><code class="language-typescript">// When spawning the interactive shell
+docker.exec(&quot;-e&quot;, &quot;DISPLAY=:99&quot;, containerName, &quot;tmux&quot;, &quot;attach&quot;);</code></pre><div class="lang-zh">
+
+<h3>关键：DISPLAY 环境变量</h3>
+<p>shell 会话必须设置 <code>DISPLAY=:99</code>，这样 Claude Code 才能找到 X 剪贴板。</p>
+</div>
+
+<div class="lang-en">
+
+<h3>The xclip Persistence Problem</h3>
+<p>When you run <code>docker exec ... xclip -i</code>, xclip forks into the background to serve clipboard requests. But when docker exec exits, the forked process may be killed.</p>
+<p><strong>Solution:</strong> Use detached mode (<code>docker exec -d</code>) so xclip persists:</p>
+</div>
+
+<pre><code class="language-typescript">// Without -d: xclip may die when docker exec returns
+docker.exec(&quot;-e&quot;, &quot;DISPLAY=:99&quot;, container, &quot;xclip&quot;, &quot;-i&quot;, file);
+
+// With -d: xclip stays running to serve clipboard requests
+docker.exec(&quot;-d&quot;, &quot;-e&quot;, &quot;DISPLAY=:99&quot;, container,
+  &quot;sh&quot;, &quot;-c&quot;, `xclip -selection clipboard -t image/png -i ${file}`);</code></pre><div class="lang-zh">
+
+<h3>xclip 持久化问题</h3>
+<p>当运行 <code>docker exec ... xclip -i</code> 时，xclip 会 fork 到后台来响应剪贴板请求。但当 docker exec 退出时，fork 的进程可能被杀死。</p>
+<p><strong>解决方案：</strong> 使用分离模式（<code>docker exec -d</code>）让 xclip 持续运行。</p>
+</div>
+
+<div class="lang-en">
+
+<h2>Complete Key Handler</h2>
+<p>Here&#39;s the full <code>attachCustomKeyEventHandler</code> implementation combining all three features:</p>
+</div>
+
+<pre><code class="language-javascript">terminal.attachCustomKeyEventHandler((ev) =&gt; {
+  // 1. Shift+Enter for multiline input
+  if (ev.key === &quot;Enter&quot; &amp;&amp; ev.shiftKey) {
+    if (ev.type === &quot;keydown&quot;) {
+      ws.send({ type: &quot;input&quot;, data: &quot;\x1b\r&quot; });
+    }
+    return false;
+  }
+
+  const isMac = navigator.platform.toUpperCase().indexOf(&quot;MAC&quot;) &gt;= 0;
+
+  // 2. Copy: Cmd+C (Mac) or Ctrl+Shift+C (Windows/Linux)
+  const isCopyShortcut = isMac
+    ? ev.key === &quot;c&quot; &amp;&amp; ev.metaKey &amp;&amp; !ev.shiftKey
+    : ev.key === &quot;C&quot; &amp;&amp; ev.ctrlKey &amp;&amp; ev.shiftKey;
+
+  if (isCopyShortcut &amp;&amp; ev.type === &quot;keydown&quot;) {
+    const selection = terminal.getSelection();
+    if (selection) {
+      navigator.clipboard.writeText(selection);
+      return false;
+    }
+  }
+
+  // 3. Text paste: Cmd+V (Mac) or Ctrl+Shift+V (Windows/Linux)
+  const isPasteShortcut = isMac
+    ? ev.key === &quot;v&quot; &amp;&amp; ev.metaKey &amp;&amp; !ev.shiftKey
+    : ev.key === &quot;V&quot; &amp;&amp; ev.ctrlKey &amp;&amp; ev.shiftKey;
+
+  if (isPasteShortcut &amp;&amp; ev.type === &quot;keydown&quot;) {
+    navigator.clipboard.readText().then((text) =&gt; {
+      if (text) ws.send({ type: &quot;input&quot;, data: text });
+    });
+    return false;
+  }
+
+  // 4. Image paste: Ctrl+V (Mac only, for Claude Code)
+  const isImagePasteShortcut = isMac &amp;&amp; ev.key === &quot;v&quot; &amp;&amp; ev.ctrlKey &amp;&amp; !ev.metaKey;
+
+  if (isImagePasteShortcut &amp;&amp; ev.type === &quot;keydown&quot;) {
+    navigator.clipboard.read().then(async (items) =&gt; {
+      for (const item of items) {
+        const imageType = item.types.find(t =&gt; t.startsWith(&quot;image/&quot;));
+        if (imageType) {
+          const blob = await item.getType(imageType);
+          await api.uploadClipboardImage(sessionId, blob);
+          ws.send({ type: &quot;input&quot;, data: &quot;\x16&quot; });
+          return;
+        }
+      }
+      ws.send({ type: &quot;input&quot;, data: &quot;\x16&quot; });
+    });
+    return false;
+  }
+
+  return true;
+});</code></pre><div class="lang-zh">
+
+<h2>完整的按键处理器</h2>
+<p>以下是结合三个功能的完整 <code>attachCustomKeyEventHandler</code> 实现。</p>
+</div>
+
+<div class="lang-en">
+
+<h2>Key Takeaways</h2>
+<ol>
+<li><p><strong>Use native shell bindings</strong> - Zsh&#39;s Alt+Enter (<code>\x1b\r</code>) is the right way to do multiline input.</p>
+</li>
+<li><p><strong>Block all event types</strong> - When intercepting keys, return <code>false</code> for all event types (keydown, keyup, keypress), not just keydown.</p>
+</li>
+<li><p><strong>OSC 52 bridges the clipboard gap</strong> - tmux&#39;s <code>set-clipboard on</code> plus xterm.js ClipboardAddon enables yank-to-clipboard.</p>
+</li>
+<li><p><strong>Xvfb + xclip for headless clipboard</strong> - Containers need a virtual X server for clipboard operations.</p>
+</li>
+<li><p><strong>docker exec -d for persistence</strong> - Background processes started via docker exec may die when the exec returns. Use <code>-d</code> for processes that need to persist.</p>
+</li>
+</ol>
+</div>
+
+<div class="lang-zh">
+
+<h2>要点总结</h2>
+<ol>
+<li><p><strong>使用原生 shell 绑定</strong> - Zsh 的 Alt+Enter（<code>\x1b\r</code>）是实现多行输入的正确方式。</p>
+</li>
+<li><p><strong>阻止所有事件类型</strong> - 拦截按键时，对所有事件类型（keydown、keyup、keypress）返回 <code>false</code>，不仅仅是 keydown。</p>
+</li>
+<li><p><strong>OSC 52 打通剪贴板</strong> - tmux 的 <code>set-clipboard on</code> 加上 xterm.js ClipboardAddon 实现复制到系统剪贴板。</p>
+</li>
+<li><p><strong>Xvfb + xclip 实现无头剪贴板</strong> - 容器需要虚拟 X 服务器来进行剪贴板操作。</p>
+</li>
+<li><p><strong>docker exec -d 保持进程存活</strong> - 通过 docker exec 启动的后台进程可能在 exec 返回时死掉。使用 <code>-d</code> 让需要持续运行的进程存活。</p>
+</li>
+</ol>
+</div>
+
+      </div>
+    </article>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Shiqi Mei</p>
+    </footer>
+  </div>
+  <script type="module" src="../js/highlight.js"></script>
+  <script src="../js/lang-toggle.js"></script>
+</body>
+</html>

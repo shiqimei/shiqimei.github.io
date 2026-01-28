@@ -8,10 +8,10 @@
   },
   {
     "type": "post",
-    "title": "Adding Shift+Enter for Multiline Input in xterm.js",
-    "excerpt": "How to map Shift+Enter to Alt+Enter for multiline shell commands in xterm.js, and the gotcha that causes double newlines.",
+    "title": "Building a Better Remote Terminal: Clipboard, Multiline, and Image Paste in xterm.js",
+    "excerpt": "How to implement Shift+Enter multiline input, tmux yank to local clipboard via OSC 52, and Ctrl+V image paste for Claude Code in a web-based terminal.",
     "date": "Jan 29, 2026",
-    "url": "posts/xterm-shift-enter-multiline"
+    "url": "posts/xterm-remote-terminal-clipboard-ux"
   },
   {
     "type": "post",
