@@ -307,6 +307,12 @@ docker.exec(&quot;-d&quot;, &quot;-e&quot;, &quot;DISPLAY=:99&quot;, container,
 <p>Here&#39;s the full <code>attachCustomKeyEventHandler</code> implementation combining all three features:</p>
 </div>
 
+<div class="lang-zh">
+
+<h2>完整的按键处理器</h2>
+<p>以下是结合三个功能的完整 <code>attachCustomKeyEventHandler</code> 实现：</p>
+</div>
+
 <pre><code class="language-javascript">terminal.attachCustomKeyEventHandler((ev) =&gt; {
   // 1. Shift+Enter for multiline input
   if (ev.key === &quot;Enter&quot; &amp;&amp; ev.shiftKey) {
@@ -363,13 +369,7 @@ docker.exec(&quot;-d&quot;, &quot;-e&quot;, &quot;DISPLAY=:99&quot;, container,
   }
 
   return true;
-});</code></pre><div class="lang-zh">
-
-<h2>完整的按键处理器</h2>
-<p>以下是结合三个功能的完整 <code>attachCustomKeyEventHandler</code> 实现。</p>
-</div>
-
-<div class="lang-en">
+});</code></pre><div class="lang-en">
 
 <h2>Key Takeaways</h2>
 <ol>

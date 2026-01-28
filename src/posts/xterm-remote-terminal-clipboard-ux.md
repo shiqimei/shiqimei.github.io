@@ -409,6 +409,14 @@ Here's the full `attachCustomKeyEventHandler` implementation combining all three
 
 </div>
 
+<div class="lang-zh">
+
+## 完整的按键处理器
+
+以下是结合三个功能的完整 `attachCustomKeyEventHandler` 实现：
+
+</div>
+
 ```javascript
 terminal.attachCustomKeyEventHandler((ev) => {
   // 1. Shift+Enter for multiline input
@@ -468,14 +476,6 @@ terminal.attachCustomKeyEventHandler((ev) => {
   return true;
 });
 ```
-
-<div class="lang-zh">
-
-## 完整的按键处理器
-
-以下是结合三个功能的完整 `attachCustomKeyEventHandler` 实现。
-
-</div>
 
 <div class="lang-en">
 
