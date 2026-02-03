@@ -8,6 +8,7 @@ Personal blog by Shiqi Mei, a software engineer focused on AI-powered developer 
 
 ## Posts
 
+- [The Ralph Wiggum Loop: How a Bash While-True Became an AI Development Pattern](https://shiqimei.github.io/posts/ralph-wiggum-loop-claude-code) - Feb 3, 2026
 - [Building a Better Remote Terminal: Clipboard, Multiline, and Image Paste in xterm.js](https://shiqimei.github.io/posts/xterm-remote-terminal-clipboard-ux) - Jan 29, 2026
 - [Fixing Unicode Rendering in xterm.js: It's Not the Frontend](https://shiqimei.github.io/posts/xterm-unicode-docker-exec-locale) - Jan 28, 2026
 - [Mixing High-Quality Data into Large Datasets with Exponential Decay](https://shiqimei.github.io/posts/exponential-decay-data-mixing) - Jan 26, 2026

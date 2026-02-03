@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Ralph Wiggum Loop: How a Bash While-True Became an AI Development Pattern - Shiqi Mei</title>
+  <link rel="icon" type="image/png" href="../avatar.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">&larr; back</a>
+
+    <article>
+      <header class="post-header">
+        <div class="post-header-row">
+          <h1 class="post-title">The Ralph Wiggum Loop: How a Bash While-True Became an AI Development Pattern</h1>
+          <div class="lang-toggle" id="langToggle">
+            <button data-lang="en" class="active">EN</button>
+            <button data-lang="zh">CN</button>
+          </div>
+        </div>
+        <p class="post-meta">Feb 3, 2026</p>
+      </header>
+
+      <div class="post-content">
+        <img src="../images/ralph-wiggum/stop-hook-flow.svg" class="post-hero">
+
+<div class="lang-en">
+
+<p>In late 2025, developer Geoffrey Huntley posted a five-line bash script that would change how people use Claude Code. The script wrapped Claude Code in a <code>while true</code> loop, piping a prompt file into each invocation. When one session finished, another started immediately -- reading the same codebase, the same instructions, picking up where the last left off through files on disk.</p>
+<p>The community named it the Ralph Wiggum loop, after the Simpsons character who keeps going despite every setback. The name stuck when stories circulated of developers completing $50,000 contracts for the cost of a few hundred dollars in API calls. Y Combinator hackathons adopted it. The Register and VentureBeat covered it.</p>
+<p>The original script:</p>
+<pre><code class="language-bash">#!/bin/bash
+while true; do
+  cat PROMPT.md | claude --print
+  sleep 1
+done</code></pre><h2>How the Official Plugin Works</h2>
+<p>Anthropic engineers Daisy Hollman and Boris Cherny formalized the pattern into a Claude Code plugin. Instead of an external bash loop restarting the process, the plugin uses Claude Code&#39;s stop hook mechanism to prevent the session from ending.</p>
+<p>The flow works like this: a user invokes <code>/ralph-loop</code> with a task description and an optional <code>--max-iterations</code> flag. The command runs a setup script that creates a state file at <code>.claude/ralph-loop.local.md</code> containing the prompt, iteration count, and maximum iterations in YAML frontmatter. Claude then begins working on the task.</p>
+<p>When Claude finishes what it thinks is a complete unit of work and attempts to exit, the stop hook intercepts the exit. The hook reads Claude&#39;s transcript from stdin and checks for a <code>&lt;promise&gt;</code> tag -- a signal that Claude believes all work is genuinely done. If no promise is found and the iteration limit hasn&#39;t been reached, the hook returns exit code 2, which blocks the exit and re-feeds the prompt. Claude wakes up, re-reads the state file, and continues.</p>
+<img src="../images/ralph-wiggum/stop-hook-flow.svg" alt="Stop Hook Loop Lifecycle" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<p>A typical invocation:</p>
+<pre><code class="language-text">/ralph-loop Build a REST API with CRUD endpoints for a user model.
+Run the test suite after each change. --max-iterations 20</code></pre><p>The <code>&lt;promise&gt;</code> mechanism is the key design choice. Claude must explicitly declare completion by outputting a promise tag in its response. This prevents premature termination -- Claude can&#39;t just stop talking and have the session end. It must affirmatively state the work is done.</p>
+<h2>Plugin File Structure</h2>
+<p>The plugin organizes into three directories matching Claude Code&#39;s plugin conventions:</p>
+<pre><code class="language-text">.claude-plugin/
+├── commands/
+│   ├── ralph-loop.md       # /ralph-loop slash command
+│   ├── cancel-ralph.md     # /cancel-ralph to stop the loop
+│   └── help.md             # /help for usage info
+├── hooks/
+│   └── stop-hook.sh        # intercepts session exit
+└── scripts/
+    └── setup-ralph-loop.sh # creates state file</code></pre><img src="../images/ralph-wiggum/component-map.svg" alt="Plugin File Structure" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<p>The state file at <code>.claude/ralph-loop.local.md</code> uses YAML frontmatter to track loop state:</p>
+<pre><code class="language-yaml">---
+iteration: 3
+max_iterations: 50
+prompt: &quot;Build a REST API with CRUD endpoints...&quot;
+promise: null
+---</code></pre><p>Three slash commands control the loop: <code>/ralph-loop</code> starts it, <code>/cancel-ralph</code> removes the state file to let the next exit succeed, and <code>/help</code> shows usage documentation.</p>
+<h2>The Stop Hook Decision Logic</h2>
+<p>The stop hook script (<code>stop-hook.sh</code>) receives Claude&#39;s transcript on stdin every time Claude attempts to exit. Its decision tree is straightforward:</p>
+<img src="../images/ralph-wiggum/decision-flowchart.svg" alt="Stop Hook Decision Flowchart" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<ol>
+<li><p><strong>State file exists?</strong> If no <code>.claude/ralph-loop.local.md</code> file is found, the loop isn&#39;t active. Allow exit normally (code 0).</p>
+</li>
+<li><p><strong>Promise in output?</strong> The hook greps the transcript for <code>&lt;promise&gt;</code> tags. If found, Claude has declared the work complete. Allow exit (code 0).</p>
+</li>
+<li><p><strong>Max iterations reached?</strong> Compare the current iteration counter against the configured maximum. If reached, allow exit with a warning (code 0).</p>
+</li>
+<li><p><strong>Otherwise: block exit.</strong> Increment the iteration counter in the state file and return exit code 2. Claude Code interprets code 2 as &quot;do not exit&quot; and re-feeds the prompt from the state file.</p>
+</li>
+</ol>
+<p>The elegance is in the exit codes. Claude Code&#39;s hook system uses a simple convention: 0 means proceed, 2 means block. No IPC, no sockets, no daemon process. Just a shell script reading stdin and returning an integer.</p>
+<h2>The Context Window Debate</h2>
+<p>Here&#39;s where the original bash loop and the official plugin diverge architecturally, and where the community disagrees.</p>
+<img src="../images/ralph-wiggum/original-vs-plugin.svg" alt="Bash Loop vs Stop Hook Plugin" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<p>The original <code>while true</code> loop starts a <strong>new process</strong> each iteration. Each Claude Code invocation gets a fresh context window. It sees the codebase, the git history, and the prompt file -- nothing else. No memory of what it tried before, no accumulated conversation. If the previous iteration wrote buggy code, this iteration discovers it the same way a new developer would: by reading the files and running the tests.</p>
+<p>The plugin keeps a <strong>single session</strong> alive. Conversation history accumulates across iterations. Claude remembers what it tried, what failed, what it decided. The context window fills up over time.</p>
+<p>HumanLayer&#39;s analysis argued that the plugin misses the core insight of Huntley&#39;s original pattern. The value wasn&#39;t just in looping -- it was in doing &quot;small bits of work in independent context windows.&quot; Each fresh process avoids the accumulated confusion that comes from long conversations. A model that has been debugging for 30 iterations carries cognitive baggage from every failed approach.</p>
+<p>The trade-off:</p>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Bash Loop</th>
+<th>Stop Hook Plugin</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Context</td>
+<td>Fresh each iteration</td>
+<td>Accumulated history</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td>No prior conversation</td>
+<td>Full conversation retained</td>
+</tr>
+<tr>
+<td>Cost per iteration</td>
+<td>Higher (full prompt each time)</td>
+<td>Lower (incremental)</td>
+</tr>
+<tr>
+<td>Stuck behavior</td>
+<td>Clean restart</td>
+<td>May repeat failed approaches</td>
+</tr>
+<tr>
+<td>Coordination</td>
+<td>Via files on disk</td>
+<td>Via conversation + files</td>
+</tr>
+</tbody></table>
+<p>Community forks have explored middle ground. Some implementations periodically clear conversation history while keeping the loop alive. Others use the bash loop but with structured state files that persist learnings across iterations without carrying full conversation context.</p>
+<h2>Writing Effective Ralph Prompts</h2>
+<p>The loop is only as good as the prompt driving it. The best prompts share common traits: they define measurable completion criteria, break work into phases, and include verification commands.</p>
+<img src="../images/ralph-wiggum/best-practices.svg" alt="Use Case Matrix" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<p><strong>Bad prompt:</strong></p>
+<pre><code class="language-text">Make the app better. Fix any bugs you find
+and add features that seem useful.</code></pre><p>No exit condition, no verification, no scope boundary. This will loop until max iterations, burning tokens on increasingly speculative changes.</p>
+<p><strong>Good prompt:</strong></p>
+<pre><code class="language-text">Implement user authentication for the Express app.
+
+Phase 1: Add bcrypt password hashing to the User model.
+Phase 2: Create /login and /register endpoints.
+Phase 3: Add JWT middleware for protected routes.
+
+After each phase, run `npm test` and fix any failures.
+When all tests pass for all 3 phases, output &lt;promise&gt;done&lt;/promise&gt;.</code></pre><p>TDD workflows are the ideal use case. The loop runs tests, Claude reads failures, fixes code, and re-runs. The cycle continues until the test suite goes green. The test suite <em>is</em> the completion criterion.</p>
+<p>Cost awareness matters. Each iteration consumes tokens -- a 50-iteration loop on a complex codebase can cost $50-100+ in API usage. The <code>--max-iterations</code> flag isn&#39;t just a safety net; it&#39;s a budget control. Start with 10-20 iterations for well-scoped tasks and increase only when needed.</p>
+<h2>Conclusion</h2>
+<p>The Ralph Wiggum loop reframes the role of the operator. Instead of writing code, you write the loop conditions. Instead of debugging, you write the tests that the loop debugs against. The model becomes the executor; the prompt becomes the program.</p>
+<p>The unresolved context window debate -- fresh processes vs continuous sessions -- reflects a deeper question in AI agent design: should agents accumulate state or start clean? The answer likely depends on the task. But the pattern itself, whether implemented as a bash one-liner or a plugin with exit code flow control, has become a fixture in how developers use Claude Code.</p>
+</div>
+
+<div class="lang-zh">
+
+<p>2025年末，开发者 Geoffrey Huntley 发布了一个五行 bash 脚本，改变了人们使用 Claude Code 的方式。该脚本将 Claude Code 包装在 <code>while true</code> 循环中，每次调用时将提示文件通过管道传入。当一个会话结束后，另一个立即启动——读取相同的代码库、相同的指令，通过磁盘上的文件接续上一次的工作。</p>
+<p>社区将其命名为 Ralph Wiggum 循环，取自辛普森一家中那个屡败屡战的角色。当开发者用几百美元的 API 调用完成价值五万美元的合同的故事流传开来后，这个名字就固定下来了。Y Combinator 黑客松采用了它，The Register 和 VentureBeat 进行了报道。</p>
+<p>原始脚本：</p>
+<pre><code class="language-bash">#!/bin/bash
+while true; do
+  cat PROMPT.md | claude --print
+  sleep 1
+done</code></pre><h2>官方插件的工作原理</h2>
+<p>Anthropic 工程师 Daisy Hollman 和 Boris Cherny 将这个模式正式化为 Claude Code 插件。插件不使用外部 bash 循环重启进程，而是利用 Claude Code 的 stop hook 机制来阻止会话结束。</p>
+<p>流程如下：用户使用 <code>/ralph-loop</code> 命令加上任务描述和可选的 <code>--max-iterations</code> 标志。命令运行一个设置脚本，在 <code>.claude/ralph-loop.local.md</code> 创建包含提示、迭代计数和最大迭代次数的 YAML 状态文件。然后 Claude 开始处理任务。</p>
+<p>当 Claude 完成一个工作单元并尝试退出时，stop hook 拦截退出。Hook 从 stdin 读取 Claude 的输出，检查是否有 <code>&lt;promise&gt;</code> 标签——这是 Claude 表示所有工作已完成的信号。如果没有找到 promise 且迭代限制未达到，hook 返回退出码 2，阻止退出并重新传入提示。Claude 被唤醒，重新读取状态文件，继续工作。</p>
+<img src="../images/ralph-wiggum/stop-hook-flow.svg" alt="Stop Hook 循环生命周期" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<p>典型调用方式：</p>
+<pre><code class="language-text">/ralph-loop Build a REST API with CRUD endpoints for a user model.
+Run the test suite after each change. --max-iterations 20</code></pre><p><code>&lt;promise&gt;</code> 机制是关键的设计选择。Claude 必须在输出中显式声明完成。这防止了过早终止——Claude 不能仅仅停止输出就结束会话，它必须明确表示工作已完成。</p>
+<h2>插件文件结构</h2>
+<p>插件按照 Claude Code 的插件规范组织为三个目录：</p>
+<pre><code class="language-text">.claude-plugin/
+├── commands/
+│   ├── ralph-loop.md       # /ralph-loop 斜杠命令
+│   ├── cancel-ralph.md     # /cancel-ralph 停止循环
+│   └── help.md             # /help 使用说明
+├── hooks/
+│   └── stop-hook.sh        # 拦截会话退出
+└── scripts/
+    └── setup-ralph-loop.sh # 创建状态文件</code></pre><img src="../images/ralph-wiggum/component-map.svg" alt="插件文件结构" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<p><code>.claude/ralph-loop.local.md</code> 状态文件使用 YAML frontmatter 跟踪循环状态：</p>
+<pre><code class="language-yaml">---
+iteration: 3
+max_iterations: 50
+prompt: &quot;Build a REST API with CRUD endpoints...&quot;
+promise: null
+---</code></pre><p>三个斜杠命令控制循环：<code>/ralph-loop</code> 启动循环，<code>/cancel-ralph</code> 删除状态文件让下次退出成功，<code>/help</code> 显示使用文档。</p>
+<h2>Stop Hook 决策逻辑</h2>
+<p>stop hook 脚本（<code>stop-hook.sh</code>）在 Claude 每次尝试退出时从 stdin 接收输出。其决策树非常直观：</p>
+<img src="../images/ralph-wiggum/decision-flowchart.svg" alt="Stop Hook 决策流程图" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<ol>
+<li><p><strong>状态文件是否存在？</strong> 如果未找到 <code>.claude/ralph-loop.local.md</code>，循环未激活，正常允许退出（代码 0）。</p>
+</li>
+<li><p><strong>输出中是否有 Promise？</strong> Hook 在输出中搜索 <code>&lt;promise&gt;</code> 标签。如果找到，Claude 已声明工作完成，允许退出（代码 0）。</p>
+</li>
+<li><p><strong>是否达到最大迭代次数？</strong> 比较当前迭代计数器与配置的最大值。如果达到，带警告允许退出（代码 0）。</p>
+</li>
+<li><p><strong>否则：阻止退出。</strong> 递增状态文件中的迭代计数器，返回退出码 2。Claude Code 将代码 2 解释为&quot;不要退出&quot;并重新传入提示。</p>
+</li>
+</ol>
+<p>优雅之处在于退出码的使用。Claude Code 的 hook 系统采用简单的约定：0 表示继续，2 表示阻止。没有 IPC，没有 socket，没有守护进程。只是一个读取 stdin 并返回整数的 shell 脚本。</p>
+<h2>上下文窗口之争</h2>
+<p>这是原始 bash 循环与官方插件在架构上分歧的地方，也是社区存在争议的地方。</p>
+<img src="../images/ralph-wiggum/original-vs-plugin.svg" alt="Bash 循环与 Stop Hook 插件对比" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<p>原始 <code>while true</code> 循环每次迭代启动一个<strong>新进程</strong>。每次 Claude Code 调用获得全新的上下文窗口。它只能看到代码库、git 历史和提示文件——没有其他内容。不记得之前尝试过什么，没有累积的对话。如果上一次迭代写了有问题的代码，这次迭代会像新开发者一样发现它：通过阅读文件和运行测试。</p>
+<p>插件保持<strong>单一会话</strong>存活。对话历史在迭代间累积。Claude 记得它尝试过什么、什么失败了、做了什么决定。上下文窗口随时间填满。</p>
+<p>HumanLayer 的分析认为，插件遗漏了 Huntley 原始模式的核心洞察。其价值不仅在于循环——而在于&quot;在独立上下文窗口中完成小块工作&quot;。每个新进程避免了长对话带来的累积混乱。一个已经调试了 30 次迭代的模型，携带着每次失败尝试的认知包袱。</p>
+<p>权衡对比：</p>
+<table>
+<thead>
+<tr>
+<th>方面</th>
+<th>Bash 循环</th>
+<th>Stop Hook 插件</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>上下文</td>
+<td>每次迭代全新</td>
+<td>累积历史</td>
+</tr>
+<tr>
+<td>记忆</td>
+<td>无先前对话</td>
+<td>完整对话保留</td>
+</tr>
+<tr>
+<td>每次迭代成本</td>
+<td>较高（每次完整提示）</td>
+<td>较低（增量式）</td>
+</tr>
+<tr>
+<td>卡住行为</td>
+<td>干净重启</td>
+<td>可能重复失败方法</td>
+</tr>
+<tr>
+<td>协调方式</td>
+<td>通过磁盘文件</td>
+<td>通过对话 + 文件</td>
+</tr>
+</tbody></table>
+<p>社区分支探索了中间路线。一些实现在保持循环存活的同时定期清除对话历史。另一些使用 bash 循环但配合结构化状态文件，在迭代间保留经验而不携带完整对话上下文。</p>
+<h2>编写有效的 Ralph 提示</h2>
+<p>循环的效果取决于驱动它的提示质量。好的提示有共同特征：定义可衡量的完成标准、将工作分解为阶段、包含验证命令。</p>
+<img src="../images/ralph-wiggum/best-practices.svg" alt="用例矩阵" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+<p><strong>差的提示：</strong></p>
+<pre><code class="language-text">Make the app better. Fix any bugs you find
+and add features that seem useful.</code></pre><p>没有退出条件，没有验证，没有范围界限。这会循环到最大迭代次数，在越来越投机的更改上消耗 token。</p>
+<p><strong>好的提示：</strong></p>
+<pre><code class="language-text">Implement user authentication for the Express app.
+
+Phase 1: Add bcrypt password hashing to the User model.
+Phase 2: Create /login and /register endpoints.
+Phase 3: Add JWT middleware for protected routes.
+
+After each phase, run `npm test` and fix any failures.
+When all tests pass for all 3 phases, output &lt;promise&gt;done&lt;/promise&gt;.</code></pre><p>TDD 工作流是理想的用例。循环运行测试，Claude 读取失败，修复代码，重新运行。周期持续直到测试套件全部通过。测试套件<em>本身</em>就是完成标准。</p>
+<p>成本意识很重要。每次迭代消耗 token——在复杂代码库上运行 50 次迭代可能花费 $50-100+ 的 API 费用。<code>--max-iterations</code> 标志不仅是安全网，也是预算控制。对明确范围的任务从 10-20 次迭代开始，只在需要时增加。</p>
+<h2>结论</h2>
+<p>Ralph Wiggum 循环重新定义了操作者的角色。你不再编写代码，而是编写循环条件。你不再调试，而是编写循环调试所依据的测试。模型变成了执行者，提示变成了程序。</p>
+<p>未解决的上下文窗口之争——新进程还是连续会话——反映了 AI 代理设计中更深层的问题：代理应该累积状态还是从头开始？答案可能取决于任务。但这个模式本身，无论是作为 bash 单行命令还是使用退出码流控的插件，已经成为开发者使用 Claude Code 的固定范式。</p>
+</div>
+
+      </div>
+    </article>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Shiqi Mei</p>
+    </footer>
+  </div>
+  <script type="module" src="../js/highlight.js"></script>
+  <script src="../js/lang-toggle.js"></script>
+</body>
+</html>

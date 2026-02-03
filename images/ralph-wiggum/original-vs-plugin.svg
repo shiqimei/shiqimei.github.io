@@ -1,0 +1,80 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" style="background:#000;">
+  <!-- Title -->
+  <text x="350" y="25" font-family="SF Mono, monospace" font-size="14" fill="#fff" text-anchor="middle" font-weight="bold">Bash Loop vs Stop Hook Plugin</text>
+
+  <!-- Row 1 label -->
+  <text x="30" y="60" font-family="SF Mono, monospace" font-size="12" fill="#fff">Bash while-true loop</text>
+  <text x="30" y="75" font-family="SF Mono, monospace" font-size="8" fill="#666">Independent context windows</text>
+
+  <!-- Row 1 container -->
+  <rect x="30" y="85" width="640" height="100" fill="#0a0a0a" stroke="#333" stroke-width="1"/>
+
+  <!-- Three separate boxes (dashed borders) = independent context windows -->
+  <rect x="55" y="100" width="150" height="70" fill="#111" stroke="#444" stroke-width="1" stroke-dasharray="6,4"/>
+  <text x="130" y="125" font-family="SF Mono, monospace" font-size="9" fill="#fff" text-anchor="middle">Process 1</text>
+  <text x="130" y="140" font-family="SF Mono, monospace" font-size="8" fill="#666" text-anchor="middle">fresh context</text>
+  <text x="130" y="155" font-family="SF Mono, monospace" font-size="7" fill="#555" text-anchor="middle">reads files + git only</text>
+
+  <!-- Arrow: exit + restart -->
+  <line x1="205" y1="135" x2="250" y2="135" stroke="#555" stroke-width="1"/>
+  <polygon points="255,135 242,128 242,142" fill="#555"/>
+  <text x="228" y="125" font-family="SF Mono, monospace" font-size="7" fill="#888">exit</text>
+
+  <rect x="260" y="100" width="150" height="70" fill="#111" stroke="#444" stroke-width="1" stroke-dasharray="6,4"/>
+  <text x="335" y="125" font-family="SF Mono, monospace" font-size="9" fill="#fff" text-anchor="middle">Process 2</text>
+  <text x="335" y="140" font-family="SF Mono, monospace" font-size="8" fill="#666" text-anchor="middle">fresh context</text>
+  <text x="335" y="155" font-family="SF Mono, monospace" font-size="7" fill="#555" text-anchor="middle">reads files + git only</text>
+
+  <!-- Arrow: exit + restart -->
+  <line x1="410" y1="135" x2="455" y2="135" stroke="#555" stroke-width="1"/>
+  <polygon points="460,135 447,128 447,142" fill="#555"/>
+  <text x="433" y="125" font-family="SF Mono, monospace" font-size="7" fill="#888">exit</text>
+
+  <rect x="465" y="100" width="150" height="70" fill="#111" stroke="#444" stroke-width="1" stroke-dasharray="6,4"/>
+  <text x="540" y="125" font-family="SF Mono, monospace" font-size="9" fill="#fff" text-anchor="middle">Process 3</text>
+  <text x="540" y="140" font-family="SF Mono, monospace" font-size="8" fill="#666" text-anchor="middle">fresh context</text>
+  <text x="540" y="155" font-family="SF Mono, monospace" font-size="7" fill="#555" text-anchor="middle">reads files + git only</text>
+
+  <!-- Divider -->
+  <line x1="30" y1="210" x2="670" y2="210" stroke="#444" stroke-width="1" stroke-dasharray="8,4"/>
+  <text x="350" y="228" font-family="SF Mono, monospace" font-size="8" fill="#555" text-anchor="middle">vs</text>
+
+  <!-- Row 2 label -->
+  <text x="30" y="255" font-family="SF Mono, monospace" font-size="12" fill="#fff">Stop hook plugin</text>
+  <text x="30" y="270" font-family="SF Mono, monospace" font-size="8" fill="#666">Single session, accumulated history</text>
+
+  <!-- Row 2: Single container with 3 boxes inside -->
+  <rect x="30" y="280" width="640" height="100" fill="#0a0a0a" stroke="#fff" stroke-width="2"/>
+
+  <rect x="55" y="295" width="150" height="70" fill="#111" stroke="#444" stroke-width="1"/>
+  <text x="130" y="320" font-family="SF Mono, monospace" font-size="9" fill="#fff" text-anchor="middle">Iteration 1</text>
+  <text x="130" y="335" font-family="SF Mono, monospace" font-size="8" fill="#666" text-anchor="middle">context grows</text>
+  <text x="130" y="350" font-family="SF Mono, monospace" font-size="7" fill="#555" text-anchor="middle">full conversation</text>
+
+  <!-- Arrow: exit blocked -->
+  <line x1="205" y1="330" x2="250" y2="330" stroke="#555" stroke-width="1" stroke-dasharray="4,3"/>
+  <polygon points="255,330 242,323 242,337" fill="#555"/>
+  <text x="218" y="315" font-family="SF Mono, monospace" font-size="7" fill="#888">blocked</text>
+
+  <rect x="260" y="295" width="150" height="70" fill="#111" stroke="#444" stroke-width="1"/>
+  <text x="335" y="320" font-family="SF Mono, monospace" font-size="9" fill="#fff" text-anchor="middle">Iteration 2</text>
+  <text x="335" y="335" font-family="SF Mono, monospace" font-size="8" fill="#666" text-anchor="middle">context grows</text>
+  <text x="335" y="350" font-family="SF Mono, monospace" font-size="7" fill="#555" text-anchor="middle">full conversation</text>
+
+  <!-- Arrow: exit blocked -->
+  <line x1="410" y1="330" x2="455" y2="330" stroke="#555" stroke-width="1" stroke-dasharray="4,3"/>
+  <polygon points="460,330 447,323 447,337" fill="#555"/>
+  <text x="423" y="315" font-family="SF Mono, monospace" font-size="7" fill="#888">blocked</text>
+
+  <rect x="465" y="295" width="150" height="70" fill="#111" stroke="#444" stroke-width="1"/>
+  <text x="540" y="320" font-family="SF Mono, monospace" font-size="9" fill="#fff" text-anchor="middle">Iteration 3</text>
+  <text x="540" y="335" font-family="SF Mono, monospace" font-size="8" fill="#666" text-anchor="middle">context grows</text>
+  <text x="540" y="350" font-family="SF Mono, monospace" font-size="7" fill="#555" text-anchor="middle">full conversation</text>
+
+  <!-- Comparison box -->
+  <rect x="30" y="390" width="310" height="25" fill="#0a0a0a" stroke="#333" stroke-width="1"/>
+  <text x="185" y="407" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="middle">Fresh perspective each iteration</text>
+
+  <rect x="360" y="390" width="310" height="25" fill="#0a0a0a" stroke="#333" stroke-width="1"/>
+  <text x="515" y="407" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="middle">Accumulated conversation history</text>
+</svg>
