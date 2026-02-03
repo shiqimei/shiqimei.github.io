@@ -29,7 +29,8 @@
 <div class="lang-en">
 
 <p>In July 2025, developer Geoffrey Huntley published a post titled &quot;Ralph Wiggum as a software engineer&quot; that would change how people use Claude Code. The core idea was a one-liner: wrap Claude Code in a bash loop, pipe in a prompt file, and let it run. When one session finishes, another starts immediately -- reading the same codebase, the same instructions, picking up where the last left off through files on disk.</p>
-<pre><code class="language-bash">while :; do cat PROMPT.md | claude-code ; done</code></pre><p>Huntley named it after Ralph Wiggum from The Simpsons -- the kid who keeps going despite every setback. His description of the technique: Ralph builds playgrounds, but he comes home bruised because he fell off the slide. So you tune Ralph by adding a sign next to the slide saying &quot;SLIDE DOWN, DON&#39;T JUMP, LOOK AROUND.&quot; Eventually Ralph reads the signs and stops falling. When all Ralph thinks about is the signs, you get a new Ralph that doesn&#39;t feel defective at all.</p>
+<pre><code class="language-bash">while :; do cat PROMPT.md | claude-code ; done</code></pre><p>(Note: <code>claude-code</code> is Huntley&#39;s shell alias. The official CLI command is <code>claude</code>.)</p>
+<p>Huntley named it after Ralph Wiggum from The Simpsons -- the kid who keeps going despite every setback. His description of the technique: Ralph builds playgrounds, but he comes home bruised because he fell off the slide. So you tune Ralph by adding a sign next to the slide saying &quot;SLIDE DOWN, DON&#39;T JUMP, LOOK AROUND.&quot; Eventually Ralph reads the signs and stops falling. When all Ralph thinks about is the signs, you get a new Ralph that doesn&#39;t feel defective at all.</p>
 <p>The tuning metaphor is central. Huntley describes Ralph as &quot;deterministically bad in an undeterministic world&quot; -- the defects are identifiable and resolvable through prompt engineering. Each time Ralph does something bad, Ralph gets tuned, like a guitar.</p>
 <p>A Y Combinator hackathon team put Ralph to the test and shipped 6 repositories overnight. The Register and VentureBeat covered it. Huntley taught the technique to engineers in San Francisco; one used it on their next contract and walked away with, in Huntley&#39;s words, &quot;the wildest ROI.&quot;</p>
 <h2>Installing the Plugin</h2>
@@ -229,7 +230,8 @@ When all tests pass for all 3 phases, output &lt;promise&gt;done&lt;/promise&gt;
 <div class="lang-zh">
 
 <p>2025年7月，开发者 Geoffrey Huntley 发表了一篇题为&quot;Ralph Wiggum as a software engineer&quot;的文章，改变了人们使用 Claude Code 的方式。核心思路是一行命令：将 Claude Code 包在 bash 循环里，管道传入提示文件，让它自己跑。一个会话结束，下一个立即启动——读取相同的代码库、相同的指令，通过磁盘上的文件接续上一次的工作。</p>
-<pre><code class="language-bash">while :; do cat PROMPT.md | claude-code ; done</code></pre><p>Huntley 以辛普森一家中的 Ralph Wiggum 命名——那个屡败屡战的孩子。他对这项技术的描述是：Ralph 很擅长建游乐场，但他因为从滑梯上跳下来而回家时满身淤青。于是你调教 Ralph，在滑梯旁放一个牌子写着&quot;滑下来，别跳，看看周围。&quot;最终 Ralph 学会了看牌子，不再摔倒。当 Ralph 满脑子都是牌子时，你就得到了一个不再看起来有缺陷的 Ralph。</p>
+<pre><code class="language-bash">while :; do cat PROMPT.md | claude-code ; done</code></pre><p>（注：<code>claude-code</code> 是 Huntley 的 shell 别名，官方 CLI 命令为 <code>claude</code>。）</p>
+<p>Huntley 以辛普森一家中的 Ralph Wiggum 命名——那个屡败屡战的孩子。他对这项技术的描述是：Ralph 很擅长建游乐场，但他因为从滑梯上跳下来而回家时满身淤青。于是你调教 Ralph，在滑梯旁放一个牌子写着&quot;滑下来，别跳，看看周围。&quot;最终 Ralph 学会了看牌子，不再摔倒。当 Ralph 满脑子都是牌子时，你就得到了一个不再看起来有缺陷的 Ralph。</p>
 <p>调教的比喻是核心。Huntley 将 Ralph 描述为&quot;在不确定的世界中确定性地犯错&quot;——缺陷是可识别的，可以通过提示工程来解决。每次 Ralph 做错事，Ralph 就被调教——像调吉他一样。</p>
 <p>一个 Y Combinator 黑客松团队测试了 Ralph，一夜之间交付了 6 个仓库。The Register 和 VentureBeat 进行了报道。Huntley 在旧金山向工程师们传授了这个技术；其中一位在下一个合同中使用了它，用 Huntley 的话说，获得了&quot;最疯狂的投资回报率&quot;。</p>
 <h2>安装插件</h2>

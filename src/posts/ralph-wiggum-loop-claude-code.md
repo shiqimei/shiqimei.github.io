@@ -14,6 +14,8 @@ In July 2025, developer Geoffrey Huntley published a post titled "Ralph Wiggum a
 while :; do cat PROMPT.md | claude-code ; done
 ```
 
+(Note: `claude-code` is Huntley's shell alias. The official CLI command is `claude`.)
+
 Huntley named it after Ralph Wiggum from The Simpsons -- the kid who keeps going despite every setback. His description of the technique: Ralph builds playgrounds, but he comes home bruised because he fell off the slide. So you tune Ralph by adding a sign next to the slide saying "SLIDE DOWN, DON'T JUMP, LOOK AROUND." Eventually Ralph reads the signs and stops falling. When all Ralph thinks about is the signs, you get a new Ralph that doesn't feel defective at all.
 
 The tuning metaphor is central. Huntley describes Ralph as "deterministically bad in an undeterministic world" -- the defects are identifiable and resolvable through prompt engineering. Each time Ralph does something bad, Ralph gets tuned, like a guitar.
@@ -209,6 +211,8 @@ Huntley's framing goes further: software development as brick-by-brick Jenga is 
 ```bash
 while :; do cat PROMPT.md | claude-code ; done
 ```
+
+（注：`claude-code` 是 Huntley 的 shell 别名，官方 CLI 命令为 `claude`。）
 
 Huntley 以辛普森一家中的 Ralph Wiggum 命名——那个屡败屡战的孩子。他对这项技术的描述是：Ralph 很擅长建游乐场，但他因为从滑梯上跳下来而回家时满身淤青。于是你调教 Ralph，在滑梯旁放一个牌子写着"滑下来，别跳，看看周围。"最终 Ralph 学会了看牌子，不再摔倒。当 Ralph 满脑子都是牌子时，你就得到了一个不再看起来有缺陷的 Ralph。
 
