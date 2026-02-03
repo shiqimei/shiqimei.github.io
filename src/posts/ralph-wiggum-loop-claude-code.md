@@ -24,11 +24,19 @@ A Y Combinator hackathon team put Ralph to the test and shipped 6 repositories o
 
 ## Installing the Plugin
 
+First, add Anthropic's plugin marketplace:
+
 ```bash
-/plugin install ralph-wiggum@claude-plugin-directory
+/plugin marketplace add anthropics/claude-code
 ```
 
-That's it. The plugin is maintained in Anthropic's official plugin directory. Once installed, you get three slash commands: `/ralph-loop`, `/cancel-ralph`, and `/help`.
+Then install the plugin:
+
+```bash
+/plugin install ralph-wiggum@claude-code-plugins
+```
+
+Once installed, you get three slash commands: `/ralph-loop`, `/cancel-ralph`, and `/help`.
 
 ## How the Official Plugin Works
 
@@ -222,11 +230,19 @@ Huntley 以辛普森一家中的 Ralph Wiggum 命名——那个屡败屡战的�
 
 ## 安装插件
 
+首先，添加 Anthropic 的插件市场：
+
 ```bash
-/plugin install ralph-wiggum@claude-plugin-directory
+/plugin marketplace add anthropics/claude-code
 ```
 
-安装完成。该插件托管在 Anthropic 官方插件目录中。安装后即可使用三个斜杠命令：`/ralph-loop`、`/cancel-ralph` 和 `/help`。
+然后安装插件：
+
+```bash
+/plugin install ralph-wiggum@claude-code-plugins
+```
+
+安装后即可使用三个斜杠命令：`/ralph-loop`、`/cancel-ralph` 和 `/help`。
 
 ## 官方插件的工作原理
 
