@@ -22,6 +22,14 @@ while true; do
 done
 ```
 
+## Installing the Plugin
+
+```bash
+/plugin install ralph-wiggum@claude-plugin-directory
+```
+
+That's it. The plugin is maintained in Anthropic's official plugin directory. Once installed, you get three slash commands: `/ralph-loop`, `/cancel-ralph`, and `/help`.
+
 ## How the Official Plugin Works
 
 Anthropic engineers Daisy Hollman and Boris Cherny formalized the pattern into a Claude Code plugin. Instead of an external bash loop restarting the process, the plugin uses Claude Code's stop hook mechanism to prevent the session from ending.
@@ -165,6 +173,14 @@ while true; do
   sleep 1
 done
 ```
+
+## 安装插件
+
+```bash
+/plugin install ralph-wiggum@claude-plugin-directory
+```
+
+安装完成。该插件托管在 Anthropic 官方插件目录中。安装后即可使用三个斜杠命令：`/ralph-loop`、`/cancel-ralph` 和 `/help`。
 
 ## 官方插件的工作原理
 

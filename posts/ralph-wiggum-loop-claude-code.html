@@ -35,7 +35,9 @@
 while true; do
   cat PROMPT.md | claude --print
   sleep 1
-done</code></pre><h2>How the Official Plugin Works</h2>
+done</code></pre><h2>Installing the Plugin</h2>
+<pre><code class="language-bash">/plugin install ralph-wiggum@claude-plugin-directory</code></pre><p>That&#39;s it. The plugin is maintained in Anthropic&#39;s official plugin directory. Once installed, you get three slash commands: <code>/ralph-loop</code>, <code>/cancel-ralph</code>, and <code>/help</code>.</p>
+<h2>How the Official Plugin Works</h2>
 <p>Anthropic engineers Daisy Hollman and Boris Cherny formalized the pattern into a Claude Code plugin. Instead of an external bash loop restarting the process, the plugin uses Claude Code&#39;s stop hook mechanism to prevent the session from ending.</p>
 <p>The flow works like this: a user invokes <code>/ralph-loop</code> with a task description and an optional <code>--max-iterations</code> flag. The command runs a setup script that creates a state file at <code>.claude/ralph-loop.local.md</code> containing the prompt, iteration count, and maximum iterations in YAML frontmatter. Claude then begins working on the task.</p>
 <p>When Claude finishes what it thinks is a complete unit of work and attempts to exit, the stop hook intercepts the exit. The hook reads Claude&#39;s transcript from stdin and checks for a <code>&lt;promise&gt;</code> tag -- a signal that Claude believes all work is genuinely done. If no promise is found and the iteration limit hasn&#39;t been reached, the hook returns exit code 2, which blocks the exit and re-feeds the prompt. Claude wakes up, re-reads the state file, and continues.</p>
@@ -152,7 +154,9 @@ When all tests pass for all 3 phases, output &lt;promise&gt;done&lt;/promise&gt;
 while true; do
   cat PROMPT.md | claude --print
   sleep 1
-done</code></pre><h2>官方插件的工作原理</h2>
+done</code></pre><h2>安装插件</h2>
+<pre><code class="language-bash">/plugin install ralph-wiggum@claude-plugin-directory</code></pre><p>安装完成。该插件托管在 Anthropic 官方插件目录中。安装后即可使用三个斜杠命令：<code>/ralph-loop</code>、<code>/cancel-ralph</code> 和 <code>/help</code>。</p>
+<h2>官方插件的工作原理</h2>
 <p>Anthropic 工程师 Daisy Hollman 和 Boris Cherny 将这个模式正式化为 Claude Code 插件。插件不使用外部 bash 循环重启进程，而是利用 Claude Code 的 stop hook 机制来阻止会话结束。</p>
 <p>流程如下：用户使用 <code>/ralph-loop</code> 命令加上任务描述和可选的 <code>--max-iterations</code> 标志。命令运行一个设置脚本，在 <code>.claude/ralph-loop.local.md</code> 创建包含提示、迭代计数和最大迭代次数的 YAML 状态文件。然后 Claude 开始处理任务。</p>
 <p>当 Claude 完成一个工作单元并尝试退出时，stop hook 拦截退出。Hook 从 stdin 读取 Claude 的输出，检查是否有 <code>&lt;promise&gt;</code> 标签——这是 Claude 表示所有工作已完成的信号。如果没有找到 promise 且迭代限制未达到，hook 返回退出码 2，阻止退出并重新传入提示。Claude 被唤醒，重新读取状态文件，继续工作。</p>
