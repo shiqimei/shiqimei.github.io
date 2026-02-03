@@ -28,14 +28,11 @@
 
 <div class="lang-en">
 
-<p>In late 2025, developer Geoffrey Huntley posted a five-line bash script that would change how people use Claude Code. The script wrapped Claude Code in a <code>while true</code> loop, piping a prompt file into each invocation. When one session finished, another started immediately -- reading the same codebase, the same instructions, picking up where the last left off through files on disk.</p>
-<p>The community named it the Ralph Wiggum loop, after the Simpsons character who keeps going despite every setback. The name stuck when stories circulated of developers completing $50,000 contracts for the cost of a few hundred dollars in API calls. Y Combinator hackathons adopted it. The Register and VentureBeat covered it.</p>
-<p>The original script:</p>
-<pre><code class="language-bash">#!/bin/bash
-while true; do
-  cat PROMPT.md | claude --print
-  sleep 1
-done</code></pre><h2>Installing the Plugin</h2>
+<p>In July 2025, developer Geoffrey Huntley published a post titled &quot;Ralph Wiggum as a software engineer&quot; that would change how people use Claude Code. The core idea was a one-liner: wrap Claude Code in a bash loop, pipe in a prompt file, and let it run. When one session finishes, another starts immediately -- reading the same codebase, the same instructions, picking up where the last left off through files on disk.</p>
+<pre><code class="language-bash">while :; do cat PROMPT.md | claude-code ; done</code></pre><p>Huntley named it after Ralph Wiggum from The Simpsons -- the kid who keeps going despite every setback. His description of the technique: Ralph builds playgrounds, but he comes home bruised because he fell off the slide. So you tune Ralph by adding a sign next to the slide saying &quot;SLIDE DOWN, DON&#39;T JUMP, LOOK AROUND.&quot; Eventually Ralph reads the signs and stops falling. When all Ralph thinks about is the signs, you get a new Ralph that doesn&#39;t feel defective at all.</p>
+<p>The tuning metaphor is central. Huntley describes Ralph as &quot;deterministically bad in an undeterministic world&quot; -- the defects are identifiable and resolvable through prompt engineering. Each time Ralph does something bad, Ralph gets tuned, like a guitar.</p>
+<p>A Y Combinator hackathon team put Ralph to the test and shipped 6 repositories overnight. The Register and VentureBeat covered it. Huntley taught the technique to engineers in San Francisco; one used it on their next contract and walked away with, in Huntley&#39;s words, &quot;the wildest ROI.&quot;</p>
+<h2>Installing the Plugin</h2>
 <pre><code class="language-bash">/plugin install ralph-wiggum@claude-plugin-directory</code></pre><p>That&#39;s it. The plugin is maintained in Anthropic&#39;s official plugin directory. Once installed, you get three slash commands: <code>/ralph-loop</code>, <code>/cancel-ralph</code>, and <code>/help</code>.</p>
 <h2>How the Official Plugin Works</h2>
 <p>Anthropic engineers Daisy Hollman and Boris Cherny formalized the pattern into a Claude Code plugin. Instead of an external bash loop restarting the process, the plugin uses Claude Code&#39;s stop hook mechanism to prevent the session from ending.</p>
@@ -84,9 +81,9 @@ promise: null
 <p>Here&#39;s where the original bash loop and the official plugin diverge architecturally, and where the community disagrees.</p>
 <img src="../images/ralph-wiggum/original-vs-plugin.svg" alt="Bash Loop vs Stop Hook Plugin" style="width:100%;max-width:700px;margin:1.5rem 0;">
 
-<p>The original <code>while true</code> loop starts a <strong>new process</strong> each iteration. Each Claude Code invocation gets a fresh context window. It sees the codebase, the git history, and the prompt file -- nothing else. No memory of what it tried before, no accumulated conversation. If the previous iteration wrote buggy code, this iteration discovers it the same way a new developer would: by reading the files and running the tests.</p>
+<p>The original <code>while :;</code> loop starts a <strong>new process</strong> each iteration. Each Claude Code invocation gets a fresh context window. It sees the codebase, the git history, and the prompt file -- nothing else. No memory of what it tried before, no accumulated conversation. If the previous iteration wrote buggy code, this iteration discovers it the same way a new developer would: by reading the files and running the tests.</p>
 <p>The plugin keeps a <strong>single session</strong> alive. Conversation history accumulates across iterations. Claude remembers what it tried, what failed, what it decided. The context window fills up over time.</p>
-<p>HumanLayer&#39;s analysis argued that the plugin misses the core insight of Huntley&#39;s original pattern. The value wasn&#39;t just in looping -- it was in doing &quot;small bits of work in independent context windows.&quot; Each fresh process avoids the accumulated confusion that comes from long conversations. A model that has been debugging for 30 iterations carries cognitive baggage from every failed approach.</p>
+<p>HumanLayer&#39;s analysis argued that the plugin misses the core insight of Huntley&#39;s original pattern. The value wasn&#39;t just in looping -- it was in doing small bits of work in independent context windows. Each fresh process avoids the accumulated confusion that comes from long conversations. A model that has been debugging for 30 iterations carries cognitive baggage from every failed approach.</p>
 <p>The trade-off:</p>
 <table>
 <thead>
@@ -123,6 +120,82 @@ promise: null
 </tr>
 </tbody></table>
 <p>Community forks have explored middle ground. Some implementations periodically clear conversation history while keeping the loop alive. Others use the bash loop but with structured state files that persist learnings across iterations without carrying full conversation context.</p>
+<h2>Everything Is a Loop</h2>
+<p>In January 2026, Huntley published a follow-up: &quot;everything is a ralph loop.&quot; The argument goes beyond a coding trick. Standard software practice builds vertically, brick by brick, like Jenga. Huntley&#39;s claim is that with AI agents, everything becomes a loop instead.</p>
+<p>Ralph isn&#39;t just forward mode (building autonomously) or reverse mode (clean rooming). It&#39;s a mindset that these computers can be programmed through loops. Software becomes clay on the pottery wheel -- if something isn&#39;t right, throw it back on the wheel.</p>
+<p>Huntley is explicit about Ralph being <strong>monolithic</strong>: a single process, a single repository, one task per loop. He pushes back against the multi-agent trend: consider what microservices would look like if the microservices themselves are non-deterministic. Ralph scales vertically, not horizontally.</p>
+<p>The operator&#39;s job shifts to watching the loop. When you see a failure domain, you put on your engineering hat and resolve it so it never happens again. In practice this means tuning the prompt, adding guardrails, or restructuring the task -- not writing the code yourself.</p>
+<h2>Case Study: CURSED</h2>
+<p>The most striking demonstration of Ralph running at scale is CURSED, a Gen Z programming language that Huntley built by running Claude in a loop for three months.</p>
+<p>The prompt was simple: make a programming language like Go, but with all lexical keywords swapped to Gen Z slang. Claude was given autonomy to implement whatever it deemed appropriate. The result is a compiled language with LLVM backend that produces binaries on macOS, Linux, and Windows.</p>
+<p>The keyword mapping:</p>
+<table>
+<thead>
+<tr>
+<th>Go</th>
+<th>CURSED</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>func</code></td>
+<td><code>slay</code></td>
+<td>function declaration</td>
+</tr>
+<tr>
+<td><code>var</code></td>
+<td><code>sus</code></td>
+<td>variable</td>
+</tr>
+<tr>
+<td><code>import</code></td>
+<td><code>yeet</code></td>
+<td>import</td>
+</tr>
+<tr>
+<td><code>package</code></td>
+<td><code>vibe</code></td>
+<td>package</td>
+</tr>
+<tr>
+<td><code>return</code></td>
+<td><code>damn</code></td>
+<td>return</td>
+</tr>
+<tr>
+<td><code>for</code></td>
+<td><code>bestie</code></td>
+<td>for loop</td>
+</tr>
+<tr>
+<td><code>if</code></td>
+<td><code>ready</code></td>
+<td>conditional</td>
+</tr>
+<tr>
+<td><code>true</code></td>
+<td><code>based</code></td>
+<td>boolean true</td>
+</tr>
+<tr>
+<td><code>false</code></td>
+<td><code>cringe</code></td>
+<td>boolean false</td>
+</tr>
+<tr>
+<td><code>*T</code></td>
+<td><code>ඞT</code></td>
+<td>pointer (Amogus)</td>
+</tr>
+<tr>
+<td><code>//</code></td>
+<td><code>fr fr</code></td>
+<td>line comment</td>
+</tr>
+</tbody></table>
+<p>Comments use <code>fr fr</code> for single-line and <code>no cap...on god</code> for block comments. Pointers use the Among Us character ඞ.</p>
+<p>The language has a compiler with interpreted and compiled modes, half-completed editor extensions for VSCode/Emacs/Vim, a Treesitter grammar, and a standard library. Huntley&#39;s position: any remaining problems can be solved by running more Ralph loops, operated by people who understand compilers and shape the output through prompts drawn from that expertise.</p>
+<p>The project&#39;s stated success criterion: ending up in the Stack Overflow developer survey as either the most loved or most hated language. The next goal is bootstrapping -- rewriting the CURSED compiler in CURSED itself.</p>
 <h2>Writing Effective Ralph Prompts</h2>
 <p>The loop is only as good as the prompt driving it. The best prompts share common traits: they define measurable completion criteria, break work into phases, and include verification commands.</p>
 <img src="../images/ralph-wiggum/best-practices.svg" alt="Use Case Matrix" style="width:100%;max-width:700px;margin:1.5rem 0;">
@@ -142,19 +215,24 @@ When all tests pass for all 3 phases, output &lt;promise&gt;done&lt;/promise&gt;
 <p>Cost awareness matters. Each iteration consumes tokens -- a 50-iteration loop on a complex codebase can cost $50-100+ in API usage. The <code>--max-iterations</code> flag isn&#39;t just a safety net; it&#39;s a budget control. Start with 10-20 iterations for well-scoped tasks and increase only when needed.</p>
 <h2>Conclusion</h2>
 <p>The Ralph Wiggum loop reframes the role of the operator. Instead of writing code, you write the loop conditions. Instead of debugging, you write the tests that the loop debugs against. The model becomes the executor; the prompt becomes the program.</p>
-<p>The unresolved context window debate -- fresh processes vs continuous sessions -- reflects a deeper question in AI agent design: should agents accumulate state or start clean? The answer likely depends on the task. But the pattern itself, whether implemented as a bash one-liner or a plugin with exit code flow control, has become a fixture in how developers use Claude Code.</p>
+<p>Huntley&#39;s framing goes further: software development as brick-by-brick Jenga is over. The loop is the new unit of work. The unresolved context window debate -- fresh processes vs continuous sessions -- reflects a deeper question in AI agent design: should agents accumulate state or start clean? The answer likely depends on the task. But the pattern itself, whether implemented as a bash one-liner or a plugin with exit code flow control, has become a fixture in how developers use Claude Code.</p>
+<h3>References</h3>
+<ul>
+<li>Geoffrey Huntley, <a href="https://ghuntley.com/ralph/">Ralph Wiggum as a &quot;software engineer&quot;</a> (Jul 2025)</li>
+<li>Geoffrey Huntley, <a href="https://ghuntley.com/loop/">everything is a ralph loop</a> (Jan 2026)</li>
+<li>Geoffrey Huntley, <a href="https://ghuntley.com/cursed/">i ran Claude in a loop for three months, and it created a genz programming language called cursed</a> (Sep 2025)</li>
+<li><a href="https://cursed-lang.org/">CURSED language website</a> and <a href="https://github.com/ghuntley/cursed">source code</a></li>
+<li><a href="https://github.com/anthropics/claude-code/tree/main/plugins/ralph-wiggum">Ralph Wiggum plugin source</a></li>
+</ul>
 </div>
 
 <div class="lang-zh">
 
-<p>2025年末，开发者 Geoffrey Huntley 发布了一个五行 bash 脚本，改变了人们使用 Claude Code 的方式。该脚本将 Claude Code 包装在 <code>while true</code> 循环中，每次调用时将提示文件通过管道传入。当一个会话结束后，另一个立即启动——读取相同的代码库、相同的指令，通过磁盘上的文件接续上一次的工作。</p>
-<p>社区将其命名为 Ralph Wiggum 循环，取自辛普森一家中那个屡败屡战的角色。当开发者用几百美元的 API 调用完成价值五万美元的合同的故事流传开来后，这个名字就固定下来了。Y Combinator 黑客松采用了它，The Register 和 VentureBeat 进行了报道。</p>
-<p>原始脚本：</p>
-<pre><code class="language-bash">#!/bin/bash
-while true; do
-  cat PROMPT.md | claude --print
-  sleep 1
-done</code></pre><h2>安装插件</h2>
+<p>2025年7月，开发者 Geoffrey Huntley 发表了一篇题为&quot;Ralph Wiggum as a software engineer&quot;的文章，改变了人们使用 Claude Code 的方式。核心思路是一行命令：将 Claude Code 包在 bash 循环里，管道传入提示文件，让它自己跑。一个会话结束，下一个立即启动——读取相同的代码库、相同的指令，通过磁盘上的文件接续上一次的工作。</p>
+<pre><code class="language-bash">while :; do cat PROMPT.md | claude-code ; done</code></pre><p>Huntley 以辛普森一家中的 Ralph Wiggum 命名——那个屡败屡战的孩子。他对这项技术的描述是：Ralph 很擅长建游乐场，但他因为从滑梯上跳下来而回家时满身淤青。于是你调教 Ralph，在滑梯旁放一个牌子写着&quot;滑下来，别跳，看看周围。&quot;最终 Ralph 学会了看牌子，不再摔倒。当 Ralph 满脑子都是牌子时，你就得到了一个不再看起来有缺陷的 Ralph。</p>
+<p>调教的比喻是核心。Huntley 将 Ralph 描述为&quot;在不确定的世界中确定性地犯错&quot;——缺陷是可识别的，可以通过提示工程来解决。每次 Ralph 做错事，Ralph 就被调教——像调吉他一样。</p>
+<p>一个 Y Combinator 黑客松团队测试了 Ralph，一夜之间交付了 6 个仓库。The Register 和 VentureBeat 进行了报道。Huntley 在旧金山向工程师们传授了这个技术；其中一位在下一个合同中使用了它，用 Huntley 的话说，获得了&quot;最疯狂的投资回报率&quot;。</p>
+<h2>安装插件</h2>
 <pre><code class="language-bash">/plugin install ralph-wiggum@claude-plugin-directory</code></pre><p>安装完成。该插件托管在 Anthropic 官方插件目录中。安装后即可使用三个斜杠命令：<code>/ralph-loop</code>、<code>/cancel-ralph</code> 和 <code>/help</code>。</p>
 <h2>官方插件的工作原理</h2>
 <p>Anthropic 工程师 Daisy Hollman 和 Boris Cherny 将这个模式正式化为 Claude Code 插件。插件不使用外部 bash 循环重启进程，而是利用 Claude Code 的 stop hook 机制来阻止会话结束。</p>
@@ -203,9 +281,9 @@ promise: null
 <p>这是原始 bash 循环与官方插件在架构上分歧的地方，也是社区存在争议的地方。</p>
 <img src="../images/ralph-wiggum/original-vs-plugin.svg" alt="Bash 循环与 Stop Hook 插件对比" style="width:100%;max-width:700px;margin:1.5rem 0;">
 
-<p>原始 <code>while true</code> 循环每次迭代启动一个<strong>新进程</strong>。每次 Claude Code 调用获得全新的上下文窗口。它只能看到代码库、git 历史和提示文件——没有其他内容。不记得之前尝试过什么，没有累积的对话。如果上一次迭代写了有问题的代码，这次迭代会像新开发者一样发现它：通过阅读文件和运行测试。</p>
+<p>原始 <code>while :;</code> 循环每次迭代启动一个<strong>新进程</strong>。每次 Claude Code 调用获得全新的上下文窗口。它只能看到代码库、git 历史和提示文件——没有其他内容。不记得之前尝试过什么，没有累积的对话。如果上一次迭代写了有问题的代码，这次迭代会像新开发者一样发现它：通过阅读文件和运行测试。</p>
 <p>插件保持<strong>单一会话</strong>存活。对话历史在迭代间累积。Claude 记得它尝试过什么、什么失败了、做了什么决定。上下文窗口随时间填满。</p>
-<p>HumanLayer 的分析认为，插件遗漏了 Huntley 原始模式的核心洞察。其价值不仅在于循环——而在于&quot;在独立上下文窗口中完成小块工作&quot;。每个新进程避免了长对话带来的累积混乱。一个已经调试了 30 次迭代的模型，携带着每次失败尝试的认知包袱。</p>
+<p>HumanLayer 的分析认为，插件遗漏了 Huntley 原始模式的核心洞察。其价值不仅在于循环——而在于在独立上下文窗口中完成小块工作。每个新进程避免了长对话带来的累积混乱。一个已经调试了 30 次迭代的模型，携带着每次失败尝试的认知包袱。</p>
 <p>权衡对比：</p>
 <table>
 <thead>
@@ -242,6 +320,82 @@ promise: null
 </tr>
 </tbody></table>
 <p>社区分支探索了中间路线。一些实现在保持循环存活的同时定期清除对话历史。另一些使用 bash 循环但配合结构化状态文件，在迭代间保留经验而不携带完整对话上下文。</p>
+<h2>一切皆循环</h2>
+<p>2026年1月，Huntley 发表了后续文章：&quot;everything is a ralph loop&quot;。这个论点超越了编码技巧。标准软件实践是垂直地一块砖一块砖地砌——像搭积木。Huntley 的主张是，有了 AI 代理，一切都变成了循环。</p>
+<p>Ralph 不仅仅是前向模式（自主构建）或反向模式（净室开发）。它是一种思维方式：这些计算机确实可以通过循环来编程。软件变成了陶轮上的泥土——如果有什么不对，就把它扔回陶轮上。</p>
+<p>Huntley 明确指出 Ralph 是<strong>单体的</strong>：单进程、单仓库、每次循环一个任务。他反对多代理趋势：想想如果微服务本身是不确定的，那微服务会是什么样子。Ralph 是垂直扩展，不是水平扩展。</p>
+<p>操作者的工作转变为观察循环。当你看到一个失败域，你戴上工程师的帽子去解决它，确保它不再发生。在实践中，这意味着调整提示、添加护栏或重构任务——而不是自己写代码。</p>
+<h2>案例研究：CURSED</h2>
+<p>Ralph 大规模运行的最引人注目的展示是 CURSED——Huntley 通过让 Claude 在循环中运行三个月所构建的 Gen Z 编程语言。</p>
+<p>提示很简单：做一个像 Go 一样的编程语言，但所有词法关键字都换成 Z 世代俚语。Claude 被赋予了自主权来实现它认为合适的任何功能。结果是一个基于 LLVM 后端的编译型语言，可在 macOS、Linux 和 Windows 上生成二进制文件。</p>
+<p>关键字映射：</p>
+<table>
+<thead>
+<tr>
+<th>Go</th>
+<th>CURSED</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>func</code></td>
+<td><code>slay</code></td>
+<td>函数声明</td>
+</tr>
+<tr>
+<td><code>var</code></td>
+<td><code>sus</code></td>
+<td>变量</td>
+</tr>
+<tr>
+<td><code>import</code></td>
+<td><code>yeet</code></td>
+<td>导入</td>
+</tr>
+<tr>
+<td><code>package</code></td>
+<td><code>vibe</code></td>
+<td>包</td>
+</tr>
+<tr>
+<td><code>return</code></td>
+<td><code>damn</code></td>
+<td>返回</td>
+</tr>
+<tr>
+<td><code>for</code></td>
+<td><code>bestie</code></td>
+<td>for 循环</td>
+</tr>
+<tr>
+<td><code>if</code></td>
+<td><code>ready</code></td>
+<td>条件判断</td>
+</tr>
+<tr>
+<td><code>true</code></td>
+<td><code>based</code></td>
+<td>布尔真</td>
+</tr>
+<tr>
+<td><code>false</code></td>
+<td><code>cringe</code></td>
+<td>布尔假</td>
+</tr>
+<tr>
+<td><code>*T</code></td>
+<td><code>ඞT</code></td>
+<td>指针（Amogus）</td>
+</tr>
+<tr>
+<td><code>//</code></td>
+<td><code>fr fr</code></td>
+<td>行注释</td>
+</tr>
+</tbody></table>
+<p>注释使用 <code>fr fr</code> 表示单行注释，<code>no cap...on god</code> 表示块注释。指针使用 Among Us 角色 ඞ。</p>
+<p>该语言有一个支持解释和编译两种模式的编译器、半完成的 VSCode/Emacs/Vim 编辑器扩展、Treesitter 语法和标准库。Huntley 的立场是：CURSED 中发现的任何问题都可以通过运行更多的 Ralph 循环来解决，由理解编译器的人操作，通过基于专业知识的提示来塑造输出。</p>
+<p>项目的成功标准：出现在 Stack Overflow 开发者调查中，成为最受欢迎或最受厌恶的语言。下一个目标是自举——用 CURSED 重写 CURSED 编译器本身。</p>
 <h2>编写有效的 Ralph 提示</h2>
 <p>循环的效果取决于驱动它的提示质量。好的提示有共同特征：定义可衡量的完成标准、将工作分解为阶段、包含验证命令。</p>
 <img src="../images/ralph-wiggum/best-practices.svg" alt="用例矩阵" style="width:100%;max-width:700px;margin:1.5rem 0;">
@@ -261,7 +415,15 @@ When all tests pass for all 3 phases, output &lt;promise&gt;done&lt;/promise&gt;
 <p>成本意识很重要。每次迭代消耗 token——在复杂代码库上运行 50 次迭代可能花费 $50-100+ 的 API 费用。<code>--max-iterations</code> 标志不仅是安全网，也是预算控制。对明确范围的任务从 10-20 次迭代开始，只在需要时增加。</p>
 <h2>结论</h2>
 <p>Ralph Wiggum 循环重新定义了操作者的角色。你不再编写代码，而是编写循环条件。你不再调试，而是编写循环调试所依据的测试。模型变成了执行者，提示变成了程序。</p>
-<p>未解决的上下文窗口之争——新进程还是连续会话——反映了 AI 代理设计中更深层的问题：代理应该累积状态还是从头开始？答案可能取决于任务。但这个模式本身，无论是作为 bash 单行命令还是使用退出码流控的插件，已经成为开发者使用 Claude Code 的固定范式。</p>
+<p>Huntley 的表述更进一步：像搭积木一样一砖一瓦的软件开发已经结束。循环是新的工作单元。未解决的上下文窗口之争——新进程还是连续会话——反映了 AI 代理设计中更深层的问题：代理应该累积状态还是从头开始？答案可能取决于任务。但这个模式本身，无论是作为 bash 单行命令还是使用退出码流控的插件，已经成为开发者使用 Claude Code 的固定范式。</p>
+<h3>参考资料</h3>
+<ul>
+<li>Geoffrey Huntley, <a href="https://ghuntley.com/ralph/">Ralph Wiggum as a &quot;software engineer&quot;</a> (2025年7月)</li>
+<li>Geoffrey Huntley, <a href="https://ghuntley.com/loop/">everything is a ralph loop</a> (2026年1月)</li>
+<li>Geoffrey Huntley, <a href="https://ghuntley.com/cursed/">i ran Claude in a loop for three months, and it created a genz programming language called cursed</a> (2025年9月)</li>
+<li><a href="https://cursed-lang.org/">CURSED 语言网站</a> 和 <a href="https://github.com/ghuntley/cursed">源代码</a></li>
+<li><a href="https://github.com/anthropics/claude-code/tree/main/plugins/ralph-wiggum">Ralph Wiggum 插件源码</a></li>
+</ul>
 </div>
 
       </div>
