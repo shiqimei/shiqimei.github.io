@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Why Our WebSocket Takes 23 Seconds to Connect (React StrictMode + IPv6) - Shiqi Mei</title>
+  <link rel="icon" type="image/png" href="../avatar.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">&larr; back</a>
+
+    <article>
+      <header class="post-header">
+        <div class="post-header-row">
+          <h1 class="post-title">Why Our WebSocket Takes 23 Seconds to Connect (React StrictMode + IPv6)</h1>
+          <div class="lang-toggle" id="langToggle">
+            <button data-lang="en" class="active">EN</button>
+            <button data-lang="zh">CN</button>
+          </div>
+        </div>
+        <p class="post-meta">Feb 8, 2026</p>
+      </header>
+
+      <div class="post-content">
+        <div class="lang-en">
+
+<p>Our ACP demo server connects to a backend via WebSocket. The connection should take under 500ms — our Playwright pressure test confirmed this. But when opening the browser, it consistently took 20-30 seconds. The UI showed a blank &quot;connecting...&quot; state for an eternity.</p>
+<p>This post documents the debugging strategy that found three stacked root causes, and the fix.</p>
+<h2>Symptoms</h2>
+<p>Opening <code>localhost:5688</code> after a fresh browser launch:</p>
+<ul>
+<li>First WebSocket attempt hangs for exactly 10 seconds, then errors</li>
+<li>Second attempt also hangs for exactly 10 seconds</li>
+<li>Third attempt connects in ~300ms</li>
+<li>Total: <strong>~23 seconds</strong> of dead time</li>
+</ul>
+<h2>Debugging Strategy: Logs on Both Sides</h2>
+<p>The trap with WebSocket latency is that the problem can live on either side. We started by adding logs to the server — and saw nothing wrong. Connections appeared instantly from the server&#39;s perspective. That was the clue: the bottleneck was entirely client-side.</p>
+<h3>Step 1: Structured Backend Logging</h3>
+<p>We replaced all hand-rolled <code>console.log</code> calls with <a href="https://github.com/pinojs/pino">pino</a> structured logging. Every WebSocket lifecycle event got a structured log with timing fields:</p>
+<pre><code class="language-typescript">// Before: string interpolation scattered through business logic
+console.log(`[ws] open client=${clientId} path=${path} ${Date.now()}ms`);
+
+// After: structured fields, automatic timestamps, separate from business logic
+log.info({ client: clientId, path, boot: bootMs() }, &quot;ws: open&quot;);</code></pre><p>This gave us clean, filterable server logs with <code>boot</code> (ms since server start), <code>durationMs</code> on every operation, and <code>session</code> IDs for correlation. We could immediately see that the server-side connection handling took &lt;1ms. The problem wasn&#39;t here.</p>
+<h3>Step 2: Client-Side Profiling Timestamps</h3>
+<p>We added <code>performance.now()</code> timestamps at every WebSocket lifecycle point in the React component, measured relative to page navigation start:</p>
+<pre><code class="language-typescript">function pageMs(): string {
+  return performance.now().toFixed(0) + &quot;ms&quot;;
+}
+
+// Every lifecycle point gets a timestamp
+console.log(`[${pageMs()}] ws new WebSocket(${wsUrl})`);
+// ...
+console.log(`[${pageMs()}] ws OPEN (handshake=${handshakeMs}ms)`);
+// ...
+console.log(`[${pageMs()}] ws CLOSED code=${ev.code}`);</code></pre><p>The key points instrumented:</p>
+<ul>
+<li><strong><code>useEffect</code> mount/cleanup</strong> — when React runs the effect</li>
+<li><strong><code>new WebSocket()</code> constructor</strong> — when the connection attempt starts</li>
+<li><strong><code>onopen</code></strong> — when the TCP + WS handshake completes</li>
+<li><strong><code>onerror</code> / <code>onclose</code></strong> — when connections fail</li>
+<li><strong><code>onmessage</code> (first)</strong> — when the first server message arrives</li>
+<li><strong>Connection timeout</strong> — when we give up and retry</li>
+</ul>
+<h3>Step 3: Read the Timeline</h3>
+<p>With both sides instrumented, we could read the full story:</p>
+<pre><code class="language-text">[970ms]  useEffect mount → new WebSocket(ws://localhost:5689/ws)
+[971ms]  useEffect cleanup → close(readyState=CONNECTING)
+[972ms]  useEffect mount → new WebSocket(ws://localhost:5689/ws)
+[10981ms] ERROR (10 seconds later!)
+[11981ms] retry → new WebSocket
+[21983ms] ERROR (another 10 seconds!)
+[22984ms] retry → new WebSocket
+[23300ms] OPEN (316ms handshake)</code></pre><p>Three patterns jumped out:</p>
+<ol>
+<li><strong>mount → cleanup → mount</strong> within 2ms — React StrictMode double-mount</li>
+<li><strong>Exactly 10s gaps</strong> — our connection timeout, not a network issue</li>
+<li><strong>316ms handshake</strong> on the successful attempt — way too slow for localhost</li>
+</ol>
+<p>Each pattern pointed to a distinct root cause.</p>
+<h2>Root Cause 1: React StrictMode Creates Zombie WebSockets</h2>
+<p>In development, React StrictMode double-mounts every component: mount → unmount → mount. Our WebSocket <code>useEffect</code>:</p>
+<ol>
+<li><strong>Mount 1</strong> (970ms): Creates WebSocket #1, starts TCP handshake</li>
+<li><strong>Cleanup</strong> (971ms): Calls <code>ws.close()</code> on WebSocket #1 — now in <code>CLOSING</code> state</li>
+<li><strong>Mount 2</strong> (972ms): Creates WebSocket #2, starts TCP handshake</li>
+</ol>
+<p>WebSocket #1 is now a zombie — its JavaScript handlers are nulled, but the browser is still completing the TCP close handshake with the server. Chrome&#39;s connection pool sees an active connection to <code>localhost:5689</code> and <strong>queues WebSocket #2 behind it</strong>.</p>
+<p>The result: WebSocket #2 can&#39;t connect until WebSocket #1&#39;s TCP close fully completes, which is gated by our 10-second connection timeout.</p>
+<h2>Root Cause 2: 10-Second Connection Timeout</h2>
+<p>We had a &quot;safety&quot; timeout that killed WebSocket connections after 10 seconds:</p>
+<pre><code class="language-javascript">connectTimeout = setTimeout(() =&gt; {
+  if (ws.readyState === WebSocket.CONNECTING) {
+    ws.close(); // kill it, try again
+    reconnectTimer = setTimeout(connect, 1000);
+  }
+}, 10_000); // 10 seconds!</code></pre><p>For a localhost connection that should complete in &lt;100ms, 10 seconds is absurd. Each failed attempt burned the full 10 seconds before retrying.</p>
+<h2>Root Cause 3: <code>localhost</code> Triggers IPv6 Fallback</h2>
+<p>The WebSocket URL used <code>localhost</code>:</p>
+<pre><code class="language-javascript">const wsUrl = `ws://localhost:5689/ws`;</code></pre><p>Chrome resolves <code>localhost</code> and tries IPv6 (<code>::1</code>) first. Our Bun server listens on <code>0.0.0.0</code> (IPv4 only). Chrome&#39;s IPv6 attempt fails, then it falls back to IPv4 <code>127.0.0.1</code>. This added hundreds of milliseconds to every successful connection — the &quot;316ms handshake&quot; for what should be a &lt;10ms localhost connection.</p>
+<h2>The Fix</h2>
+<p><strong>1. Remove StrictMode.</strong> This is a dev tool, not a production app. No zombie WebSockets, no queued connections.</p>
+<pre><code class="language-jsx">// Before
+createRoot(root).render(&lt;StrictMode&gt;&lt;App /&gt;&lt;/StrictMode&gt;);
+
+// After
+createRoot(root).render(&lt;App /&gt;);</code></pre><p><strong>2. Reduce connection timeout to 1 second</strong> with 100ms retry.</p>
+<pre><code class="language-javascript">connectTimeout = setTimeout(() =&gt; {
+  if (ws.readyState === WebSocket.CONNECTING) {
+    ws.close();
+    setTimeout(connect, 100);
+  }
+}, 1000);</code></pre><p><strong>3. Use <code>127.0.0.1</code> instead of <code>localhost</code></strong> to skip IPv6 resolution entirely.</p>
+<pre><code class="language-javascript">const wsHost = location.port === &quot;5688&quot;
+  ? &quot;127.0.0.1:5689&quot;
+  : location.host;</code></pre><h2>Result</h2>
+<p>Before: 23 seconds. After: under 500ms. Matching what our Playwright pressure test always showed.</p>
+<h3>Validating with a Pressure Test</h3>
+<p>We wrote a Playwright-based pressure test that measures real cold-start latency — spawning the server and connecting immediately without waiting for warmup, just like a real user:</p>
+<pre><code class="language-typescript">// Phase 1: Cold start — connect immediately, retry until server is ready
+const coldResult = await measureTab(context, &quot;cold-1&quot;, &quot;cold&quot;,
+  `ws://127.0.0.1:${port}/ws`);
+
+// Phase 2: Warm — open N tabs simultaneously
+const warmResults = await Promise.all(
+  Array.from({ length: 20 }, (_, i) =&gt;
+    measureTab(context, `warm-${i+1}`, &quot;warm&quot;,
+      `ws://127.0.0.1:${port}/ws`)));</code></pre><p>Results after the fix: cold start p99 &lt; 200ms, warm p99 &lt; 500ms for 20 simultaneous tabs.</p>
+<h2>Key Takeaway</h2>
+<p>The connection was fast. The infrastructure around it — React StrictMode, aggressive timeouts, DNS resolution — made it slow. None of these would show up in a server-side profiling session.</p>
+<p>The debugging strategy that worked:</p>
+<ol>
+<li><strong>Add structured logs to the backend</strong> — ruled out server-side causes instantly</li>
+<li><strong>Add timestamped profiling to the frontend</strong> — revealed the exact timeline of what the browser was doing</li>
+<li><strong>Read the numbers</strong> — the patterns (mount/cleanup/mount, exact 10s gaps, 316ms handshake) each pointed directly at a root cause</li>
+<li><strong>Validate with a pressure test</strong> — confirmed the fix works under load, not just for a single tab</li>
+</ol>
+<p>When debugging latency: measure from the user&#39;s perspective first. The server was fine. The browser was the bottleneck.</p>
+</div>
+
+<div class="lang-zh">
+
+<p>我们的 ACP 演示服务器通过 WebSocket 连接后端。连接本身应该在 500ms 以内完成——Playwright 压力测试已经证实了这一点。但每次打开浏览器，都要等 20-30 秒。界面一直显示&quot;连接中...&quot;，漫长得令人抓狂。</p>
+<p>本文记录了排查策略、三层叠加的根因，以及最终的修复方案。</p>
+<h2>现象</h2>
+<p>新开浏览器访问 <code>localhost:5688</code>：</p>
+<ul>
+<li>第一次 WebSocket 连接精确挂起 10 秒后报错</li>
+<li>第二次同样挂起 10 秒</li>
+<li>第三次 ~300ms 连接成功</li>
+<li>总计：<strong>约 23 秒</strong>的空等</li>
+</ul>
+<h2>排查策略：前后端同时埋点</h2>
+<p>WebSocket 延迟问题的陷阱在于：瓶颈可能在任何一端。我们先在服务端加了日志——结果一切正常。连接在服务端看来几乎是瞬间完成的。这本身就是线索：瓶颈完全在客户端。</p>
+<h3>第一步：后端结构化日志</h3>
+<p>我们把所有手写的 <code>console.log</code> 替换为 <a href="https://github.com/pinojs/pino">pino</a> 结构化日志。每个 WebSocket 生命周期事件都有带时间字段的结构化记录：</p>
+<pre><code class="language-typescript">// 改造前：字符串拼接散落在业务逻辑中
+console.log(`[ws] open client=${clientId} path=${path} ${Date.now()}ms`);
+
+// 改造后：结构化字段，自动时间戳，与业务逻辑分离
+log.info({ client: clientId, path, boot: bootMs() }, &quot;ws: open&quot;);</code></pre><p>这样我们得到了干净、可过滤的服务端日志，每个操作都有 <code>boot</code>（服务启动后毫秒数）、<code>durationMs</code> 和 <code>session</code> ID 用于关联。我们立刻看到服务端连接处理耗时不到 1ms。问题不在这里。</p>
+<h3>第二步：客户端精确打点</h3>
+<p>我们在 React 组件的每个 WebSocket 生命周期节点添加了 <code>performance.now()</code> 时间戳，相对于页面加载起点：</p>
+<pre><code class="language-typescript">function pageMs(): string {
+  return performance.now().toFixed(0) + &quot;ms&quot;;
+}
+
+// 每个生命周期节点都有时间戳
+console.log(`[${pageMs()}] ws new WebSocket(${wsUrl})`);
+// ...
+console.log(`[${pageMs()}] ws OPEN (handshake=${handshakeMs}ms)`);
+// ...
+console.log(`[${pageMs()}] ws CLOSED code=${ev.code}`);</code></pre><p>关键埋点位置：</p>
+<ul>
+<li><strong><code>useEffect</code> 挂载/清理</strong> — React 执行 effect 的时机</li>
+<li><strong><code>new WebSocket()</code> 构造</strong> — 连接尝试开始</li>
+<li><strong><code>onopen</code></strong> — TCP + WS 握手完成</li>
+<li><strong><code>onerror</code> / <code>onclose</code></strong> — 连接失败</li>
+<li><strong><code>onmessage</code>（首条）</strong> — 收到第一条服务端消息</li>
+<li><strong>连接超时</strong> — 放弃并重试的时刻</li>
+</ul>
+<h3>第三步：读懂时间线</h3>
+<p>前后端都埋好点后，完整的故事浮出水面：</p>
+<pre><code class="language-text">[970ms]  useEffect 挂载 → new WebSocket(ws://localhost:5689/ws)
+[971ms]  useEffect 清理 → close(readyState=CONNECTING)
+[972ms]  useEffect 挂载 → new WebSocket(ws://localhost:5689/ws)
+[10981ms] ERROR（整整 10 秒后！）
+[11981ms] 重试 → new WebSocket
+[21983ms] ERROR（又是 10 秒！）
+[22984ms] 重试 → new WebSocket
+[23300ms] OPEN（316ms 握手）</code></pre><p>三个规律一目了然：</p>
+<ol>
+<li><strong>mount → cleanup → mount</strong> 在 2ms 内完成 — React StrictMode 双重挂载</li>
+<li><strong>精确的 10 秒间隔</strong> — 是我们的超时设定，不是网络问题</li>
+<li><strong>316ms 握手</strong> — 对 localhost 来说慢得离谱</li>
+</ol>
+<p>每个规律都指向一个独立的根因。</p>
+<h2>根因一：React StrictMode 制造僵尸 WebSocket</h2>
+<p>开发模式下，React StrictMode 会对每个组件执行双重挂载：mount → unmount → mount。我们的 WebSocket <code>useEffect</code>：</p>
+<ol>
+<li><strong>挂载 1</strong>（970ms）：创建 WebSocket #1，开始 TCP 握手</li>
+<li><strong>清理</strong>（971ms）：对 #1 调用 <code>ws.close()</code>——进入 <code>CLOSING</code> 状态</li>
+<li><strong>挂载 2</strong>（972ms）：创建 WebSocket #2，开始 TCP 握手</li>
+</ol>
+<p>WebSocket #1 成了僵尸——JavaScript 回调已被清空，但浏览器仍在与服务器完成 TCP 关闭握手。Chrome 的连接池看到 <code>localhost:5689</code> 上有一个活跃连接，于是<strong>把 WebSocket #2 排在它后面</strong>。</p>
+<p>结果：WebSocket #2 必须等 #1 的 TCP 关闭彻底完成才能连接，而这受制于我们 10 秒的超时设定。</p>
+<h2>根因二：10 秒连接超时</h2>
+<p>我们设了一个&quot;安全&quot;超时，10 秒后强制断开连接：</p>
+<pre><code class="language-javascript">connectTimeout = setTimeout(() =&gt; {
+  if (ws.readyState === WebSocket.CONNECTING) {
+    ws.close();
+    reconnectTimer = setTimeout(connect, 1000);
+  }
+}, 10_000); // 10 秒！</code></pre><p>对于本该在 100ms 内完成的 localhost 连接来说，10 秒荒谬至极。每次失败都要白白耗尽整整 10 秒才会重试。</p>
+<h2>根因三：<code>localhost</code> 触发 IPv6 回退</h2>
+<p>WebSocket URL 使用了 <code>localhost</code>：</p>
+<pre><code class="language-javascript">const wsUrl = `ws://localhost:5689/ws`;</code></pre><p>Chrome 解析 <code>localhost</code> 时优先尝试 IPv6（<code>::1</code>）。但我们的 Bun 服务器监听在 <code>0.0.0.0</code>（仅 IPv4）。Chrome 的 IPv6 尝试失败后才回退到 IPv4 的 <code>127.0.0.1</code>。这给每次成功连接多加了数百毫秒——本该 10ms 以内完成的 localhost 握手变成了 316ms。</p>
+<h2>修复</h2>
+<p><strong>1. 移除 StrictMode。</strong> 这是开发工具，不是生产应用。没有僵尸 WebSocket，就没有排队阻塞。</p>
+<pre><code class="language-jsx">// 修改前
+createRoot(root).render(&lt;StrictMode&gt;&lt;App /&gt;&lt;/StrictMode&gt;);
+
+// 修改后
+createRoot(root).render(&lt;App /&gt;);</code></pre><p><strong>2. 连接超时从 10 秒降到 1 秒</strong>，重试间隔 100ms。</p>
+<pre><code class="language-javascript">connectTimeout = setTimeout(() =&gt; {
+  if (ws.readyState === WebSocket.CONNECTING) {
+    ws.close();
+    setTimeout(connect, 100);
+  }
+}, 1000);</code></pre><p><strong>3. 用 <code>127.0.0.1</code> 替代 <code>localhost</code></strong>，彻底跳过 IPv6 解析。</p>
+<pre><code class="language-javascript">const wsHost = location.port === &quot;5688&quot;
+  ? &quot;127.0.0.1:5689&quot;
+  : location.host;</code></pre><h2>效果</h2>
+<p>修复前：23 秒。修复后：500ms 以内。与 Playwright 压力测试的结果完全一致。</p>
+<h3>用压力测试验证</h3>
+<p>我们编写了基于 Playwright 的压力测试，测量真实的冷启动延迟——启动服务器后立即连接，不等预热，和真实用户的行为完全一致：</p>
+<pre><code class="language-typescript">// 阶段 1：冷启动 — 立即连接，重试直到服务器就绪
+const coldResult = await measureTab(context, &quot;cold-1&quot;, &quot;cold&quot;,
+  `ws://127.0.0.1:${port}/ws`);
+
+// 阶段 2：热连接 — 同时打开 N 个标签页
+const warmResults = await Promise.all(
+  Array.from({ length: 20 }, (_, i) =&gt;
+    measureTab(context, `warm-${i+1}`, &quot;warm&quot;,
+      `ws://127.0.0.1:${port}/ws`)));</code></pre><p>修复后的结果：冷启动 p99 &lt; 200ms，20 个同时连接的标签页热连接 p99 &lt; 500ms。</p>
+<h2>核心启示</h2>
+<p>连接本身是快的。是外围的基础设施——React StrictMode、激进的超时策略、DNS 解析——把它拖慢了。这些问题在服务端性能分析中完全看不到。</p>
+<p>有效的排查策略：</p>
+<ol>
+<li><strong>后端加结构化日志</strong> — 立刻排除了服务端原因</li>
+<li><strong>前端加精确时间戳</strong> — 还原了浏览器的完整行为时间线</li>
+<li><strong>读懂数字</strong> — mount/cleanup/mount 模式、精确的 10 秒间隔、316ms 握手，每个规律都直接指向一个根因</li>
+<li><strong>用压力测试验证</strong> — 确认修复在负载下也有效，不只是单个标签页</li>
+</ol>
+<p>排查延迟问题时：先从用户视角测量。服务端没问题，瓶颈在浏览器。</p>
+</div>
+
+      </div>
+    </article>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Shiqi Mei</p>
+    </footer>
+  </div>
+  <script type="module" src="../js/highlight.js"></script>
+  <script src="../js/lang-toggle.js"></script>
+</body>
+</html>
