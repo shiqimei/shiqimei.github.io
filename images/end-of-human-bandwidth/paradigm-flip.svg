@@ -1,0 +1,84 @@
+<svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg" style="background:#000;">
+  <!-- Title -->
+  <text x="350" y="25" font-family="SF Mono, monospace" font-size="13" fill="#fff" text-anchor="middle" font-weight="bold">The Paradigm Flip</text>
+
+  <!-- Dashed divider -->
+  <line x1="350" y1="40" x2="350" y2="390" stroke="#333" stroke-width="1" stroke-dasharray="4,4"/>
+
+  <!-- LEFT Column Title -->
+  <text x="170" y="55" font-family="SF Mono, monospace" font-size="10" fill="#666" text-anchor="middle">HUMAN-CENTRALIZED</text>
+
+  <!-- LEFT: Human -->
+  <rect x="95" y="72" width="150" height="34" fill="#111" stroke="#fff" stroke-width="2"/>
+  <text x="170" y="94" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle">Human</text>
+
+  <!-- Arrow down: writes spec -->
+  <line x1="170" y1="106" x2="170" y2="128" stroke="#555" stroke-width="1.5"/>
+  <polygon points="170,133 166,125 174,125" fill="#555"/>
+  <text x="205" y="122" font-family="SF Mono, monospace" font-size="7" fill="#555">writes spec</text>
+
+  <!-- LEFT: Spec -->
+  <rect x="95" y="138" width="150" height="34" fill="#111" stroke="#444" stroke-width="1"/>
+  <text x="170" y="160" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle">Spec</text>
+
+  <!-- Arrow down: assigns to -->
+  <line x1="170" y1="172" x2="170" y2="194" stroke="#555" stroke-width="1.5"/>
+  <polygon points="170,199 166,191 174,191" fill="#555"/>
+  <text x="205" y="188" font-family="SF Mono, monospace" font-size="7" fill="#555">assigns to</text>
+
+  <!-- LEFT: Agent -->
+  <rect x="95" y="204" width="150" height="34" fill="#111" stroke="#444" stroke-width="1"/>
+  <text x="170" y="226" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle">Agent</text>
+
+  <!-- Arrow down: builds -->
+  <line x1="170" y1="238" x2="170" y2="260" stroke="#555" stroke-width="1.5"/>
+  <polygon points="170,265 166,257 174,257" fill="#555"/>
+  <text x="200" y="254" font-family="SF Mono, monospace" font-size="7" fill="#555">builds</text>
+
+  <!-- LEFT: Software -->
+  <rect x="95" y="270" width="150" height="34" fill="#111" stroke="#444" stroke-width="1"/>
+  <text x="170" y="292" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle">Software</text>
+
+  <!-- Loop back arrow: Software -> Human -->
+  <path d="M 95,287 L 58,287 L 58,89 L 90,89" fill="none" stroke="#555" stroke-width="1.5"/>
+  <polygon points="95,89 87,85 87,93" fill="#555"/>
+  <text x="44" y="195" font-family="SF Mono, monospace" font-size="7" fill="#555" transform="rotate(-90,44,195)">used by human</text>
+
+  <!-- Translation bracket -->
+  <line x1="255" y1="100" x2="268" y2="100" stroke="#444" stroke-width="1"/>
+  <line x1="268" y1="100" x2="268" y2="296" stroke="#444" stroke-width="1"/>
+  <line x1="255" y1="296" x2="268" y2="296" stroke="#444" stroke-width="1"/>
+  <text x="320" y="198" font-family="SF Mono, monospace" font-size="7" fill="#444" text-anchor="middle" transform="rotate(90,320,198)">translation at every step</text>
+
+  <!-- RIGHT Column Title -->
+  <text x="525" y="55" font-family="SF Mono, monospace" font-size="10" fill="#666" text-anchor="middle">AGENT-CENTRALIZED</text>
+
+  <!-- RIGHT: Agent -->
+  <rect x="450" y="145" width="150" height="40" fill="#111" stroke="#fff" stroke-width="2"/>
+  <text x="525" y="170" font-family="SF Mono, monospace" font-size="11" fill="#fff" text-anchor="middle">Agent</text>
+
+  <!-- Down arrow: builds -->
+  <line x1="505" y1="185" x2="505" y2="230" stroke="#fff" stroke-width="1.5"/>
+  <polygon points="505,235 500,227 510,227" fill="#fff"/>
+  <text x="490" y="212" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="end">builds</text>
+
+  <!-- Up arrow: uses -->
+  <line x1="545" y1="240" x2="545" y2="190" stroke="#fff" stroke-width="1.5"/>
+  <polygon points="545,185 540,193 550,193" fill="#fff"/>
+  <text x="560" y="212" font-family="SF Mono, monospace" font-size="8" fill="#888">uses</text>
+
+  <!-- RIGHT: Tool -->
+  <rect x="450" y="240" width="150" height="40" fill="#111" stroke="#fff" stroke-width="2"/>
+  <text x="525" y="265" font-family="SF Mono, monospace" font-size="11" fill="#fff" text-anchor="middle">Tool</text>
+
+  <!-- Labels below right side -->
+  <text x="525" y="315" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">No translation. No GUI.</text>
+  <text x="525" y="330" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">No spec. No alignment overhead.</text>
+
+  <!-- Bottom stats -->
+  <text x="170" y="335" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="middle">4 nodes, 4 translations</text>
+  <text x="170" y="350" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="middle">Human bandwidth = ceiling</text>
+
+  <text x="525" y="360" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="middle">2 nodes, 0 translations</text>
+  <text x="525" y="375" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="middle">Native language = structured data</text>
+</svg>
