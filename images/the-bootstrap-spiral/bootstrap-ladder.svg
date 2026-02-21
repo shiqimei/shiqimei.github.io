@@ -1,0 +1,73 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" style="background:#000;">
+  <!-- Title -->
+  <text x="350" y="25" font-family="SF Mono, monospace" font-size="13" fill="#fff" text-anchor="middle" font-weight="bold">The Tool-Building Ladder</text>
+  <text x="350" y="42" font-family="SF Mono, monospace" font-size="9" fill="#555" text-anchor="middle">who builds for whom</text>
+
+  <!-- Ascending arrow on left -->
+  <line x1="55" y1="370" x2="55" y2="75" stroke="#333" stroke-width="1.5"/>
+  <polygon points="55,70 50,80 60,80" fill="#333"/>
+  <text x="42" y="220" font-family="SF Mono, monospace" font-size="7" fill="#444" text-anchor="middle" transform="rotate(-90,42,220)">capability surface expands</text>
+
+  <!-- Stage 1: Human → Human (bottom, most faded) -->
+  <g opacity="0.3">
+    <rect x="80" y="340" width="120" height="34" fill="#111" stroke="#444" stroke-width="1"/>
+    <text x="140" y="362" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle">Human</text>
+    <line x1="200" y1="357" x2="260" y2="357" stroke="#444" stroke-width="1.5"/>
+    <polygon points="265,357 257,353 257,361" fill="#444"/>
+    <text x="230" y="350" font-family="SF Mono, monospace" font-size="7" fill="#555" text-anchor="middle">builds for</text>
+    <rect x="270" y="340" width="120" height="34" fill="#111" stroke="#444" stroke-width="1"/>
+    <text x="330" y="362" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle">Human</text>
+  </g>
+  <text x="480" y="355" font-family="SF Mono, monospace" font-size="8" fill="#333" text-anchor="start">GUIs, docs, dashboards</text>
+  <text x="480" y="368" font-family="SF Mono, monospace" font-size="8" fill="#333" text-anchor="start">translation at every step</text>
+
+  <!-- Stage 2: Human → Agent (slightly faded) -->
+  <g opacity="0.55">
+    <rect x="80" y="255" width="120" height="34" fill="#111" stroke="#444" stroke-width="1"/>
+    <text x="140" y="277" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle">Human</text>
+    <line x1="200" y1="272" x2="260" y2="272" stroke="#555" stroke-width="1.5"/>
+    <polygon points="265,272 257,268 257,276" fill="#555"/>
+    <text x="230" y="265" font-family="SF Mono, monospace" font-size="7" fill="#555" text-anchor="middle">builds for</text>
+    <rect x="270" y="255" width="120" height="34" fill="#111" stroke="#fff" stroke-width="1.5"/>
+    <text x="330" y="277" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle">Agent</text>
+  </g>
+  <text x="480" y="270" font-family="SF Mono, monospace" font-size="8" fill="#555" text-anchor="start">MCP, Skills, CLAUDE.md</text>
+  <text x="480" y="283" font-family="SF Mono, monospace" font-size="8" fill="#555" text-anchor="start">we are here</text>
+
+  <!-- Stage 3: Agent → Agent (bright) -->
+  <rect x="80" y="170" width="120" height="34" fill="#111" stroke="#fff" stroke-width="1.5"/>
+  <text x="140" y="192" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle">Agent</text>
+  <line x1="200" y1="187" x2="260" y2="187" stroke="#fff" stroke-width="1.5"/>
+  <polygon points="265,187 257,183 257,191" fill="#fff"/>
+  <text x="230" y="180" font-family="SF Mono, monospace" font-size="7" fill="#888" text-anchor="middle">builds for</text>
+  <rect x="270" y="170" width="120" height="34" fill="#111" stroke="#fff" stroke-width="1.5"/>
+  <text x="330" y="192" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle">Agent</text>
+  <text x="480" y="185" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="start">no GUI tax, no spec ambiguity</text>
+  <text x="480" y="198" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="start">structured data in/out</text>
+
+  <!-- Stage 4: Agent → Agent → Agent (brightest, with spiral) -->
+  <rect x="80" y="80" width="100" height="38" fill="#111" stroke="#fff" stroke-width="2"/>
+  <text x="130" y="104" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle">Agent</text>
+  <line x1="180" y1="99" x2="220" y2="99" stroke="#fff" stroke-width="1.5"/>
+  <polygon points="225,99 217,95 217,103" fill="#fff"/>
+  <text x="200" y="92" font-family="SF Mono, monospace" font-size="7" fill="#888" text-anchor="middle">builds</text>
+  <rect x="230" y="80" width="100" height="38" fill="#111" stroke="#fff" stroke-width="2"/>
+  <text x="280" y="104" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle">Agent</text>
+  <line x1="330" y1="99" x2="370" y2="99" stroke="#fff" stroke-width="1.5"/>
+  <polygon points="375,99 367,95 367,103" fill="#fff"/>
+  <text x="350" y="92" font-family="SF Mono, monospace" font-size="7" fill="#888" text-anchor="middle">builds</text>
+  <rect x="380" y="80" width="100" height="38" fill="#111" stroke="#fff" stroke-width="2"/>
+  <text x="430" y="104" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle">Agent</text>
+
+  <!-- Spiral arrow looping back from last agent to first -->
+  <path d="M 430,80 C 430,55 130,55 130,80" fill="none" stroke="#fff" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <polygon points="130,80 126,72 134,72" fill="#fff"/>
+  <text x="280" y="58" font-family="SF Mono, monospace" font-size="8" fill="#fff" text-anchor="middle">recursive self-improvement</text>
+
+  <!-- Right annotation for stage 4 -->
+  <text x="520" y="92" font-family="SF Mono, monospace" font-size="8" fill="#fff" text-anchor="start">left foot on right foot</text>
+  <text x="520" y="105" font-family="SF Mono, monospace" font-size="8" fill="#fff" text-anchor="start">the bootstrap spiral</text>
+
+  <!-- Bottom synthesis -->
+  <text x="350" y="405" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">GCC compiles GCC along one axis. Agents bootstrap along three: capability, context, and goals.</text>
+</svg>

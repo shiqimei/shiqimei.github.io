@@ -8,7 +8,7 @@ excerpt: "Skills tell agents how. Context tells agents what. But nothing tells a
 
 <div class="lang-en">
 
-<p class="series-nav"><em><a href="/posts/end-of-human-bandwidth">&larr; Part I: The End of Human Bandwidth</a></em></p>
+<p class="series-nav"><em><a href="/posts/end-of-human-bandwidth">&larr; Part I: The End of Human Bandwidth</a> | <a href="/posts/the-bootstrap-spiral">Part III: The Bootstrap Spiral &rarr;</a></em></p>
 
 [Part I](/posts/end-of-human-bandwidth) argued that compensatory structures -- meetings, specs, approvals, UIs -- evaporate when agents replace humans on the main execution path. The paradigm flips. The translation layer disappears.
 
@@ -183,7 +183,7 @@ The document evaporates. The state graph remains.
 
 <div class="lang-zh">
 
-<p class="series-nav"><em><a href="/posts/end-of-human-bandwidth">&larr; 第一篇：人类带宽的尽头</a></em></p>
+<p class="series-nav"><em><a href="/posts/end-of-human-bandwidth">&larr; 第一篇：人类带宽的尽头</a> | <a href="/posts/the-bootstrap-spiral">第三篇：自举螺旋 &rarr;</a></em></p>
 
 [第一篇](/posts/end-of-human-bandwidth)论证了补偿结构——会议、规格说明、审批流程、用户界面——在智能体取代人类进入主执行路径时会蒸发。范式翻转。翻译层消失。
 
