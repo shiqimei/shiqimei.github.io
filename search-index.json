@@ -8,10 +8,17 @@
   },
   {
     "type": "post",
-    "title": "The End of Human Bandwidth",
+    "title": "The End of Human Bandwidth, Part I",
     "excerpt": "Meetings, specs, UIs, alignment reviews — none of these are natural law. They're compensatory structures for human bandwidth. When agents replace humans on the main execution path, those structures don't get optimized — they evaporate.",
     "date": "Feb 21, 2026",
     "url": "posts/end-of-human-bandwidth"
+  },
+  {
+    "type": "post",
+    "title": "The End of Human Bandwidth, Part II: The Context Protocol",
+    "excerpt": "Skills tell agents how. Context tells agents what. But nothing tells agents what happened before. Every agent interaction is a first date -- polite, careful, and completely ignorant of history. The context protocol is the missing infrastructure.",
+    "date": "Feb 21, 2026",
+    "url": "posts/the-context-protocol"
   },
   {
     "type": "post",

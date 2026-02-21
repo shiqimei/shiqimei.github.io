@@ -1,0 +1,57 @@
+<svg viewBox="0 0 700 400" xmlns="http://www.w3.org/2000/svg" style="background:#000;">
+  <!-- Title -->
+  <text x="350" y="25" font-family="SF Mono, monospace" font-size="13" fill="#fff" text-anchor="middle" font-weight="bold">The Context Loop</text>
+  <text x="350" y="42" font-family="SF Mono, monospace" font-size="9" fill="#555" text-anchor="middle">injection before action, extraction after action</text>
+
+  <!-- CENTER: Agent Action -->
+  <rect x="250" y="150" width="200" height="50" fill="#111" stroke="#fff" stroke-width="2"/>
+  <text x="350" y="180" font-family="SF Mono, monospace" font-size="12" fill="#fff" text-anchor="middle">Agent Acts</text>
+
+  <!-- LEFT: Context Injection -->
+  <rect x="30" y="70" width="180" height="110" fill="#111" stroke="#fff" stroke-width="1.5"/>
+  <text x="120" y="92" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">INJECTION</text>
+  <line x1="50" y1="100" x2="190" y2="100" stroke="#333" stroke-width="1"/>
+  <text x="120" y="118" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="middle">1. encode intent</text>
+  <text x="120" y="133" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="middle">2. retrieve experiences</text>
+  <text x="120" y="148" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="middle">3. check subscriptions</text>
+  <text x="120" y="163" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="middle">4. inject into agent</text>
+
+  <!-- Arrow: Injection -> Agent -->
+  <line x1="210" y1="125" x2="245" y2="165" stroke="#fff" stroke-width="1.5"/>
+  <polygon points="250,170 240,162 248,157" fill="#fff"/>
+  <text x="230" y="135" font-family="SF Mono, monospace" font-size="7" fill="#888" text-anchor="middle">before</text>
+
+  <!-- RIGHT: Context Extraction -->
+  <rect x="490" y="70" width="180" height="110" fill="#111" stroke="#fff" stroke-width="1.5"/>
+  <text x="580" y="92" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">EXTRACTION</text>
+  <line x1="510" y1="100" x2="650" y2="100" stroke="#333" stroke-width="1"/>
+  <text x="580" y="118" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="middle">1. what was learned?</text>
+  <text x="580" y="133" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="middle">2. what was surprising?</text>
+  <text x="580" y="148" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="middle">3. contradict existing?</text>
+  <text x="580" y="163" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="middle">4. publish to store</text>
+
+  <!-- Arrow: Agent -> Extraction -->
+  <line x1="455" y1="165" x2="485" y2="135" stroke="#fff" stroke-width="1.5"/>
+  <polygon points="490,130 480,132 484,142" fill="#fff"/>
+  <text x="475" y="140" font-family="SF Mono, monospace" font-size="7" fill="#888" text-anchor="middle">after</text>
+
+  <!-- BOTTOM CENTER: Context Store -->
+  <rect x="200" y="270" width="300" height="55" fill="#111" stroke="#fff" stroke-width="2"/>
+  <text x="350" y="295" font-family="SF Mono, monospace" font-size="11" fill="#fff" text-anchor="middle">Context Store</text>
+  <text x="350" y="312" font-family="SF Mono, monospace" font-size="8" fill="#555" text-anchor="middle">experiences + facts + constraints + preferences</text>
+
+  <!-- Arrow: Store -> Injection (left side, going up) -->
+  <path d="M 200,297 L 120,297 L 120,185" fill="none" stroke="#555" stroke-width="1.5"/>
+  <polygon points="120,180 116,188 124,188" fill="#555"/>
+  <text x="95" y="240" font-family="SF Mono, monospace" font-size="7" fill="#555" text-anchor="middle" transform="rotate(-90,95,240)">query by intent</text>
+
+  <!-- Arrow: Extraction -> Store (right side, going down) -->
+  <path d="M 580,185 L 580,297 L 505,297" fill="none" stroke="#555" stroke-width="1.5"/>
+  <polygon points="500,297 508,293 508,301" fill="#555"/>
+  <text x="605" y="240" font-family="SF Mono, monospace" font-size="7" fill="#555" text-anchor="middle" transform="rotate(90,605,240)">publish learnings</text>
+
+  <!-- Bottom annotation -->
+  <text x="350" y="355" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">Both loops must be automatic.</text>
+  <text x="350" y="372" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">If either requires explicit decision, it won't happen consistently.</text>
+  <text x="350" y="389" font-family="SF Mono, monospace" font-size="9" fill="#666" text-anchor="middle">Same reason developers don't update documentation.</text>
+</svg>

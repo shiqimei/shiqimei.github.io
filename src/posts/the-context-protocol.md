@@ -1,0 +1,357 @@
+---
+title: "The End of Human Bandwidth, Part II: The Context Protocol"
+date: 2026-02-21
+excerpt: "Skills tell agents how. Context tells agents what. But nothing tells agents what happened before. Every agent interaction is a first date -- polite, careful, and completely ignorant of history. The context protocol is the missing infrastructure."
+---
+
+<img src="../images/the-context-protocol/context-stack.svg" class="post-hero">
+
+<div class="lang-en">
+
+<p class="series-nav"><em><a href="/posts/end-of-human-bandwidth">&larr; Part I: The End of Human Bandwidth</a></em></p>
+
+[Part I](/posts/end-of-human-bandwidth) argued that compensatory structures -- meetings, specs, approvals, UIs -- evaporate when agents replace humans on the main execution path. The paradigm flips. The translation layer disappears.
+
+But what replaces it?
+
+Not nothing. When the compensatory structures evaporate, what remains is the need for context -- the raw material those structures were built to transport. Meetings existed to share context. Documents existed to store context. Approvals existed to verify context was understood. The structures were the plumbing. Context was the water.
+
+Remove the plumbing designed for human-speed flow, and you need new plumbing designed for agent-speed flow. That's the context protocol.
+
+## The Three Layers
+
+Today's agent systems have three layers, in varying states of existence.
+
+<img src="../images/the-context-protocol/three-layers.svg" alt="Skills vs Context vs Memory" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+**Skills** are procedures. "Here's how to create a blog post: write markdown, add frontmatter, run the build." A skill encodes the steps. It's static, written by humans, triggered on demand. Most agent frameworks have this layer -- Claude Code has `.claude/skills/`, Cursor has rules, Copilot has instructions.
+
+**Context** is facts. "This project uses monospace fonts, no emojis, the date format is YYYY-MM-DD." Context encodes what is true about the environment. It's partially implemented today -- `CLAUDE.md` files, `.cursorrules`, system prompts. But these are static, manually maintained, loaded at session start and never updated.
+
+**Memory** is experience. "Last time we upgraded this dependency, it broke the build. The user always wants bilingual posts. Excerpts over 150 characters get truncated on the homepage." Memory encodes what happened before and what was learned from it.
+
+Most systems have the first layer. Some have fragments of the second. Almost none have the third.
+
+The skill is the skeleton. Context is the muscle. Memory is the nerve. Most agents today are skeletons with partial muscle and zero nerve.
+
+## Context Is Not a Database
+
+The immediate objection: isn't this just a database? Can't Postgres handle all of this?
+
+Partially. Postgres is a fine storage engine for the bits. But context has three properties that make it fundamentally different from data in a table.
+
+**Relevance is not a predicate.** A database answers "give me all rows where `service = 'auth'`." The result is deterministic. Every row either matches or doesn't. Context relevance is different. When an agent is debugging a payment failure, the relevant context might include an auth migration from last week, a rate limit change mentioned in passing, a staging config discrepancy, and a decision made three months ago to deprecate v1 tokens. None of these share a foreign key. None would match a SQL `WHERE` clause you could write in advance. Relevance depends on what the agent is trying to do, not on the structure of the data. This is a recommendation problem, not a query problem.
+
+**Context has provenance and decay.** A database row is a fact -- it's there or it isn't. Context is an assertion with metadata: who said it, when, with what confidence, and under what conditions it becomes invalid. The same fact asserted by a monitoring agent 30 seconds ago is high-confidence context. The same fact from a design doc written six months ago is almost worthless. Context has a half-life that depends on its type. Architectural decisions decay slowly. Runtime observations decay fast. The database stores the bits; it doesn't understand what "stale" means for a particular type of assertion.
+
+**Context is heterogeneous.** A database has a schema. Context spans code diffs, test failure traces, architectural decisions and their rationale, running service metrics, conversation history between agents, and system topology. These don't share a schema. They don't even share a modality. The context system needs to unify these into a single queryable surface, ranked by relevance to the current task.
+
+Postgres is to the context system what the filesystem is to Git. Git uses the filesystem to store blobs. But the value -- branching, merging, history, distributed collaboration -- lives in the protocol layer above. You wouldn't say "the filesystem meets the requirements for version control."
+
+Same here. Postgres stores the bits. The context protocol gives them meaning, relevance, provenance, and liveness.
+
+## The Four Operations
+
+A context protocol has four operations. Everything else is implementation detail.
+
+**Publish.** An agent completes a task and publishes what it learned. Not a document. Not a message. A structured assertion with confidence, provenance, and invalidation conditions. "marked v12 breaks custom heading IDs without a plugin. Confidence: 1.0. Source: build failure at `scripts/build.js:47`. Invalidated by: marked major version change."
+
+**Query.** Before acting, an agent describes its intent and asks what it should know. Not a keyword search. Not a SQL predicate. A semantic query: "I'm about to upgrade dependencies in this project. What should I know?" The system returns relevant past experiences, ranked by similarity, recency, and confidence. The agent didn't ask for a specific fact. It described what it's trying to do, and the system figured out what's relevant.
+
+**Subscribe.** An agent registers standing interest in a domain. "Notify me when anything about the auth service changes." When any agent publishes to that domain, subscribers get updated without polling. This is pub/sub applied to knowledge, not events.
+
+**Invalidate.** An agent declares a previous assertion superseded. "My earlier claim about auth latency is no longer valid after the deploy." Without invalidation, you get what we have with documentation today -- a graveyard of stale assertions that actively mislead.
+
+Every context entry has a lifecycle: born, active, challenged, superseded, archived. Without this lifecycle, context becomes documentation. And documentation rots.
+
+## The Experience Problem
+
+Skills aren't enough. Here's why.
+
+Consider the blog-creator skill. It encodes the procedure: write markdown, add frontmatter, build. But watch what happens across sessions:
+
+Session 1: Agent uses the skill. User corrects: "make it bilingual." Agent adds EN/ZH divs. Session ends. Learning lost.
+
+Session 2: Agent uses the same skill. Creates English-only post. User says "make it bilingual" again. Same correction. Same cost. No memory.
+
+Session 3: Same thing.
+
+The skill encodes the steps. It doesn't encode that this particular user always wants bilingual content, that excerpts should be under 150 characters, that the references section should go at the end. You could update the skill manually. But that's the human-bandwidth bottleneck again -- the human must notice the pattern, decide it's worth encoding, write the update, and maintain it. A compensatory structure.
+
+With experience extraction:
+
+Session 1: User corrects. The system extracts: "user prefers bilingual EN/ZH posts. Confidence: 0.7. Evidence: user correction."
+
+Session 2: Context layer injects the preference before the skill executes. Agent creates bilingual post without being told. User doesn't correct. Confidence: 0.7 becomes 0.9.
+
+Session 3: Confidence 0.95. Effectively a learned constraint.
+
+The skill stays generic. The context accumulates specificity. Clean separation. The procedure doesn't bloat with edge cases. The context layer carries the personalization.
+
+This is the compiler analogy. Skills are source code -- static, written by humans, version-controlled. Context is runtime state -- dynamic, accumulated during execution, machine-maintained. Experience is profiling data -- captured from past runs, informing optimization of future runs. You wouldn't hardcode profiling data into source code. You wouldn't throw away runtime state between executions. But that's exactly what agent systems do today.
+
+## Proactive Context: The Missing Loop
+
+The hardest problem isn't storage or retrieval. It's this: the agent doesn't know what it doesn't know.
+
+A database waits for queries. A skill waits for triggers. But an agent about to make a mistake doesn't know to ask "have I made this mistake before?" The context protocol's real job isn't data management. It's closing the gap between what the agent is about to do and what it should know before doing it.
+
+<img src="../images/the-context-protocol/context-loop.svg" alt="The Context Loop" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+Two loops, not one. **Injection** before action and **extraction** after action. Both must be automatic. If either requires the agent to explicitly decide to do it, it won't happen consistently -- for the same reason developers don't update documentation.
+
+**Injection** works by intercepting intent. Before the agent edits `package.json`, the system asks: "given what this agent is about to do, what context should it know?" It encodes the intent as an embedding, retrieves semantically similar past experiences, checks standing subscriptions, evaluates confidence and staleness, and injects the relevant context. The agent now knows that the last marked upgrade broke heading IDs -- not because someone told it, but because the protocol surfaced a relevant experience.
+
+**Extraction** works by distilling sessions. When the agent finishes a task, a lightweight process reads the session and extracts: what was learned, what was surprising, what preferences were expressed, what failed and why. These become new context entries, published automatically. No human involved.
+
+This is architecturally similar to hooks -- code that runs before and after tool calls. The difference is the hook doesn't execute a shell command; it queries the context store and injects relevant results into the agent's prompt.
+
+## From Telling to Knowing
+
+Part I described the Florence tipping point -- when agent-to-agent transactions dwarf human-to-software interactions. The context protocol determines whether that scale is intelligent or amnesiac.
+
+Today, agents communicate via messages. Agent A sends Agent B a text blob: "The auth service uses JWT with 15-minute expiry." Agent B receives it, uses it, session ends, knowledge gone. If a third agent needs the same fact later, nobody knows it was ever established. Every agent interaction is a first date.
+
+This is "telling" -- the same model human organizations use. Meetings, emails, handoffs. Push-based, point-to-point, ephemeral. The compensatory structure.
+
+The alternative is "knowing." Agent A completes a task and publishes what it learned to the shared context store. Agent B doesn't receive a message. It subscribes to relevant context changes and its local state updates automatically. Agent C, spawned three days later, queries the store and inherits the accumulated knowledge of every agent that came before it.
+
+No messages. No documents. No "here's what I found." Just state transitions propagating through a shared substrate.
+
+The difference between telling and knowing is the difference between Florence and Tokyo. In Florence, everyone knows everyone. Information travels by conversation. The mayor can walk across the city and talk to every shopkeeper. In Tokyo, nobody knows the full picture. But the subway system, the power grid, the telecommunications network -- the infrastructure -- maintains the coherence that no individual could. The city works not because its residents understand it, but because the substrate does.
+
+Agent organizations need the same transition. From "agents telling each other things" to "the substrate knowing things that any agent can query."
+
+## What Exists, What's Missing
+
+Primitive forms of the context protocol already exist:
+
+`CLAUDE.md`, `.cursorrules` -- static context files agents read on startup. Manual, stale the moment they're written. But directional.
+
+MCP (Model Context Protocol) -- Anthropic's protocol for giving agents access to tools and data sources. Solves tool discovery, not context propagation. A start.
+
+Test suites -- the Ralph Wiggum loop demonstrated that a test suite can simultaneously be the spec, the validator, and the acceptance criteria. This is context encoded as executable assertions. Powerful but narrow.
+
+Git history -- the entire evolution of a codebase, queryable by time. Underused as a context source.
+
+What's missing:
+
+**Experience extraction** -- auto-distilling learnings from sessions into structured assertions.
+
+**Semantic retrieval** -- querying by intent ("what should I know before modifying this?"), not by keyword.
+
+**Context propagation** -- pushing relevant context to agents before they act, without being asked.
+
+**Cross-agent sharing** -- Agent A's learning available to Agent B, across sessions, across time.
+
+**Confidence and decay** -- context that knows when it's stale, with provenance tracking.
+
+**Invalidation** -- superseding outdated assertions so they stop misleading.
+
+## The Incremental Path
+
+Grand protocols don't get adopted. Incremental tools that solve immediate pain do.
+
+**Layer 1: Memory file.** An append-only JSONL file where the agent writes one-line learnings after each session. Loaded next session via system prompt. No semantic search. No invalidation. But it solves "Session 1 learning lost by Session 2" immediately. This works today with zero infrastructure.
+
+**Layer 2: Semantic retrieval.** Each learning gets embedded. Before each task, query the log by semantic similarity to the current task description. Top-5 relevant experiences get injected. Now the agent doesn't just remember -- it remembers what's relevant.
+
+**Layer 3: Provenance and decay.** Each entry gets a confidence score that decays with time. New entries can explicitly supersede old ones. Stale context stops polluting retrieval results.
+
+**Layer 4: Cross-agent propagation.** Multiple agents share the same context store. Agent A's experiences are queryable by Agent B. Subscriptions enable proactive notification. Invalidation propagates across all subscribers.
+
+Layer 1 is a JSON file. Layer 4 is the context protocol. But each layer is independently useful. The protocol emerges from the pattern, not the other way around.
+
+## What This Means
+
+Part I argued that compensatory structures evaporate when agents replace humans on the main path. Part II argues that what replaces them is not nothing -- it's context infrastructure. The protocol that lets agents accumulate intelligence over time instead of starting from zero every session.
+
+Skills tell agents how. Context tells agents what. The context protocol is what tells agents what happened before -- and makes that knowledge available to every agent that comes after.
+
+Without it, every agent interaction is a first date. With it, agents inherit the accumulated intelligence of every session that preceded them. The substrate remembers what no individual agent could.
+
+The document evaporates. The state graph remains.
+
+### References
+
+- [The End of Human Bandwidth, Part I](/posts/end-of-human-bandwidth) -- on compensatory structures and the paradigm flip
+- [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) -- Anthropic's protocol for tool and data source access
+- [The Ralph Wiggum Loop](/posts/ralph-wiggum-loop-claude-code.html) -- on agents running autonomously in loops
+- [CLAUDE.md](https://docs.anthropic.com/en/docs/claude-code/memory) -- primitive context files for Claude Code
+
+</div>
+
+<div class="lang-zh">
+
+<p class="series-nav"><em><a href="/posts/end-of-human-bandwidth">&larr; 第一篇：人类带宽的尽头</a></em></p>
+
+[第一篇](/posts/end-of-human-bandwidth)论证了补偿结构——会议、规格说明、审批流程、用户界面——在智能体取代人类进入主执行路径时会蒸发。范式翻转。翻译层消失。
+
+但取而代之的是什么？
+
+不是虚无。当补偿结构蒸发，留下的是对上下文的需求——那些结构原本就是为运输上下文而建造的。会议存在是为了分享上下文。文档存在是为了存储上下文。审批存在是为了确认上下文被理解。结构是管道。上下文是水。
+
+拆除为人类速度设计的管道，你需要为智能体速度设计的新管道。这就是上下文协议。
+
+## 三个层次
+
+今天的智能体系统有三个层次，处于不同的存在状态。
+
+<img src="../images/the-context-protocol/three-layers.svg" alt="技能 vs 上下文 vs 记忆" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+**技能**是程序。「这样创建博客文章：写 Markdown，加 frontmatter，运行构建。」技能编码的是步骤。它是静态的，由人编写，按需触发。大多数智能体框架都有这一层——Claude Code 有 `.claude/skills/`，Cursor 有 rules，Copilot 有 instructions。
+
+**上下文**是事实。「这个项目使用等宽字体，不用 emoji，日期格式是 YYYY-MM-DD。」上下文编码的是关于环境的真相。今天部分实现了——`CLAUDE.md` 文件、`.cursorrules`、系统提示词。但这些是静态的、手动维护的、在会话开始时加载后再也不更新的。
+
+**记忆**是经验。「上次升级这个依赖时，构建崩了。用户总是要双语文章。超过 150 字的摘要会在首页被截断。」记忆编码的是过去发生了什么以及从中学到了什么。
+
+大多数系统有第一层。一些系统有第二层的碎片。几乎没有系统有第三层。
+
+技能是骨骼。上下文是肌肉。记忆是神经。今天的大多数智能体是有部分肌肉但零神经的骨骼。
+
+## 上下文不是数据库
+
+直觉反应：这不就是数据库吗？Postgres 不能搞定这一切吗？
+
+部分可以。Postgres 作为存储引擎很好。但上下文有三个属性使其与数据库表中的数据根本不同。
+
+**相关性不是谓词。** 数据库回答的是「给我所有 `service = 'auth'` 的行」。结果是确定性的。每一行要么匹配，要么不匹配。上下文的相关性不同。当一个智能体在调试支付故障时，相关的上下文可能包括上周的认证迁移、顺带提到的速率限制变更、预发环境的配置差异、以及三个月前废弃 v1 令牌的决策。这些没有共同的外键。没有任何你能提前写出的 SQL `WHERE` 子句能匹配它们。相关性取决于智能体正在做什么，而不是数据的结构。这是推荐问题，不是查询问题。
+
+**上下文有出处和衰减。** 数据库行是事实——要么在，要么不在。上下文是带元数据的断言：谁说的、什么时候、置信度多少、在什么条件下失效。同一个事实，如果是监控智能体 30 秒前断言的，那是高置信度上下文；如果来自六个月前写的设计文档，几乎没有价值。上下文有半衰期，取决于类型。架构决策衰减慢，运行时观察衰减快。数据库存储比特；它不理解对于特定类型的断言「过时」意味着什么。
+
+**上下文是异构的。** 数据库有模式。上下文跨越代码差异、测试失败痕迹、架构决策及其理由、运行服务的指标、智能体之间的对话历史、系统拓扑。这些没有共同的模式，甚至没有共同的模态。上下文系统需要将它们统一到一个可查询的界面上，按与当前任务的相关性排序。
+
+Postgres 之于上下文系统，就像文件系统之于 Git。Git 用文件系统存储 blob。但价值——分支、合并、历史、分布式协作——在上层的协议中。你不会说「文件系统满足了版本控制的需求」。
+
+同理。Postgres 存储比特。上下文协议赋予它们意义、相关性、出处和活性。
+
+## 四个操作
+
+上下文协议有四个操作。其他一切都是实现细节。
+
+**发布。** 智能体完成任务，发布所学。不是文档，不是消息，而是带置信度、出处和失效条件的结构化断言。「marked v12 在没有插件的情况下会破坏自定义标题 ID。置信度：1.0。来源：`scripts/build.js:47` 的构建失败。失效条件：marked 大版本变更。」
+
+**查询。** 行动之前，智能体描述意图并询问应该知道什么。不是关键词搜索，不是 SQL 谓词，而是语义查询：「我即将升级这个项目的依赖。我应该知道什么？」系统返回相关的过往经验，按相似度、新近度和置信度排序。智能体没有请求特定事实，它描述了自己要做的事，系统找出了什么是相关的。
+
+**订阅。** 智能体注册对某个领域的持续关注。「当认证服务有任何变化时通知我。」当任何智能体发布到该领域，订阅者无需轮询即可收到更新。这是发布/订阅模式应用于知识，而非事件。
+
+**失效。** 智能体声明先前的断言已被取代。「我之前关于认证延迟的断言在部署后不再有效。」没有失效机制，你得到的就是今天文档的现状——一个积极误导人的陈旧断言坟场。
+
+每个上下文条目都有生命周期：诞生、活跃、受质疑、被取代、归档。没有这个生命周期，上下文就会变成文档。而文档会腐烂。
+
+## 经验问题
+
+技能不够。原因如下。
+
+看看 blog-creator 技能。它编码的是程序：写 Markdown、加 frontmatter、构建。但观察跨会话发生了什么：
+
+第一次会话：智能体使用技能。用户纠正：「要双语的。」智能体加上中英文分区。会话结束。学习丢失。
+
+第二次会话：智能体使用同一个技能。创建纯英文文章。用户再次说「要双语的」。同样的纠正。同样的成本。没有记忆。
+
+第三次会话：同样的事。
+
+技能编码的是步骤。它不编码这个特定用户总是要双语内容、摘要应该在 150 字以内、参考资料部分应该放在最后。你可以手动更新技能。但那又是人类带宽瓶颈——人必须注意到模式、判断是否值得编码、写更新、维护它。一个补偿结构。
+
+有了经验提取：
+
+第一次会话：用户纠正。系统提取：「用户偏好双语中英文文章。置信度：0.7。证据：用户纠正。」
+
+第二次会话：上下文层在技能执行前注入偏好。智能体无需被告知就创建了双语文章。用户没有纠正。置信度：0.7 升至 0.9。
+
+第三次会话：置信度 0.95。事实上成为一个习得的约束。
+
+技能保持通用。上下文积累特异性。干净的分离。程序不会因边界情况而膨胀。上下文层承载个性化。
+
+这就是编译器类比。技能是源代码——静态的、人写的、版本控制的。上下文是运行时状态——动态的、执行中积累的、机器维护的。经验是性能分析数据——从过去的运行中捕获，为未来的运行提供优化依据。你不会把性能分析数据硬编码到源代码中。你不会在执行之间丢弃运行时状态。但这恰恰是今天的智能体系统在做的。
+
+## 主动上下文：缺失的循环
+
+最难的问题不是存储或检索。而是：智能体不知道自己不知道什么。
+
+数据库等待查询。技能等待触发。但一个即将犯错的智能体不知道要问「我以前犯过这个错误吗？」上下文协议的真正工作不是数据管理，而是弥合智能体即将做的事和它做之前应该知道的事之间的差距。
+
+<img src="../images/the-context-protocol/context-loop.svg" alt="上下文循环" style="width:100%;max-width:700px;margin:1.5rem 0;">
+
+两个循环，不是一个。行动前的**注入**和行动后的**提取**。两者都必须是自动的。如果任一个需要智能体明确决定去做，它就不会持续发生——原因和开发者不更新文档一样。
+
+**注入**通过拦截意图来工作。在智能体编辑 `package.json` 之前，系统问：「鉴于这个智能体即将做的事，它应该知道什么上下文？」它将意图编码为嵌入向量，检索语义相似的过往经验，检查持续订阅，评估置信度和新鲜度，并注入相关上下文。智能体现在知道上次 marked 升级破坏了标题 ID——不是因为有人告诉它，而是因为协议浮现了相关经验。
+
+**提取**通过蒸馏会话来工作。当智能体完成任务，一个轻量进程读取会话并提取：学到了什么、什么出乎意料、表达了什么偏好、什么失败了以及为什么。这些成为新的上下文条目，自动发布。无需人类介入。
+
+这在架构上类似于钩子——在工具调用前后运行的代码。区别在于钩子不执行 shell 命令；它查询上下文存储并将相关结果注入智能体的提示词。
+
+## 从「告知」到「知晓」
+
+第一篇描述了佛罗伦萨倾倒时刻——当智能体之间的交易量远超人与软件的交互量。上下文协议决定了那个规模是智慧的还是失忆的。
+
+今天，智能体通过消息通信。智能体 A 向智能体 B 发送一段文本：「认证服务使用 JWT，15 分钟过期。」智能体 B 收到，使用，会话结束，知识消失。如果第三个智能体后来需要同样的事实，没人知道它曾被建立过。每次智能体交互都是初次约会。
+
+这是「告知」——与人类组织使用的同一模式。会议、邮件、交接。推送式、点对点、短暂的。补偿结构。
+
+替代方案是「知晓」。智能体 A 完成任务，将所学发布到共享上下文存储。智能体 B 不收到消息。它订阅相关上下文变化，本地状态自动更新。智能体 C，三天后启动，查询存储并继承之前每个智能体积累的知识。
+
+没有消息。没有文档。没有「这是我发现的」。只有状态变迁在共享基底上传播。
+
+告知与知晓的区别就是佛罗伦萨与东京的区别。在佛罗伦萨，每个人都认识每个人。信息通过对话传播。市长可以走遍城市与每个店主交谈。在东京，没人了解全貌。但地铁系统、电网、电信网络——基础设施——维持着没有个体能维持的连贯性。城市运转不是因为居民理解它，而是因为基底理解。
+
+智能体组织需要同样的转变。从「智能体相互告知」到「基底知晓、任何智能体可查询」。
+
+## 已有的与缺失的
+
+上下文协议的原始形态已经存在：
+
+`CLAUDE.md`、`.cursorrules`——智能体启动时读取的静态上下文文件。手动的，写下的那一刻就开始过时。但方向正确。
+
+MCP（模型上下文协议）——Anthropic 的工具和数据源访问协议。解决了工具发现，没有解决上下文传播。一个开始。
+
+测试套件——Ralph Wiggum 循环已经证明，测试套件可以同时充当规格、验证器和验收标准。这是编码为可执行断言的上下文。强大但狭窄。
+
+Git 历史——代码库的全部演化，可按时间查询。作为上下文来源被严重低估。
+
+缺失的：
+
+**经验提取**——从会话中自动蒸馏学习成果为结构化断言。
+
+**语义检索**——按意图查询（「在修改这个之前我应该知道什么？」），而不是按关键词。
+
+**上下文传播**——在智能体行动前主动推送相关上下文，无需被要求。
+
+**跨智能体共享**——智能体 A 的学习对智能体 B 可用，跨会话、跨时间。
+
+**置信度与衰减**——知道自己何时过时的上下文，带有出处追踪。
+
+**失效机制**——取代过时的断言，使其停止误导。
+
+## 递增路径
+
+宏大协议不会被采纳。解决即时痛点的递增工具会。
+
+**第一层：记忆文件。** 一个追加写入的 JSONL 文件，智能体在每次会话后写入单行学习成果。下次会话通过系统提示词加载。没有语义搜索。没有失效机制。但它立即解决了「第一次会话的学习到第二次会话就丢失」的问题。零基础设施，今天就能用。
+
+**第二层：语义检索。** 每条学习成果生成嵌入向量。每次任务前，按与当前任务描述的语义相似度查询日志。前 5 条相关经验被注入。现在智能体不仅记得——它记得什么是相关的。
+
+**第三层：出处与衰减。** 每条条目有随时间衰减的置信度分数。新条目可以明确取代旧条目。过时的上下文不再污染检索结果。
+
+**第四层：跨智能体传播。** 多个智能体共享同一个上下文存储。智能体 A 的经验可被智能体 B 查询。订阅实现主动通知。失效在所有订阅者间传播。
+
+第一层是一个 JSON 文件。第四层是上下文协议。但每一层都独立有用。协议从模式中涌现，而不是反过来。
+
+## 这意味着什么
+
+第一篇论证了当智能体取代人类进入主路径时补偿结构会蒸发。第二篇论证了取代它们的不是虚无——而是上下文基础设施。让智能体随时间积累智慧、而不是每次会话从零开始的协议。
+
+技能告诉智能体怎么做。上下文告诉智能体什么是真的。上下文协议告诉智能体过去发生了什么——并让每个后来的智能体都能获取这些知识。
+
+没有它，每次智能体交互都是初次约会。有了它，智能体继承之前每次会话积累的智慧。基底记住了没有任何个体智能体能记住的东西。
+
+文档蒸发。状态图留存。
+
+### 参考资料
+
+- [人类带宽的尽头，第一篇](/posts/end-of-human-bandwidth)——关于补偿结构与范式翻转
+- [模型上下文协议（MCP）](https://modelcontextprotocol.io/)——Anthropic 的工具与数据源访问协议
+- [Ralph Wiggum 循环](/posts/ralph-wiggum-loop-claude-code.html)——关于智能体在循环中自主运行
+- [CLAUDE.md](https://docs.anthropic.com/en/docs/claude-code/memory)——Claude Code 的原始上下文文件
+
+</div>
