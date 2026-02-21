@@ -25,7 +25,6 @@
 
       <div class="post-content">
         <div class="lang-en">
-
 <p>After using a Windows PE tool to create a bootable USB drive, I found that the Deepin Boot Maker could no longer detect my USB drive. Formatting the drive, restarting the computer - nothing worked. Here&#39;s what was happening and how to fix it.</p>
 <h2>The Problem</h2>
 <p>When you create a PE bootable drive with certain tools, Windows may start recognizing your USB drive as a &quot;Local Disk&quot; instead of a &quot;Removable Disk&quot;. The Deepin Boot Maker (and many other Linux boot disk creators) intentionally ignore local disks to prevent accidentally overwriting your system drive.</p>
@@ -62,10 +61,8 @@ clean
 create partition primary
 format fs=fat32 quick
 exit</code></pre><p>If the drive still shows as &quot;Basic&quot; instead of &quot;Removable&quot; after this, the PE environment workaround is your best option.</p>
-</div>
 
-<div class="lang-zh">
-
+</div><div class="lang-zh">
 <p>使用 Windows PE 工具创建可启动 USB 驱动器后，我发现 Deepin 启动盘制作工具无法再检测到我的 USB 驱动器。格式化驱动器、重启电脑——都没用。以下是发生的情况以及如何修复。</p>
 <h2>问题</h2>
 <p>当你使用某些工具创建 PE 可启动驱动器时，Windows 可能会开始将你的 USB 驱动器识别为&quot;本地磁盘&quot;而不是&quot;可移动磁盘&quot;。Deepin 启动盘制作工具（以及许多其他 Linux 启动盘创建工具）故意忽略本地磁盘，以防止意外覆盖你的系统驱动器。</p>
@@ -102,8 +99,8 @@ clean
 create partition primary
 format fs=fat32 quick
 exit</code></pre><p>如果驱动器在此之后仍显示为&quot;基本&quot;而不是&quot;可移动&quot;，PE 环境解决方法是你的最佳选择。</p>
-</div>
 
+</div>
       </div>
     </article>
 

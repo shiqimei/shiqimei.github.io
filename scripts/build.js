@@ -44,6 +44,48 @@ function parseDate(dateStr) {
   return new Date(dateStr);
 }
 
+// Fix CommonMark emphasis edge case: **text ending with punctuation**followed-by-non-whitespace
+// fails because the closing ** doesn't form a valid right-flanking delimiter run.
+// Pre-convert these to <strong> HTML tags so marked passes them through correctly.
+function fixEmphasis(md) {
+  return md.replace(/\*\*([^*\n]+[)\]}>!?.,;:'"])\*\*(?=\S)/g, '<strong>$1</strong>');
+}
+
+// Process markdown body, handling content inside HTML block elements like <div>
+// marked follows CommonMark and skips markdown processing inside HTML blocks.
+// This function splits on div wrappers, processes each section's markdown, and reassembles.
+function processMarkdown(body) {
+  body = fixEmphasis(body);
+  const divRegex = /(<div\b[^>]*>)\s*\n([\s\S]*?)\n\s*(<\/div>)/g;
+  let lastIndex = 0;
+  let result = '';
+  let match;
+
+  while ((match = divRegex.exec(body)) !== null) {
+    // Process markdown before this div block
+    const before = body.slice(lastIndex, match.index);
+    if (before.trim()) {
+      result += marked(before);
+    }
+
+    // Process markdown inside the div block
+    const openTag = match[1];
+    const innerMarkdown = match[2];
+    const closeTag = match[3];
+    result += openTag + '\n' + marked(innerMarkdown.trim()) + '\n' + closeTag;
+
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Process any remaining markdown after the last div
+  const remaining = body.slice(lastIndex);
+  if (remaining.trim()) {
+    result += marked(remaining);
+  }
+
+  return result || marked(body);
+}
+
 // Read and parse markdown files
 function readMarkdownFiles(dir) {
   const files = [];
@@ -67,7 +109,7 @@ function readMarkdownFiles(dir) {
       date: data.date,
       excerpt: data.excerpt || '',
       content: body,
-      html: marked(body)
+      html: processMarkdown(body)
     });
   }
 

@@ -25,7 +25,6 @@
 
       <div class="post-content">
         <div class="lang-en">
-
 <p>Claude Code v2.0.70 (with Opus 4.5 on Claude Max) would hang indefinitely on the first message of each session. The status would show &quot;Simmering...&quot;, &quot;Pontificating...&quot;, etc., while the token counter stayed at 0 tokens. The timer kept running for 15+ minutes with no error messages. However, after interrupting with ESC and retrying, Claude Code would respond normally.</p>
 <p>This post documents the root cause and solutions.</p>
 <h2>Root Cause</h2>
@@ -71,10 +70,8 @@ curl -v --connect-timeout 5 https://api.anthropic.com
 claude --debug</code></pre><h2>Key Takeaway</h2>
 <p>The proxy was &quot;disabled&quot; in macOS UI but the server address remained configured. Clash read this config and injected proxy env vars into terminal sessions. Claude Code tried to route through a proxy that wasn&#39;t handling streaming connections properly, causing the &quot;0 tokens&quot; hang.</p>
 <p>When debugging similar issues, check both the macOS system proxy settings and any proxy environment variables in your shell. A &quot;disabled&quot; proxy with residual configuration can still affect CLI tools.</p>
-</div>
 
-<div class="lang-zh">
-
+</div><div class="lang-zh">
 <p>Claude Code v2.0.70（使用 Claude Max 上的 Opus 4.5）会在每次会话的第一条消息上无限挂起。状态会显示 &quot;Simmering...&quot;、&quot;Pontificating...&quot; 等，而 token 计数器保持在 0 tokens。计时器运行超过 15 分钟没有错误消息。然而，用 ESC 中断并重试后，Claude Code 会正常响应。</p>
 <p>本文记录了根本原因和解决方案。</p>
 <h2>根本原因</h2>
@@ -120,8 +117,8 @@ curl -v --connect-timeout 5 https://api.anthropic.com
 claude --debug</code></pre><h2>关键要点</h2>
 <p>代理在 macOS UI 中是&quot;禁用&quot;的，但服务器地址仍然配置着。Clash 读取了这个配置并将代理环境变量注入到终端会话中。Claude Code 尝试通过一个没有正确处理流式连接的代理进行路由，导致 &quot;0 tokens&quot; 挂起。</p>
 <p>调试类似问题时，检查 macOS 系统代理设置和 shell 中的任何代理环境变量。带有残留配置的&quot;禁用&quot;代理仍然会影响 CLI 工具。</p>
-</div>
 
+</div>
       </div>
     </article>
 

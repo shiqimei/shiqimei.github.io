@@ -25,7 +25,6 @@
 
       <div class="post-content">
         <div class="lang-en">
-
 <p>In a <a href="/posts/agent-skill-vs-mcp-context-efficiency.html">previous post</a>, I discussed how Agent Skills achieve context efficiency through progressive disclosure and script execution. But I noted a limitation: no nested skill support. Complex workflows couldn&#39;t delegate to sub-skills without polluting the main context.</p>
 <p>Claude Code now addresses this with two new skill arguments: <code>context: fork</code> and <code>agent: &lt;type&gt;</code>.</p>
 <h2>The Problem: Skill Execution Pollutes Context</h2>
@@ -145,10 +144,8 @@ agent: Explore         # Use the Explore agent type
 <h2>Conclusion</h2>
 <p>The <code>context: fork</code> and <code>agent: &lt;type&gt;</code> arguments solve the nested skill problem. Complex skills can now run sophisticated, multi-step operations without consuming main conversation context.</p>
 <p>The pattern is simple: isolate expensive operations, return only results. Context is the bottleneck - these tools help you respect it.</p>
-</div>
 
-<div class="lang-zh">
-
+</div><div class="lang-zh">
 <p>在<a href="/posts/agent-skill-vs-mcp-context-efficiency.html">上一篇文章</a>中，我讨论了 Agent Skills 如何通过渐进式披露和脚本执行实现上下文效率。但我指出了一个局限性：不支持嵌套技能。复杂工作流无法委托给子技能而不污染主上下文。</p>
 <p>Claude Code 现在通过两个新的技能参数解决了这个问题：<code>context: fork</code> 和 <code>agent: &lt;type&gt;</code>。</p>
 <h2>问题：技能执行污染上下文</h2>
@@ -268,8 +265,8 @@ agent: Explore         # 使用 Explore 智能体类型
 <h2>结论</h2>
 <p><code>context: fork</code> 和 <code>agent: &lt;type&gt;</code> 参数解决了嵌套技能问题。复杂技能现在可以运行复杂的多步操作而不消耗主对话上下文。</p>
 <p>模式很简单：隔离昂贵的操作，只返回结果。上下文是瓶颈——这些工具帮助你尊重它。</p>
-</div>
 
+</div>
       </div>
     </article>
 

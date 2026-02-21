@@ -27,7 +27,6 @@
         <img src="../images/the-context-protocol/context-stack.svg" class="post-hero">
 
 <div class="lang-en">
-
 <p class="series-nav"><em><a href="/posts/end-of-human-bandwidth">&larr; Part I: The End of Human Bandwidth</a></em></p>
 
 <p><a href="/posts/end-of-human-bandwidth">Part I</a> argued that compensatory structures -- meetings, specs, approvals, UIs -- evaporate when agents replace humans on the main execution path. The paradigm flips. The translation layer disappears.</p>
@@ -120,10 +119,8 @@
 <li><a href="/posts/ralph-wiggum-loop-claude-code.html">The Ralph Wiggum Loop</a> -- on agents running autonomously in loops</li>
 <li><a href="https://docs.anthropic.com/en/docs/claude-code/memory">CLAUDE.md</a> -- primitive context files for Claude Code</li>
 </ul>
-</div>
 
-<div class="lang-zh">
-
+</div><div class="lang-zh">
 <p class="series-nav"><em><a href="/posts/end-of-human-bandwidth">&larr; 第一篇：人类带宽的尽头</a></em></p>
 
 <p><a href="/posts/end-of-human-bandwidth">第一篇</a>论证了补偿结构——会议、规格说明、审批流程、用户界面——在智能体取代人类进入主执行路径时会蒸发。范式翻转。翻译层消失。</p>
@@ -134,9 +131,9 @@
 <p>今天的智能体系统有三个层次，处于不同的存在状态。</p>
 <img src="../images/the-context-protocol/three-layers.svg" alt="技能 vs 上下文 vs 记忆" style="width:100%;max-width:700px;margin:1.5rem 0;">
 
-<p>**技能 (Skills)**是程序。「这样创建博客文章：写 Markdown，加 frontmatter，运行构建。」技能编码的是步骤。它是静态的，由人编写，按需触发。大多数智能体框架都有这一层——Claude Code 有 <code>.claude/skills/</code>，Cursor 有 rules，Copilot 有 instructions。</p>
-<p>**上下文 (Context)**是事实。「这个项目使用等宽字体，不用 emoji，日期格式是 YYYY-MM-DD。」上下文编码的是关于环境的真相。今天部分实现了——<code>CLAUDE.md</code> 文件、<code>.cursorrules</code>、系统提示词。但这些是静态的、手动维护的、在会话开始时加载后再也不更新的。</p>
-<p>**记忆 (Memory)**是经验。「上次升级这个依赖时，构建崩了。用户总是要双语文章。超过 150 字的摘要会在首页被截断。」记忆编码的是过去发生了什么以及从中学到了什么。</p>
+<p><strong>技能 (Skills)</strong>是程序。「这样创建博客文章：写 Markdown，加 frontmatter，运行构建。」技能编码的是步骤。它是静态的，由人编写，按需触发。大多数智能体框架都有这一层——Claude Code 有 <code>.claude/skills/</code>，Cursor 有 rules，Copilot 有 instructions。</p>
+<p><strong>上下文 (Context)</strong>是事实。「这个项目使用等宽字体，不用 emoji，日期格式是 YYYY-MM-DD。」上下文编码的是关于环境的真相。今天部分实现了——<code>CLAUDE.md</code> 文件、<code>.cursorrules</code>、系统提示词。但这些是静态的、手动维护的、在会话开始时加载后再也不更新的。</p>
+<p><strong>记忆 (Memory)</strong>是经验。「上次升级这个依赖时，构建崩了。用户总是要双语文章。超过 150 字的摘要会在首页被截断。」记忆编码的是过去发生了什么以及从中学到了什么。</p>
 <p>大多数系统有第一层。一些系统有第二层的碎片。几乎没有系统有第三层。</p>
 <p>技能是骨骼。上下文是肌肉。记忆是神经。今天的大多数智能体是有部分肌肉但零神经的骨骼。</p>
 <h2>上下文不是数据库</h2>
@@ -174,7 +171,7 @@
 
 <p>两个循环，不是一个。行动前的<strong>注入</strong>和行动后的<strong>提取</strong>。两者都必须是自动的。如果任一个需要智能体明确决定去做，它就不会持续发生——原因和开发者不更新文档一样。</p>
 <p><strong>注入</strong>通过拦截意图来工作。在智能体编辑 <code>package.json</code> 之前，系统问：「鉴于这个智能体即将做的事，它应该知道什么上下文？」它将意图编码为嵌入向量 (Embedding)，检索语义相似的过往经验，检查持续订阅，评估置信度和新鲜度，并注入相关上下文。智能体现在知道上次 marked 升级破坏了标题 ID——不是因为有人告诉它，而是因为协议浮现了相关经验。</p>
-<p>**提取 (Extraction)**通过蒸馏 (Distillation) 会话来工作。当智能体完成任务，一个轻量进程读取会话并提取：学到了什么、什么出乎意料、表达了什么偏好、什么失败了以及为什么。这些成为新的上下文条目，自动发布。无需人类介入。</p>
+<p><strong>提取 (Extraction)</strong>通过蒸馏 (Distillation) 会话来工作。当智能体完成任务，一个轻量进程读取会话并提取：学到了什么、什么出乎意料、表达了什么偏好、什么失败了以及为什么。这些成为新的上下文条目，自动发布。无需人类介入。</p>
 <p>这在架构上类似于钩子 (Hooks)——在工具调用前后运行的代码。区别在于钩子不执行 shell 命令；它查询上下文存储并将相关结果注入智能体的提示词。</p>
 <h2>从「告知」到「知晓」</h2>
 <p>第一篇描述了佛罗伦萨倾倒时刻——当智能体之间的交易量远超人与软件的交互量。上下文协议决定了那个规模是智慧的还是失忆的。</p>
@@ -216,6 +213,7 @@
 <li><a href="/posts/ralph-wiggum-loop-claude-code.html">Ralph Wiggum 循环</a>——关于智能体在循环中自主运行</li>
 <li><a href="https://docs.anthropic.com/en/docs/claude-code/memory">CLAUDE.md</a>——Claude Code 的原始上下文文件</li>
 </ul>
+
 </div>
       </div>
     </article>

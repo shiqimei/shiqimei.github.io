@@ -25,7 +25,6 @@
 
       <div class="post-content">
         <div class="lang-en">
-
 <p>Our ACP demo server connects to a backend via WebSocket. The connection should take under 500ms — our Playwright pressure test confirmed this. But when opening the browser, it consistently took 20-30 seconds. The UI showed a blank &quot;connecting...&quot; state for an eternity.</p>
 <p>This post documents the debugging strategy that found three stacked root causes, and the fix.</p>
 <h2>Symptoms</h2>
@@ -139,10 +138,8 @@ const warmResults = await Promise.all(
 <li><strong>Validate with a pressure test</strong> — confirmed the fix works under load, not just for a single tab</li>
 </ol>
 <p>When debugging latency: measure from the user&#39;s perspective first. The server was fine. The browser was the bottleneck.</p>
-</div>
 
-<div class="lang-zh">
-
+</div><div class="lang-zh">
 <p>我们的 ACP 演示服务器通过 WebSocket 连接后端。连接本身应该在 500ms 以内完成——Playwright 压力测试已经证实了这一点。但每次打开浏览器，都要等 20-30 秒。界面一直显示&quot;连接中...&quot;，漫长得令人抓狂。</p>
 <p>本文记录了排查策略、三层叠加的根因，以及最终的修复方案。</p>
 <h2>现象</h2>
@@ -256,8 +253,8 @@ const warmResults = await Promise.all(
 <li><strong>用压力测试验证</strong> — 确认修复在负载下也有效，不只是单个标签页</li>
 </ol>
 <p>排查延迟问题时：先从用户视角测量。服务端没问题，瓶颈在浏览器。</p>
-</div>
 
+</div>
       </div>
     </article>
 

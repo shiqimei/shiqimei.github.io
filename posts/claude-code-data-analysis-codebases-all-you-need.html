@@ -27,7 +27,6 @@
         <img src="../images/claude-code-data-analysis-pipeline.svg" class="post-hero">
 
 <div class="lang-en">
-
 <p>Working with large datasets (100K-1M records) for consulting and analysis presents unique challenges. Traditional approaches often fall short when you need to extract the top 100 themes, generate insights, and produce enterprise-quality reports.</p>
 <p>This post documents our approach using Claude Code for a real enterprise project: generating biweekly media monitoring reports from 25,000+ news articles across global markets.</p>
 <h2>The Problem: Large-Scale Data Analysis</h2>
@@ -48,10 +47,8 @@
 <li>Recursively sub-cluster until manageable sizes</li>
 <li>Use small models for cluster summaries</li>
 </ol>
-</div>
 
-<div class="lang-zh">
-
+</div><div class="lang-zh">
 <p>处理大规模数据集（10万-100万条记录）进行咨询和分析面临独特挑战。当你需要提取前100个主题、生成洞察并产出企业级报告时，传统方法往往力不从心。</p>
 <p>本文记录了我们使用 Claude Code 完成一个真实企业项目的方法：从全球市场的2.5万多篇新闻文章中生成双周舆情监测报告。</p>
 <h2>问题：大规模数据分析</h2>
@@ -72,9 +69,8 @@
 <li>递归子聚类直到可管理的规模</li>
 <li>使用小模型生成簇摘要</li>
 </ol>
-</div>
 
-<pre><code class="language-text">Raw JSON Data (25K articles)
+</div><pre><code class="language-text">Raw JSON Data (25K articles)
     ↓ [Qwen3-Embedding-0.6B, 1024 dims]
 Embedding Vectors
     ↓ [HDBSCAN, conservative params]
@@ -83,7 +79,6 @@ L1 Clusters (30-150 clusters)
 L2/L3 Sub-clusters
     ↓ [Qwen3-30B summaries]
 Cluster Summaries</code></pre><div class="lang-en">
-
 <p><strong>Why it fails:</strong> News data is sparse, not dense. HDBSCAN works well when data naturally forms clusters. But news articles cover diverse topics with weak semantic connections.</p>
 <p>Results:</p>
 <ul>
@@ -103,10 +98,8 @@ Cluster Summaries</code></pre><div class="lang-en">
 <li><strong>Sampling</strong>: Take 10% of data to fit within context</li>
 <li><strong>Chunking</strong>: Split into multiple sub-datasets, process separately</li>
 </ol>
-</div>
 
-<div class="lang-zh">
-
+</div><div class="lang-zh">
 <p><strong>失败原因：</strong> 新闻数据是稀疏的，而非稠密的。HDBSCAN 在数据自然形成簇时效果好。但新闻文章涵盖多样主题，语义关联较弱。</p>
 <p>结果：</p>
 <ul>
@@ -126,10 +119,8 @@ Cluster Summaries</code></pre><div class="lang-en">
 <li><strong>采样</strong>：取10%的数据以适应上下文</li>
 <li><strong>分块</strong>：拆分成多个子数据集，分别处理</li>
 </ol>
-</div>
 
-<div class="lang-en">
-
+</div><div class="lang-en">
 <p><strong>Why it fails:</strong> Hallucination compounds with context length.</p>
 <p>As token consumption grows, the model&#39;s attention to facts weakens. Errors accumulate:</p>
 <ul>
@@ -150,10 +141,8 @@ Cluster Summaries</code></pre><div class="lang-en">
 <li>Familiar filesystem navigation</li>
 </ul>
 <p>The reframe: convert your dataset problem into a codebase problem.</p>
-</div>
 
-<div class="lang-zh">
-
+</div><div class="lang-zh">
 <p><strong>失败原因：</strong> 幻觉随上下文长度累积。</p>
 <p>随着 token 消耗增长，模型对事实的注意力减弱。错误不断累积：</p>
 <ul>
@@ -174,16 +163,14 @@ Cluster Summaries</code></pre><div class="lang-en">
 <li>熟悉的文件系统导航</li>
 </ul>
 <p>重新定义问题：将数据集问题转换为代码库问题。</p>
-</div>
 
-<pre><code class="language-text">Excel/JSON Data
+</div><pre><code class="language-text">Excel/JSON Data
     ↓ [Preprocessing scripts]
 CSV Files (row-based, compact format)
     ↓ [Split into chunks]
 200 lines per file × N files
     ↓ [Claude Code operates on files]
 Tagged/Labeled/Merged CSV Files</code></pre><div class="lang-en">
-
 <h3>The Conversion</h3>
 <ol>
 <li><strong>Dump data to CSV</strong>: Export from Excel/JSON to row-based CSV</li>
@@ -193,10 +180,8 @@ Tagged/Labeled/Merged CSV Files</code></pre><div class="lang-en">
 </ol>
 <p>A 200K record dataset becomes ~1000 CSV files. This is normal codebase size. Claude Code handles this naturally.</p>
 <h3>Example: Labeling at Scale</h3>
-</div>
 
-<div class="lang-zh">
-
+</div><div class="lang-zh">
 <h3>转换方法</h3>
 <ol>
 <li><strong>导出为 CSV</strong>：从 Excel/JSON 导出为行式 CSV</li>
@@ -206,24 +191,19 @@ Tagged/Labeled/Merged CSV Files</code></pre><div class="lang-en">
 </ol>
 <p>一个20万条记录的数据集变成约1000个 CSV 文件。这是正常的代码库规模。Claude Code 自然地处理这些。</p>
 <h3>示例：大规模标注</h3>
-</div>
 
-<pre><code class="language-diff">- Column A|Column B|...
+</div><pre><code class="language-diff">- Column A|Column B|...
 + Tag1,Tag2,Tag3|Column A|Column B|...</code></pre><div class="lang-en">
-
 <p>Claude Code edits each CSV file, adding classification tags to each row. The operation is familiar - it&#39;s just file editing.</p>
 <h2>Parallel Task Agents</h2>
 <p>Claude Code can run up to 10 Task agents simultaneously. For labeling tasks, assign one agent per CSV chunk:</p>
-</div>
 
-<div class="lang-zh">
-
+</div><div class="lang-zh">
 <p>Claude Code 编辑每个 CSV 文件，为每行添加分类标签。这个操作很熟悉——只是文件编辑而已。</p>
 <h2>并行 Task 智能体</h2>
 <p>Claude Code 可以同时运行最多10个 Task 智能体。对于标注任务，为每个 CSV 块分配一个智能体：</p>
-</div>
 
-<pre><code class="language-text">Running 10 Task agents... (ctrl+o to expand)
+</div><pre><code class="language-text">Running 10 Task agents... (ctrl+o to expand)
    ├─ Tag batch 1 summaries · 12 tool uses
    │  ⎿  Processing summary_01.csv...
    ├─ Tag batch 2 summaries · 8 tool uses
@@ -244,20 +224,16 @@ Tagged/Labeled/Merged CSV Files</code></pre><div class="lang-en">
    │  ⎿  Processing summary_09.csv...
    └─ Tag batch 10 summaries · 6 tool uses
       ⎿  Processing summary_10.csv...</code></pre><div class="lang-en">
-
 <p>This is 10x parallelism for data processing tasks. The Task tool is one of Claude Code&#39;s most powerful features for consulting work.</p>
 <h2>The IR Workflow Pattern</h2>
 <p>IR = Intermediate Representation. This is the key architectural pattern for reliable report generation.</p>
-</div>
 
-<div class="lang-zh">
-
+</div><div class="lang-zh">
 <p>这是数据处理任务的10倍并行度。Task 工具是 Claude Code 在咨询工作中最强大的功能之一。</p>
 <h2>IR 工作流模式</h2>
 <p>IR = 中间表示。这是可靠报告生成的关键架构模式。</p>
-</div>
 
-<pre><code class="language-text">Raw CSV Data
+</div><pre><code class="language-text">Raw CSV Data
     ↓ [Labeling, merging, re-ranking, scoring]
 PostgreSQL Database (with tags)
     ↓ [Query and filter]
@@ -266,7 +242,6 @@ IR (Intermediate Representation - JSON)
 Normalized IR (deduplicated, translated)
     ↓ [Report generation scripts]
 Final Reports (Markdown → XLSX/PPT/PDF)</code></pre><div class="lang-en">
-
 <h3>Why IR Matters</h3>
 <p>IR provides a checkpoint between data processing and report generation:</p>
 <ol>
@@ -290,10 +265,8 @@ Final Reports (Markdown → XLSX/PPT/PDF)</code></pre><div class="lang-en">
 <p>This separation prevents errors from propagating into final reports.</p>
 <h2>Report Validation: Preventing Hallucinations</h2>
 <p>The critical innovation: <strong>validate every fact in the report has a source reference.</strong></p>
-</div>
 
-<div class="lang-zh">
-
+</div><div class="lang-zh">
 <h3>为什么 IR 重要</h3>
 <p>IR 在数据处理和报告生成之间提供了一个检查点：</p>
 <ol>
@@ -317,16 +290,14 @@ Final Reports (Markdown → XLSX/PPT/PDF)</code></pre><div class="lang-en">
 <p>这种分离防止错误传播到最终报告。</p>
 <h2>报告验证：防止幻觉</h2>
 <p>关键创新：<strong>验证报告中的每个事实都有来源引用。</strong></p>
-</div>
 
-<pre><code class="language-text">Report Markdown
+</div><pre><code class="language-text">Report Markdown
     ↓ [Extract facts script]
 .validation.json (dates, numbers, claims)
     ↓ [Parallel Task agents search sources]
 Source references added
     ↓ [Verification script]
 Check for NOT_FOUND entries</code></pre><div class="lang-en">
-
 <h3>The report-validator Skill</h3>
 <p>A 3-step workflow:</p>
 <ol>
@@ -350,10 +321,8 @@ Check for NOT_FOUND entries</code></pre><div class="lang-en">
 </ul>
 <h2>Agent Skills: Encapsulating Expertise</h2>
 <p>Claude Code skills are reusable instruction sets that encapsulate domain expertise.</p>
-</div>
 
-<div class="lang-zh">
-
+</div><div class="lang-zh">
 <h3>report-validator Skill</h3>
 <p>3步工作流：</p>
 <ol>
@@ -377,15 +346,13 @@ Check for NOT_FOUND entries</code></pre><div class="lang-en">
 </ul>
 <h2>Agent Skills：封装专业知识</h2>
 <p>Claude Code Skills 是封装领域专业知识的可复用指令集。</p>
-</div>
 
-<pre><code class="language-text">.claude/skills/
+</div><pre><code class="language-text">.claude/skills/
 ├── generate-report/     # Two-phase IR → Report workflow
 ├── tag-summaries/       # Multi-tag classification
 ├── report-validator/    # Fact verification
 ├── xlsx/                # Excel generation with formulas
 └── analyze-cluster/     # Cluster metadata extraction</code></pre><div class="lang-en">
-
 <h3>Key Skills for Data Analysis</h3>
 <p><strong>generate-report</strong>: Orchestrates the full pipeline</p>
 <ul>
@@ -408,10 +375,8 @@ Check for NOT_FOUND entries</code></pre><div class="lang-en">
 <li>Professional styling (column widths, alignment, wrapping)</li>
 </ul>
 <h2>The Complete Architecture</h2>
-</div>
 
-<div class="lang-zh">
-
+</div><div class="lang-zh">
 <h3>数据分析的关键 Skills</h3>
 <p><strong>generate-report</strong>：编排完整流程</p>
 <ul>
@@ -434,12 +399,10 @@ Check for NOT_FOUND entries</code></pre><div class="lang-en">
 <li>专业样式（列宽、对齐、自动换行）</li>
 </ul>
 <h2>完整架构</h2>
-</div>
 
-<img src="../images/claude-code-data-analysis-architecture.svg" style="width:100%;max-width:700px;margin:1.5rem auto;display:block;">
+</div><img src="../images/claude-code-data-analysis-architecture.svg" style="width:100%;max-width:700px;margin:1.5rem auto;display:block;">
 
 <div class="lang-en">
-
 <h2>Key Takeaways</h2>
 <ol>
 <li><p><strong>Reframe the problem</strong>: Data analysis becomes codebase file editing. Claude Code is optimized for this.</p>
@@ -457,10 +420,8 @@ Check for NOT_FOUND entries</code></pre><div class="lang-en">
 </ol>
 <p>The result: enterprise-quality reports from 25K+ articles, with every fact traceable to source data.</p>
 <p>Claude Code isn&#39;t just for writing code. It&#39;s a general-purpose agent for any task that can be expressed as file operations. Data analysis is a perfect fit.</p>
-</div>
 
-<div class="lang-zh">
-
+</div><div class="lang-zh">
 <h2>关键要点</h2>
 <ol>
 <li><p><strong>重新定义问题</strong>：数据分析 → 代码库文件编辑。Claude Code 针对此做了优化。</p>
@@ -478,8 +439,8 @@ Check for NOT_FOUND entries</code></pre><div class="lang-en">
 </ol>
 <p>结果：从2.5万多篇文章生成企业级报告，每个事实都可追溯到源数据。</p>
 <p>Claude Code 不只是写代码。它是通用智能体，适用于任何可以表达为文件操作的任务。数据分析完美契合。</p>
-</div>
 
+</div>
       </div>
     </article>
 

@@ -25,7 +25,6 @@
 
       <div class="post-content">
         <div class="lang-en">
-
 <p>Building a web-based terminal using xterm.js, I encountered a frustrating issue: Unicode characters like <code>»</code> and CJK characters (你好) rendered as underscores or blank boxes. After hours of debugging font loading, WebGL renderers, and CSS font-face declarations, the fix was a single line change in the backend.</p>
 <p>This post documents the debugging journey and the actual solution.</p>
 <h2>The Symptom</h2>
@@ -120,10 +119,8 @@ LC_ALL=C.UTF-8</code></pre><p>Then I checked how the shell was being spawned. Th
 <li>It&#39;s probably <strong>not</strong> the WebGL renderer</li>
 </ul>
 <p>Check how the shell process is spawned. Specifically, verify that <code>LANG</code> and <code>LC_ALL</code> are set to a UTF-8 locale in the exec environment, not just in the container&#39;s Dockerfile.</p>
-</div>
 
-<div class="lang-zh">
-
+</div><div class="lang-zh">
 <p>在使用 xterm.js 构建 Web 终端时，我遇到了一个令人沮丧的问题：Unicode 字符如 <code>»</code> 和中日韩字符（你好）渲染成下划线或空白方块。在花了数小时调试字体加载、WebGL 渲染器和 CSS font-face 声明后，最终的修复只是后端的一行代码改动。</p>
 <p>本文记录了调试过程和真正的解决方案。</p>
 <h2>症状</h2>
@@ -218,8 +215,8 @@ LC_ALL=C.UTF-8</code></pre><p>然后我检查了 shell 是如何启动的。<cod
 <li><strong>可能不是</strong> WebGL 渲染器的问题</li>
 </ul>
 <p>检查 shell 进程是如何启动的。具体来说，验证 <code>LANG</code> 和 <code>LC_ALL</code> 在 exec 环境中是否设置为 UTF-8 locale，而不仅仅是在容器的 Dockerfile 中。</p>
-</div>
 
+</div>
       </div>
     </article>
 

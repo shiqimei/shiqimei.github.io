@@ -25,7 +25,6 @@
 
       <div class="post-content">
         <div class="lang-en">
-
 <p>I was recently dual-booting Windows 10 and Linux. When I decided to remove Linux, I simply formatted the Linux partition from Windows PE. Bad idea. After reboot, I was greeted with <code>grub rescue&gt;</code>. Time to learn how boot systems actually work.</p>
 <h2>The Problem</h2>
 <p>When you install Linux alongside Windows, GRUB (the Linux bootloader) takes over the MBR. GRUB stores part of itself in the MBR and its configuration files in the Linux partition at <code>/boot/grub/</code>. When you delete the Linux partition, you&#39;re deleting GRUB&#39;s configuration files, but GRUB is still in the MBR trying to load them.</p>
@@ -103,10 +102,8 @@ normal</code></pre><p>This didn&#39;t work for me - all partitions returned <cod
 </tr>
 </tbody></table>
 <p>When removing a Linux dual-boot, always restore the Windows MBR first, or use the Windows installation media&#39;s repair option to avoid these issues entirely.</p>
-</div>
 
-<div class="lang-zh">
-
+</div><div class="lang-zh">
 <p>我最近在双启动 Windows 10 和 Linux。当我决定移除 Linux 时，我只是从 Windows PE 格式化了 Linux 分区。糟糕的决定。重启后，我看到了 <code>grub rescue&gt;</code>。是时候学习启动系统实际是如何工作的了。</p>
 <h2>问题</h2>
 <p>当你在 Windows 旁边安装 Linux 时，GRUB（Linux 引导程序）会接管 MBR。GRUB 将自身的一部分存储在 MBR 中，配置文件存储在 Linux 分区的 <code>/boot/grub/</code>。当你删除 Linux 分区时，你删除了 GRUB 的配置文件，但 GRUB 仍然在 MBR 中试图加载它们。</p>
@@ -184,8 +181,8 @@ normal</code></pre><p>这对我不起作用——所有分区都返回 <code>err
 </tr>
 </tbody></table>
 <p>移除 Linux 双启动时，始终先恢复 Windows MBR，或使用 Windows 安装介质的修复选项来完全避免这些问题。</p>
-</div>
 
+</div>
       </div>
     </article>
 
