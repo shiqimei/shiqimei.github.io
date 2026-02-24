@@ -1,5 +1,5 @@
 ---
-title: "The End of Human Bandwidth, Part I"
+title: "The New Engine: The Paradigm Flip"
 date: 2026-02-21
 excerpt: Meetings, specs, UIs, alignment reviews — none of these are natural law. They're compensatory structures for human bandwidth. When agents replace humans on the main execution path, those structures don't get optimized — they evaporate.
 ---
@@ -8,7 +8,7 @@ excerpt: Meetings, specs, UIs, alignment reviews — none of these are natural l
 
 <div class="lang-en">
 
-<p class="series-nav"><em>Part I of a series on the end of human bandwidth. <a href="/posts/the-context-protocol">Part II: The Context Protocol &rarr;</a> | <a href="/posts/the-bootstrap-spiral">Part III: The Bootstrap Spiral &rarr;</a></em></p>
+<p class="series-nav"><em>Part I of the New Engine series. <a href="/posts/the-context-protocol">Part II: The Context Protocol &rarr;</a> | <a href="/posts/the-bootstrap-spiral">Part III: The Bootstrap Spiral &rarr;</a> | <a href="/posts/the-living-kernel">Part IV: The Living Kernel &rarr;</a></em></p>
 
 Ivan Zhao recently wrote about the [steam engine's arrival at textile factories](https://www.notion.com/blog/steam-steel-and-infinite-minds-ai). When it first appeared, factory owners swapped out the waterwheel and kept everything else the same. Same floor plan, same layout, same workflow. Productivity gains were modest.
 
@@ -119,7 +119,7 @@ The paradigm didn't shift. It flipped. And most of the industry is still buildin
 
 <div class="lang-zh">
 
-<p class="series-nav"><em>本文是「人类带宽的尽头」系列第一篇。<a href="/posts/the-context-protocol">第二篇：上下文协议 &rarr;</a> | <a href="/posts/the-bootstrap-spiral">第三篇：自举螺旋 &rarr;</a></em></p>
+<p class="series-nav"><em>本文是「新引擎」系列第一篇。<a href="/posts/the-context-protocol">第二篇：上下文协议 &rarr;</a> | <a href="/posts/the-bootstrap-spiral">第三篇：自举螺旋 &rarr;</a> | <a href="/posts/the-living-kernel">第四篇：活内核 &rarr;</a></em></p>
 
 Ivan Zhao 最近写了蒸汽机进入纺织工厂的[那段历史](https://www.notion.com/blog/steam-steel-and-infinite-minds-ai)。蒸汽机刚出现时，工厂主把水轮换掉，其他一切照旧——同样的厂房布局，同样的工作流程。生产力提升微乎其微。
 

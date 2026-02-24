@@ -1,5 +1,5 @@
 ---
-title: "The End of Human Bandwidth, Part III: The Bootstrap Spiral"
+title: "The New Engine: The Bootstrap Spiral"
 date: 2026-02-21
 excerpt: "Humans build tools for humans. Humans build tools for agents. Agents build tools for agents. Agents build agents that build agents. The bootstrap spiral is the phase transition where agents step on their own output and rise -- left foot on right foot, straight to the sky."
 ---
@@ -8,7 +8,7 @@ excerpt: "Humans build tools for humans. Humans build tools for agents. Agents b
 
 <div class="lang-en">
 
-<p class="series-nav"><em><a href="/posts/end-of-human-bandwidth">&larr; Part I: The End of Human Bandwidth</a> | <a href="/posts/the-context-protocol">Part II: The Context Protocol</a></em></p>
+<p class="series-nav"><em><a href="/posts/end-of-human-bandwidth">&larr; Part I: The Paradigm Flip</a> | <a href="/posts/the-context-protocol">Part II: The Context Protocol</a> | <a href="/posts/the-living-kernel">Part IV: The Living Kernel &rarr;</a></em></p>
 
 [Part I](/posts/end-of-human-bandwidth) argued that compensatory structures evaporate when agents replace humans on the main execution path. [Part II](/posts/the-context-protocol) argued that what replaces them is context infrastructure -- the protocol that lets agents accumulate intelligence across sessions instead of starting from zero every time.
 
@@ -144,8 +144,8 @@ Left foot on right foot. The ground holds. The spiral ascends.
 
 ### References
 
-- [The End of Human Bandwidth, Part I](/posts/end-of-human-bandwidth) -- on compensatory structures and the paradigm flip
-- [The Context Protocol, Part II](/posts/the-context-protocol) -- on context infrastructure and the four operations
+- [The New Engine: The Paradigm Flip](/posts/end-of-human-bandwidth) -- on compensatory structures and the paradigm flip
+- [The New Engine: The Context Protocol](/posts/the-context-protocol) -- on context infrastructure and the four operations
 - [The Ralph Wiggum Loop](/posts/ralph-wiggum-loop-claude-code.html) -- on agents running autonomously in loops
 - [OpenClaw - Wikipedia](https://en.wikipedia.org/wiki/OpenClaw) -- 196K stars, agent-driven development
 - Stigmergy -- [Wikipedia](https://en.wikipedia.org/wiki/Stigmergy), indirect coordination through shared environment
@@ -154,7 +154,7 @@ Left foot on right foot. The ground holds. The spiral ascends.
 
 <div class="lang-zh">
 
-<p class="series-nav"><em><a href="/posts/end-of-human-bandwidth">&larr; 第一篇：人类带宽的尽头</a> | <a href="/posts/the-context-protocol">第二篇：上下文协议</a></em></p>
+<p class="series-nav"><em><a href="/posts/end-of-human-bandwidth">&larr; 第一篇：范式翻转</a> | <a href="/posts/the-context-protocol">第二篇：上下文协议</a> | <a href="/posts/the-living-kernel">第四篇：活内核 &rarr;</a></em></p>
 
 [第一篇](/posts/end-of-human-bandwidth)论证了当智能体取代人类进入主执行路径时，补偿结构会蒸发。[第二篇](/posts/the-context-protocol)论证了取代它们的是上下文基础设施——让智能体跨会话积累智慧而不是每次从零开始的协议。
 
@@ -290,8 +290,8 @@ GCC 能编译 GCC，因为编译出的二进制文件可以编译源代码，包
 
 ### 参考资料
 
-- [人类带宽的尽头，第一篇](/posts/end-of-human-bandwidth)——关于补偿结构与范式翻转
-- [上下文协议，第二篇](/posts/the-context-protocol)——关于上下文基础设施与四个操作
+- [新引擎：范式翻转](/posts/end-of-human-bandwidth)——关于补偿结构与范式翻转
+- [新引擎：上下文协议](/posts/the-context-protocol)——关于上下文基础设施与四个操作
 - [Ralph Wiggum 循环](/posts/ralph-wiggum-loop-claude-code.html)——关于智能体在循环中自主运行
 - [OpenClaw - Wikipedia](https://en.wikipedia.org/wiki/OpenClaw)——196K star，智能体驱动开发
 - 痕迹协作 (Stigmergy)——[Wikipedia](https://en.wikipedia.org/wiki/Stigmergy)，通过共享环境的间接协调

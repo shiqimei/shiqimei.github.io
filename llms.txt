@@ -8,9 +8,10 @@ Personal blog by Shiqi Mei, a software engineer focused on AI-powered developer 
 
 ## Posts
 
-- [The End of Human Bandwidth, Part I](https://shiqimei.github.io/posts/end-of-human-bandwidth) - Feb 21, 2026
-- [The End of Human Bandwidth, Part III: The Bootstrap Spiral](https://shiqimei.github.io/posts/the-bootstrap-spiral) - Feb 21, 2026
-- [The End of Human Bandwidth, Part II: The Context Protocol](https://shiqimei.github.io/posts/the-context-protocol) - Feb 21, 2026
+- [The New Engine: The Living Kernel](https://shiqimei.github.io/posts/the-living-kernel) - Feb 24, 2026
+- [The New Engine: The Paradigm Flip](https://shiqimei.github.io/posts/end-of-human-bandwidth) - Feb 21, 2026
+- [The New Engine: The Bootstrap Spiral](https://shiqimei.github.io/posts/the-bootstrap-spiral) - Feb 21, 2026
+- [The New Engine: The Context Protocol](https://shiqimei.github.io/posts/the-context-protocol) - Feb 21, 2026
 - [Why Our WebSocket Takes 23 Seconds to Connect (React StrictMode + IPv6)](https://shiqimei.github.io/posts/websocket-cold-start-react-strictmode) - Feb 8, 2026
 - [The Ralph Wiggum Loop: How a Bash While-True Became an AI Development Pattern](https://shiqimei.github.io/posts/ralph-wiggum-loop-claude-code) - Feb 3, 2026
 - [Building a Better Remote Terminal: Clipboard, Multiline, and Image Paste in xterm.js](https://shiqimei.github.io/posts/xterm-remote-terminal-clipboard-ux) - Jan 29, 2026

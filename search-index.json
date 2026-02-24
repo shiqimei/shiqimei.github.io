@@ -3,26 +3,33 @@
     "type": "project",
     "title": "LinguaCoach",
     "excerpt": "Interactive English language tutor that talks with you",
-    "date": "Feb 21, 2026",
+    "date": "Feb 24, 2026",
     "url": "projects.html#linguacoach"
   },
   {
     "type": "post",
-    "title": "The End of Human Bandwidth, Part I",
+    "title": "The New Engine: The Living Kernel",
+    "excerpt": "The context protocol described the water. The bootstrap spiral described the motion. Neither exists without the pipe — a versioned, governed, replayable runtime where context is the primary citizen and agents are ephemeral compute. ContextOS is that pipe. And its deepest proof of concept is that it builds itself.",
+    "date": "Feb 24, 2026",
+    "url": "posts/the-living-kernel"
+  },
+  {
+    "type": "post",
+    "title": "The New Engine: The Paradigm Flip",
     "excerpt": "Meetings, specs, UIs, alignment reviews — none of these are natural law. They're compensatory structures for human bandwidth. When agents replace humans on the main execution path, those structures don't get optimized — they evaporate.",
     "date": "Feb 21, 2026",
     "url": "posts/end-of-human-bandwidth"
   },
   {
     "type": "post",
-    "title": "The End of Human Bandwidth, Part III: The Bootstrap Spiral",
+    "title": "The New Engine: The Bootstrap Spiral",
     "excerpt": "Humans build tools for humans. Humans build tools for agents. Agents build tools for agents. Agents build agents that build agents. The bootstrap spiral is the phase transition where agents step on their own output and rise -- left foot on right foot, straight to the sky.",
     "date": "Feb 21, 2026",
     "url": "posts/the-bootstrap-spiral"
   },
   {
     "type": "post",
-    "title": "The End of Human Bandwidth, Part II: The Context Protocol",
+    "title": "The New Engine: The Context Protocol",
     "excerpt": "Skills tell agents how. Context tells agents what. But nothing tells agents what happened before. Every agent interaction is a first date -- polite, careful, and completely ignorant of history. The context protocol is the missing infrastructure.",
     "date": "Feb 21, 2026",
     "url": "posts/the-context-protocol"

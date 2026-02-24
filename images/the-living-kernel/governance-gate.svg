@@ -1,0 +1,69 @@
+<svg viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg" style="background:#000;">
+  <!-- Title -->
+  <text x="350" y="25" font-family="SF Mono, monospace" font-size="13" fill="#999" text-anchor="middle" font-weight="bold">The Governance Gate</text>
+  <text x="350" y="42" font-family="SF Mono, monospace" font-size="9" fill="#555" text-anchor="middle">two-phase commit: propose, validate, commit or reject</text>
+
+  <!-- Agent box -->
+  <rect x="30" y="95" width="110" height="40" fill="#111" stroke="#555" stroke-width="1.5"/>
+  <text x="85" y="120" font-family="SF Mono, monospace" font-size="10" fill="#888" text-anchor="middle">Agent</text>
+
+  <!-- Arrow: propose -->
+  <line x1="140" y1="115" x2="215" y2="115" stroke="#fff" stroke-width="1.5"/>
+  <polygon points="220,115 212,111 212,119" fill="#fff"/>
+  <text x="178" y="108" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="middle">propose_patch()</text>
+
+  <!-- Governance Gate box (larger, with internal structure) -->
+  <rect x="225" y="70" width="230" height="130" fill="#111" stroke="#fff" stroke-width="2"/>
+  <text x="340" y="92" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">GOVERNANCE GATE</text>
+
+  <!-- Internal checks -->
+  <text x="250" y="115" font-family="SF Mono, monospace" font-size="8" fill="#666">1. Schema check</text>
+  <text x="250" y="132" font-family="SF Mono, monospace" font-size="8" fill="#666">2. Invariant enforcement</text>
+  <text x="250" y="149" font-family="SF Mono, monospace" font-size="8" fill="#666">3. Conflict detection</text>
+  <text x="250" y="166" font-family="SF Mono, monospace" font-size="8" fill="#666">4. Belief revision cascade</text>
+
+  <!-- Checkmarks -->
+  <text x="240" y="115" font-family="SF Mono, monospace" font-size="8" fill="#555">&#x2713;</text>
+  <text x="240" y="132" font-family="SF Mono, monospace" font-size="8" fill="#555">&#x2713;</text>
+  <text x="240" y="149" font-family="SF Mono, monospace" font-size="8" fill="#555">&#x2713;</text>
+  <text x="240" y="166" font-family="SF Mono, monospace" font-size="8" fill="#555">&#x2713;</text>
+
+  <!-- Arrow: valid → commit -->
+  <line x1="455" y1="105" x2="530" y2="105" stroke="#fff" stroke-width="1.5"/>
+  <polygon points="535,105 527,101 527,109" fill="#fff"/>
+  <text x="493" y="98" font-family="SF Mono, monospace" font-size="7" fill="#888" text-anchor="middle">valid</text>
+
+  <!-- Commit DAG box -->
+  <rect x="540" y="85" width="130" height="40" fill="#111" stroke="#fff" stroke-width="2"/>
+  <text x="605" y="110" font-family="SF Mono, monospace" font-size="10" fill="#fff" text-anchor="middle">Commit DAG</text>
+
+  <!-- Arrow: conflict → resolution node -->
+  <line x1="455" y1="165" x2="530" y2="165" stroke="#555" stroke-width="1.5"/>
+  <polygon points="535,165 527,161 527,169" fill="#555"/>
+  <text x="493" y="158" font-family="SF Mono, monospace" font-size="7" fill="#555" text-anchor="middle">conflict</text>
+
+  <!-- Resolution node box -->
+  <rect x="540" y="145" width="130" height="40" fill="#111" stroke="#444" stroke-width="1.5"/>
+  <text x="605" y="163" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="middle">Resolution</text>
+  <text x="605" y="177" font-family="SF Mono, monospace" font-size="8" fill="#888" text-anchor="middle">Node</text>
+
+  <!-- Five Invariants below -->
+  <text x="350" y="230" font-family="SF Mono, monospace" font-size="10" fill="#888" text-anchor="middle" font-weight="bold">Five Load-Bearing Invariants</text>
+
+  <text x="70" y="258" font-family="SF Mono, monospace" font-size="8" fill="#666">1. No direct write</text>
+  <text x="70" y="271" font-family="SF Mono, monospace" font-size="7" fill="#444">agents propose, kernel commits</text>
+
+  <text x="230" y="258" font-family="SF Mono, monospace" font-size="8" fill="#666">2. Justified beliefs</text>
+  <text x="230" y="271" font-family="SF Mono, monospace" font-size="7" fill="#444">no orphan assertions</text>
+
+  <text x="400" y="258" font-family="SF Mono, monospace" font-size="8" fill="#666">3. Owned goals</text>
+  <text x="400" y="271" font-family="SF Mono, monospace" font-size="7" fill="#444">no zombie processes</text>
+
+  <text x="150" y="296" font-family="SF Mono, monospace" font-size="8" fill="#666">4. Traced invocations</text>
+  <text x="150" y="309" font-family="SF Mono, monospace" font-size="7" fill="#444">every skill call logged</text>
+
+  <text x="400" y="296" font-family="SF Mono, monospace" font-size="8" fill="#666">5. Active leases</text>
+  <text x="400" y="309" font-family="SF Mono, monospace" font-size="7" fill="#444">heartbeat or eviction</text>
+
+  <text x="350" y="335" font-family="SF Mono, monospace" font-size="8" fill="#555" text-anchor="middle">They don't make the system intelligent. They make it non-delusional.</text>
+</svg>

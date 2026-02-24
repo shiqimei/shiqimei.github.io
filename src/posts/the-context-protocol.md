@@ -1,5 +1,5 @@
 ---
-title: "The End of Human Bandwidth, Part II: The Context Protocol"
+title: "The New Engine: The Context Protocol"
 date: 2026-02-21
 excerpt: "Skills tell agents how. Context tells agents what. But nothing tells agents what happened before. Every agent interaction is a first date -- polite, careful, and completely ignorant of history. The context protocol is the missing infrastructure."
 ---
@@ -8,7 +8,7 @@ excerpt: "Skills tell agents how. Context tells agents what. But nothing tells a
 
 <div class="lang-en">
 
-<p class="series-nav"><em><a href="/posts/end-of-human-bandwidth">&larr; Part I: The End of Human Bandwidth</a> | <a href="/posts/the-bootstrap-spiral">Part III: The Bootstrap Spiral &rarr;</a></em></p>
+<p class="series-nav"><em><a href="/posts/end-of-human-bandwidth">&larr; Part I: The Paradigm Flip</a> | <a href="/posts/the-bootstrap-spiral">Part III: The Bootstrap Spiral &rarr;</a> | <a href="/posts/the-living-kernel">Part IV: The Living Kernel &rarr;</a></em></p>
 
 [Part I](/posts/end-of-human-bandwidth) argued that compensatory structures -- meetings, specs, approvals, UIs -- evaporate when agents replace humans on the main execution path. The paradigm flips. The translation layer disappears.
 
@@ -174,7 +174,7 @@ The document evaporates. The state graph remains.
 
 ### References
 
-- [The End of Human Bandwidth, Part I](/posts/end-of-human-bandwidth) -- on compensatory structures and the paradigm flip
+- [The New Engine: The Paradigm Flip](/posts/end-of-human-bandwidth) -- on compensatory structures and the paradigm flip
 - [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) -- Anthropic's protocol for tool and data source access
 - [The Ralph Wiggum Loop](/posts/ralph-wiggum-loop-claude-code.html) -- on agents running autonomously in loops
 - [CLAUDE.md](https://docs.anthropic.com/en/docs/claude-code/memory) -- primitive context files for Claude Code
@@ -183,7 +183,7 @@ The document evaporates. The state graph remains.
 
 <div class="lang-zh">
 
-<p class="series-nav"><em><a href="/posts/end-of-human-bandwidth">&larr; 第一篇：人类带宽的尽头</a> | <a href="/posts/the-bootstrap-spiral">第三篇：自举螺旋 &rarr;</a></em></p>
+<p class="series-nav"><em><a href="/posts/end-of-human-bandwidth">&larr; 第一篇：范式翻转</a> | <a href="/posts/the-bootstrap-spiral">第三篇：自举螺旋 &rarr;</a> | <a href="/posts/the-living-kernel">第四篇：活内核 &rarr;</a></em></p>
 
 [第一篇](/posts/end-of-human-bandwidth)论证了补偿结构——会议、规格说明、审批流程、用户界面——在智能体取代人类进入主执行路径时会蒸发。范式翻转。翻译层消失。
 
@@ -349,7 +349,7 @@ Git 历史——代码库的全部演化，可按时间查询。作为上下文�
 
 ### 参考资料
 
-- [人类带宽的尽头，第一篇](/posts/end-of-human-bandwidth)——关于补偿结构与范式翻转
+- [新引擎：范式翻转](/posts/end-of-human-bandwidth)——关于补偿结构与范式翻转
 - [模型上下文协议（MCP）](https://modelcontextprotocol.io/)——Anthropic 的工具与数据源访问协议
 - [Ralph Wiggum 循环](/posts/ralph-wiggum-loop-claude-code.html)——关于智能体在循环中自主运行
 - [CLAUDE.md](https://docs.anthropic.com/en/docs/claude-code/memory)——Claude Code 的原始上下文文件
