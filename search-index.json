@@ -3,8 +3,15 @@
     "type": "project",
     "title": "LinguaCoach",
     "excerpt": "Interactive English language tutor that talks with you",
-    "date": "Feb 24, 2026",
+    "date": "Mar 9, 2026",
     "url": "projects.html#linguacoach"
+  },
+  {
+    "type": "post",
+    "title": "Onboard Agents as Your Teammates",
+    "excerpt": "Current agent systems treat agents as interns — assign task, get result, done. What's missing is scope: a persistent area of ownership that lets agents generate their own work proactively.",
+    "date": "Mar 9, 2026",
+    "url": "posts/onboard-agents-as-teammates"
   },
   {
     "type": "post",

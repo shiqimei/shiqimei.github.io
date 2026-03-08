@@ -8,6 +8,7 @@ Personal blog by Shiqi Mei, a software engineer focused on AI-powered developer 
 
 ## Posts
 
+- [Onboard Agents as Your Teammates](https://shiqimei.github.io/posts/onboard-agents-as-teammates) - Mar 9, 2026
 - [The New Engine: The Living Kernel](https://shiqimei.github.io/posts/the-living-kernel) - Feb 24, 2026
 - [The New Engine: The Paradigm Flip](https://shiqimei.github.io/posts/end-of-human-bandwidth) - Feb 21, 2026
 - [The New Engine: The Bootstrap Spiral](https://shiqimei.github.io/posts/the-bootstrap-spiral) - Feb 21, 2026
