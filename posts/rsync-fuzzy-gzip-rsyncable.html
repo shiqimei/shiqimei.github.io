@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>rsync --fuzzy + gzip --rsyncable: Cutting Release Uploads 6× at the Same Bandwidth - Shiqi Mei</title>
+  <link rel="icon" type="image/png" href="../avatar.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">&larr; back</a>
+
+    <article>
+      <header class="post-header">
+        <div class="post-header-row">
+          <h1 class="post-title">rsync --fuzzy + gzip --rsyncable: Cutting Release Uploads 6× at the Same Bandwidth</h1>
+          <div class="lang-toggle" id="langToggle">
+            <button data-lang="en" class="active">EN</button>
+            <button data-lang="zh">CN</button>
+          </div>
+        </div>
+        <p class="post-meta">Apr 17, 2026</p>
+      </header>
+
+      <div class="post-content">
+        <div class="lang-en">
+<p>Our release pipeline publishes versioned tarballs (<code>ouro-app-0.1.12.tar.gz</code>, <code>ouro-app-0.1.13.tar.gz</code>, ...) through an frp relay on a Tencent Cloud VPS. That VPS is bandwidth-capped at around 2.5 Mbps — a 6.6 MB tarball takes 20+ seconds to upload. Every <code>bun pub:app</code> pays that cost.</p>
+<p>Upgrading VPS bandwidth costs money. Moving to a different cloud failed: our org firewall blocked Aliyun IPs. Running frp XTCP P2P between two China Telecom endpoints failed during UDP hole-punching (CGNAT drops the NAT-bust packets). We were stuck with 2.5 Mbps.</p>
+<p>So we looked upstream: <strong>if we can&#39;t make the pipe fatter, push fewer bytes through it.</strong></p>
+<h2>Why Naive rsync Doesn&#39;t Help</h2>
+<p>First instinct: replace <code>scp</code> with <code>rsync</code>. Rsync&#39;s rolling checksum should send only the diff between two versions of the tarball.</p>
+<p>It doesn&#39;t. Two separate issues stack on top of each other:</p>
+<p><strong>1. Different filenames defeat rsync&#39;s default basis detection.</strong></p>
+<p>Rsync looks for a file of the same name on the destination to use as a delta basis. But our tarballs are versioned — <code>ouro-app-0.1.12.tar.gz</code> and <code>ouro-app-0.1.13.tar.gz</code> are different filenames, so rsync treats the new one as a fresh file and sends the whole thing.</p>
+<p><strong>2. gzip&#39;s DEFLATE state breaks byte-level delta.</strong></p>
+<p>Even if you force rsync to compare against the old tarball, gzip&#39;s compression carries state across the entire stream. A single byte change in the input cascades into completely different output from that point to EOF. Rsync&#39;s rolling checksum sees two mostly-different byte streams and ends up re-transferring 80–90% of the file. You get the overhead of delta computation with none of the benefit.</p>
+<h2>Two Flags Fix Both</h2>
+<p><strong><code>gzip --rsyncable</code></strong> inserts flush points at content-defined boundaries, so a small input change produces a localized output change. The file gets about 1% larger; the DEFLATE state resets regularly.</p>
+<p><strong><code>rsync --fuzzy</code></strong> tells rsync: if the destination doesn&#39;t have a same-named file, look in the same directory for files with similar names, pick the closest one, and use it as a delta basis. <code>ouro-app-0.1.12.tar.gz</code> becomes a viable basis for <code>ouro-app-0.1.13.tar.gz</code>. Double <code>--fuzzy --fuzzy</code> also enables fuzzy matching across <code>--compare-dest</code> directories.</p>
+<p>Neither flag alone is sufficient:</p>
+<ul>
+<li><code>--rsyncable</code> without <code>--fuzzy</code>: rsync doesn&#39;t find a basis, transfers the whole file.</li>
+<li><code>--fuzzy</code> without <code>--rsyncable</code>: rsync picks a basis but the gzip stream difference is too large to exploit.</li>
+</ul>
+<p>Both together: delta becomes tiny and usable.</p>
+<h2>The Measurement</h2>
+<p>Same Tencent relay, same 2.5 Mbps cap, same 6.71 MB <code>ouro-app-0.1.X.tar.gz</code>:</p>
+
+</div><table>
+<thead>
+<tr>
+<th>Run</th>
+<th>Transferred</th>
+<th>Time</th>
+<th>Throughput</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Full upload (no delta)</td>
+<td>6.71 MB (100%)</td>
+<td>20.00s</td>
+<td>0.33 MB/s</td>
+</tr>
+<tr>
+<td>rsync --fuzzy + --rsyncable</td>
+<td><strong>1.02 MB (15.2%)</strong></td>
+<td><strong>3.38s</strong></td>
+<td>0.30 MB/s</td>
+</tr>
+</tbody></table>
+<div class="lang-en">
+<p>Throughput is identical because the pipe is still 2.5 Mbps. The win is that rsync only had to push 15% of the file. Upload time dropped <strong>6×</strong> at the same bandwidth.</p>
+<p>The 15% figure is the interesting part. There were <strong>zero code changes</strong> between these two versions — the only diff in the source tree was the <code>package.json</code> version string (<code>0.1.1</code> → <code>0.1.2</code>). Everything else was byte-identical. So why did a full megabyte still change?</p>
+<p>Because:</p>
+<ol>
+<li>Bun&#39;s bundler embeds the version string into <code>server.js</code>.</li>
+<li><code>tar</code> preserves file mtimes by default; each build run has different mtimes.</li>
+<li><code>gzip --rsyncable</code> still produces slightly different output for identical input if internal flush alignment shifts.</li>
+</ol>
+<p>In production with real incremental code changes, deltas land in the same 10–20% range. At 2.5 Mbps that&#39;s the difference between 20 seconds and 3 seconds per publish.</p>
+<h2>Three Things You Actually Need</h2>
+<p>For this to work end-to-end:</p>
+<h3>1. Compress with <code>--rsyncable</code></h3>
+<p>Pipe <code>tar</code> into a rsync-aware compressor. All three of <code>gzip</code>, <code>pigz</code>, and <code>zstd</code> support <code>--rsyncable</code>:</p>
+
+</div><pre><code class="language-bash">tar -c -C dist/ . | gzip -9 --rsyncable &gt; ouro-app-$VERSION.tar.gz
+# or, faster:
+tar -c -C dist/ . | pigz -9 --rsyncable &gt; ouro-app-$VERSION.tar.gz
+# or, smaller files:
+tar -c -C dist/ . | zstd -19 --rsyncable &gt; ouro-app-$VERSION.tar.zst</code></pre><div class="lang-en">
+<p>If you use Apple&#39;s <code>/usr/bin/gzip</code> or BusyBox gzip, you don&#39;t get this flag. On macOS, install GNU gzip:</p>
+
+</div><pre><code class="language-bash">brew install gzip</code></pre><div class="lang-en">
+<h3>2. Upload with <code>rsync --fuzzy --fuzzy --inplace --partial</code></h3>
+<p><code>--inplace</code> is required so the delta lands in the destination file directly instead of a temp file. <code>--partial</code> keeps partially-transferred files so an interrupted upload resumes:</p>
+
+</div><pre><code class="language-bash">rsync -a --fuzzy --fuzzy --inplace --partial --stats \
+  dist/ouro-app-$VERSION.tar.gz \
+  dell:~/releases/ouro/</code></pre><div class="lang-en">
+<p>macOS ships <code>openrsync</code>, a BSD rewrite that claims rsync 2.6.9 compatibility but is missing <code>--fuzzy</code>. Install GNU rsync:</p>
+
+</div><pre><code class="language-bash">brew install rsync</code></pre><div class="lang-en">
+<h3>3. Prune old versions AFTER upload, not before</h3>
+<p>If your pipeline deletes old tarballs before pushing the new one, rsync has no basis to match against and you pay full price. Keep at least the previous version on the destination until after the upload succeeds.</p>
+<h2>The Bun Implementation</h2>
+<p>Our <code>publish.ts</code> used Bun shell templates. The swap from <code>scp</code> to <code>rsync</code> looked like this:</p>
+
+</div><pre><code class="language-typescript">const SSH_OPTS = [
+  &quot;-o&quot;, &quot;ControlMaster=auto&quot;,
+  &quot;-o&quot;, &quot;ControlPath=/tmp/op/%C&quot;,
+  &quot;-o&quot;, &quot;ControlPersist=60&quot;,
+];
+const RSYNC_SSH = `ssh ${SSH_OPTS.join(&quot; &quot;)}`;
+
+const out = await <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>rsync --fuzzy + gzip --rsyncable: Cutting Release Uploads 6× at the Same Bandwidth - Shiqi Mei</title>
+  <link rel="icon" type="image/png" href="../avatar.png">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div class="container">
+    <a href="/" class="back-link">&larr; back</a>
+
+    <article>
+      <header class="post-header">
+        <div class="post-header-row">
+          <h1 class="post-title">rsync --fuzzy + gzip --rsyncable: Cutting Release Uploads 6× at the Same Bandwidth</h1>
+          <div class="lang-toggle" id="langToggle">
+            <button data-lang="en" class="active">EN</button>
+            <button data-lang="zh">CN</button>
+          </div>
+        </div>
+        <p class="post-meta">Apr 17, 2026</p>
+      </header>
+
+      <div class="post-content">
+        rsync -a --fuzzy --fuzzy --inplace --partial --stats \
+  -e ${RSYNC_SSH} ${localPath} ${sshHost}:${remoteDir}/`.text();
+
+// Parse &quot;Total bytes sent: 1,234,567&quot; from --stats output
+const m = out.match(/Total bytes sent:\s*([\d,]+)/);
+const sent = m ? Number(m[1].replace(/,/g, &quot;&quot;)) : size;
+const deltaPct = ((sent / size) * 100).toFixed(1);
+
+console.log(`${name}: ${elapsed}ms, sent ${sent} / ${size} (${deltaPct}%)`);</code></pre><div class="lang-en">
+<p>Parsing <code>--stats</code> output lets us print a real measurement on every publish:</p>
+
+</div><pre><code class="language-text">[ OK ]  ouro-app-0.1.2.tar.gz: 3.38s, sent 1.02 MB / 6.71 MB (15.2%, 0.30 MB/s)
+[ OK ]  Published app v0.1.2 in 45s</code></pre><div class="lang-en">
+<h2>When This Doesn&#39;t Help</h2>
+<ul>
+<li><strong>First publish of a release lineage.</strong> No prior version to diff against — first publish pays full price, subsequent ones are cheap.</li>
+<li><strong>Docker image tarballs.</strong> <code>docker save</code> produces deterministic layer files but the containing tar interleaves them; small image changes can still cause large tarball diffs. Use a Docker registry instead — <code>docker push</code> already does delta transfer via layer digests.</li>
+<li><strong>If you already have a fast pipe.</strong> At 100 Mbps the 20s → 3s difference is 0.2s → 0.03s and nobody cares. The technique matters when bandwidth is the constraint.</li>
+</ul>
+<h2>Takeaway</h2>
+<p>The fastest byte to transfer is the one you don&#39;t transfer. Before throwing money at a bandwidth upgrade or reaching for a fancier sync tool (mutagen, syncthing, casync), try:</p>
+<ol>
+<li><code>gzip --rsyncable</code> in the build pipeline.</li>
+<li><code>rsync --fuzzy --fuzzy --inplace --partial</code> on the upload.</li>
+<li>Prune after upload, not before.</li>
+</ol>
+<p>Three flag changes. No new services, no new dependencies, no VPS upgrade. 6× faster publishes at the same cost.</p>
+
+</div><div class="lang-zh">
+<p>我们的发布流水线会把版本化的 tarball（<code>ouro-app-0.1.12.tar.gz</code>、<code>ouro-app-0.1.13.tar.gz</code>……）通过腾讯云 VPS 上的 frp 中继推送出去。那台 VPS 的带宽被限制在 2.5 Mbps 左右——一个 6.6 MB 的 tarball 要传 20 秒以上。每次 <code>bun pub:app</code> 都要付这笔时间。</p>
+<p>升级 VPS 带宽要花钱。换云也走不通：公司的防火墙把阿里云 IP 给封了。试过 frp XTCP P2P 打洞，但两端都在电信 CGNAT 后面，UDP 握手包被运营商丢掉了。2.5 Mbps 的管道没法变宽。</p>
+<p>那就换个角度：<strong>管道不能变粗，那就让数据变少。</strong></p>
+<h2>为什么直接换 rsync 不管用</h2>
+<p>第一反应：把 <code>scp</code> 换成 <code>rsync</code>。rsync 的滚动校验应该只传两个版本 tarball 之间的差异才对。</p>
+<p>但它不管用，而且是两个问题叠加在一起：</p>
+<p><strong>1. 文件名不同，rsync 默认找不到对比基准。</strong></p>
+<p>rsync 会在目标机器上找同名文件作为增量对比的基准。但我们的 tarball 带版本号——<code>ouro-app-0.1.12.tar.gz</code> 和 <code>ouro-app-0.1.13.tar.gz</code> 文件名不同，rsync 会把新文件当成全新文件，整份传过去。</p>
+<p><strong>2. gzip 的 DEFLATE 状态破坏了字节级的增量。</strong></p>
+<p>就算强行让 rsync 对比旧 tarball，gzip 的压缩状态贯穿整个流。输入里改一个字节，从改动点到文件末尾的输出字节就全都变了。rsync 的滚动校验看到两个大部分不同的字节流，最后会重传 80–90% 的文件。你付出了增量计算的开销，却拿不到增量传输的收益。</p>
+<h2>两个参数解决两个问题</h2>
+<p><strong><code>gzip --rsyncable</code></strong> 会在内容相关的边界插入刷新点，让输入的小改动只影响输出的局部。文件会大 1% 左右，但 DEFLATE 状态会定期重置。</p>
+<p><strong><code>rsync --fuzzy</code></strong> 告诉 rsync：如果目标位置没有同名文件，就在同一目录下找文件名相似的文件，挑最接近的那个作为增量对比基准。<code>ouro-app-0.1.12.tar.gz</code> 就可以作为 <code>ouro-app-0.1.13.tar.gz</code> 的基准。双写 <code>--fuzzy --fuzzy</code> 还会在 <code>--compare-dest</code> 指定的目录里做模糊匹配。</p>
+<p>两个参数缺一不可：</p>
+<ul>
+<li>只有 <code>--rsyncable</code> 没有 <code>--fuzzy</code>：rsync 找不到基准，整份传。</li>
+<li>只有 <code>--fuzzy</code> 没有 <code>--rsyncable</code>：rsync 找到了基准，但 gzip 流的差异太大，用不上。</li>
+</ul>
+<p>两个一起用，差异变得又小又可用。</p>
+<h2>实测</h2>
+<p>同一台腾讯中继，同样 2.5 Mbps 上限，同样的 6.71 MB <code>ouro-app-0.1.X.tar.gz</code>：</p>
+
+</div><div class="lang-zh">
+<p>吞吐量一样，因为管道还是 2.5 Mbps。赢在 rsync 只需要推 15% 的文件。同样的带宽下，上传时间降到了原来的 <strong>六分之一</strong>。</p>
+<p>这 15% 才是有意思的地方。这两个版本之间<strong>一行代码都没改</strong>——源码树里唯一的差异就是 <code>package.json</code> 里的版本号字符串（<code>0.1.1</code> → <code>0.1.2</code>）。其他都是逐字节一致的。那为什么还是有整整 1 MB 的差异？</p>
+<p>原因有三：</p>
+<ol>
+<li>Bun 的打包器会把版本字符串嵌进 <code>server.js</code>。</li>
+<li><code>tar</code> 默认保留文件的 mtime，每次构建的 mtime 都不一样。</li>
+<li><code>gzip --rsyncable</code> 对相同输入产生的输出仍然会因为内部刷新点对齐差异而略有不同。</li>
+</ol>
+<p>生产里有真实增量改动时，差异大致还是落在 10–20% 这个区间。2.5 Mbps 下，这是 20 秒和 3 秒的差别。</p>
+<h2>真正要做的三件事</h2>
+<p>要端到端跑通，需要：</p>
+<h3>1. 压缩时加 <code>--rsyncable</code></h3>
+<p>把 <code>tar</code> 管道接到支持 rsync 的压缩器上。<code>gzip</code>、<code>pigz</code>、<code>zstd</code> 三个都支持 <code>--rsyncable</code>：</p>
+
+</div><div class="lang-zh">
+<p>如果你在用苹果自带的 <code>/usr/bin/gzip</code> 或者 BusyBox 的 gzip，是没有这个参数的。macOS 装 GNU 版的 gzip：</p>
+
+</div><div class="lang-zh">
+<h3>2. 上传时加 <code>rsync --fuzzy --fuzzy --inplace --partial</code></h3>
+<p><code>--inplace</code> 是必须的——让增量直接落到目标文件里，而不是写临时文件（会抵消增量写入的好处）。<code>--partial</code> 保留传了一半的文件，断线后可以续传：</p>
+
+</div><div class="lang-zh">
+<p>macOS 自带的是 <code>openrsync</code>，BSD 的重写版，号称兼容 rsync 2.6.9，但少了 <code>--fuzzy</code>。装 GNU rsync：</p>
+
+</div><div class="lang-zh">
+<h3>3. 旧版本在<strong>上传之后</strong>再清理，不要在之前清</h3>
+<p>如果流水线先删旧 tarball 再传新的，rsync 就没有基准可以对比，白白付全额的代价。上传成功之后再清掉旧版本，至少把上一版保留到新版本传完。</p>
+<h2>Bun 里的实现</h2>
+<p>我们的 <code>publish.ts</code> 用的是 Bun 的 shell 模板。<code>scp</code> 换 <code>rsync</code> 大概长这样：</p>
+
+</div><div class="lang-zh">
+<p>解析 <code>--stats</code> 的输出，每次发布都能打印出真实的测量值：</p>
+
+</div><div class="lang-zh">
+<h2>什么情况下用不上</h2>
+<ul>
+<li><strong>这条发布线的第一次发布。</strong> 没有旧版本可以做基准——第一次全额付费，之后才便宜。</li>
+<li><strong>Docker 镜像 tarball。</strong> <code>docker save</code> 产出的分层是确定的，但外层 tar 把它们交错打包，镜像里的小改动也可能导致 tarball 差异很大。这种情况直接用 Docker registry——<code>docker push</code> 本身就是按层的摘要做增量传输的。</li>
+<li><strong>管道本来就快。</strong> 100 Mbps 下 20 秒 → 3 秒变成 0.2 秒 → 0.03 秒，没人在乎。这招只在带宽是瓶颈的时候才有意义。</li>
+</ul>
+<h2>小结</h2>
+<p>最快的字节，是你不传的那一个。与其花钱升带宽，或者上更复杂的同步工具（mutagen、syncthing、casync），不如先试试：</p>
+<ol>
+<li>构建时给 gzip 加 <code>--rsyncable</code>。</li>
+<li>上传时用 <code>rsync --fuzzy --fuzzy --inplace --partial</code>。</li>
+<li>清理旧版本放在上传之后。</li>
+</ol>
+<p>三个参数，不加新服务，不加新依赖，不升 VPS。同样的带宽，发布快六倍。</p>
+
+</div>
+      </div>
+    </article>
+
+    <footer class="site-footer">
+      <p>&copy; 2026 Shiqi Mei</p>
+    </footer>
+  </div>
+  <script type="module" src="../js/highlight.js"></script>
+  <script src="../js/lang-toggle.js"></script>
+</body>
+</html>
