@@ -19,6 +19,30 @@
 
 html {
   font-size: 16px;
+  scrollbar-color: #555 var(--bg);
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #555;
+  border: 2px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff6e1a;
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--bg);
 }
 
 body {
