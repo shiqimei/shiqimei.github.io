@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1072" height="250" viewBox="64 0 1072 250" role="img" aria-labelledby="title desc">
+  <title id="title">Human-native control path</title>
+  <desc id="desc">A human carries the workflow through a user interface to the backend.</desc>
+  <rect x="64" width="1072" height="250" fill="#000"/>
+  <g font-family="SFMono-Regular, SF Mono, JetBrains Mono, monospace">
+    <rect x="64" y="64" width="280" height="122" fill="#050505" stroke="#555" stroke-width="3"/>
+    <text x="204" y="113" fill="#fff" font-size="26" text-anchor="middle" font-weight="600">HUMAN</text>
+    <text x="204" y="149" fill="#aaa" font-size="19" text-anchor="middle">carries workflow</text>
+
+    <line x1="344" y1="125" x2="460" y2="125" stroke="#777" stroke-width="4"/>
+    <polygon points="460,125 438,113 438,137" fill="#777"/>
+
+    <rect x="460" y="64" width="280" height="122" fill="#050505" stroke="#555" stroke-width="3"/>
+    <text x="600" y="113" fill="#fff" font-size="26" text-anchor="middle" font-weight="600">UI</text>
+    <text x="600" y="149" fill="#aaa" font-size="19" text-anchor="middle">primary interface</text>
+
+    <line x1="740" y1="125" x2="856" y2="125" stroke="#777" stroke-width="4"/>
+    <polygon points="856,125 834,113 834,137" fill="#777"/>
+
+    <rect x="856" y="64" width="280" height="122" fill="#050505" stroke="#555" stroke-width="3"/>
+    <text x="996" y="113" fill="#fff" font-size="26" text-anchor="middle" font-weight="600">BACKEND</text>
+    <text x="996" y="149" fill="#aaa" font-size="19" text-anchor="middle">executes request</text>
+  </g>
+</svg>

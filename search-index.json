@@ -8,6 +8,13 @@
   },
   {
     "type": "post",
+    "title": "Let Agents Act. Humans Decide.",
+    "excerpt": "An agent-native product model developed at Runta: agents own execution, humans own authority, and the system enforces the boundary.",
+    "date": "Aug 12, 2026",
+    "url": "posts/agent-native-software"
+  },
+  {
+    "type": "post",
     "title": "rsync --fuzzy + gzip --rsyncable: Cutting Release Uploads 6× at the Same Bandwidth",
     "excerpt": "Our publish pipeline hit a 2.5 Mbps VPS bandwidth cap. We cut upload time from 20s to 3.4s without changing the pipe — by combining gzip --rsyncable with rsync --fuzzy against versioned tarballs.",
     "date": "Apr 17, 2026",
