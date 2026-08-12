@@ -48,7 +48,7 @@ Human-native software routes work through a person-driven UI.
 
 </div>
 
-<img src="../images/agent-native-software/human-native-path.svg" alt="Human-native control path" style="width:100%;max-width:700px;margin:1.5rem 0;">
+<img src="../images/let-agents-act-humans-decide/human-native-path.svg" alt="Human-native control path" style="width:100%;max-width:700px;margin:1.5rem 0;">
 
 <div class="lang-en">
 
@@ -62,7 +62,7 @@ Agent 原生软件则把执行交给机器接口，Agent 始终在主路径上�
 
 </div>
 
-<img src="../images/agent-native-software/agent-native-path.svg" alt="Agent-native control path" style="width:100%;max-width:700px;margin:1.5rem 0;">
+<img src="../images/let-agents-act-humans-decide/agent-native-path.svg" alt="Agent-native control path" style="width:100%;max-width:700px;margin:1.5rem 0;">
 
 <div class="lang-en">
 
@@ -112,7 +112,7 @@ Agent 等待结构化状态，并在用户完成操作后继续。人类负责�
 
 </div>
 
-<img src="../images/agent-native-software/capability-not-credential.svg" alt="Runta capability instead of credential architecture" style="width:100%;max-width:700px;margin:1.5rem 0;">
+<img src="../images/let-agents-act-humans-decide/capability-not-credential.svg" alt="Runta capability instead of credential architecture" style="width:100%;max-width:700px;margin:1.5rem 0;">
 
 <div class="lang-en">
 
