@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#000"/>
+  <g font-family="SFMono-Regular, SF Mono, JetBrains Mono, monospace">
+    <text x="72" y="88" fill="#ff6e1a" font-size="22" font-weight="600" letter-spacing="3">RUNTA / AGENT-NATIVE</text>
+    <line x1="72" y1="116" x2="1128" y2="116" stroke="#333" stroke-width="2"/>
+
+    <text x="72" y="236" fill="#fff" font-size="64" font-weight="700">Let Agents Act.</text>
+    <text x="72" y="322" fill="#fff" font-size="64" font-weight="700">Humans Decide.</text>
+
+    <text x="72" y="430" fill="#888" font-size="26">Agents execute. Humans authorize.</text>
+    <text x="72" y="470" fill="#888" font-size="26">Runta enforces.</text>
+
+    <image href="runta-logo-icon.png" x="1000" y="404" width="96" height="96"/>
+    <text x="1128" y="554" fill="#ff6e1a" font-size="22" text-anchor="end" font-weight="600">SHIQIMEI.GITHUB.IO</text>
+  </g>
+</svg>

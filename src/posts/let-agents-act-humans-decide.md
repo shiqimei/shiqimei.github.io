@@ -2,6 +2,7 @@
 title: "Let Agents Act. Humans Decide."
 date: 2026-08-12
 excerpt: "An agent-native product model developed at Runta: agents own execution, humans own authority, and the system enforces the boundary."
+ogImage: "/images/let-agents-act-humans-decide/social-card.png"
 ---
 
 <div class="lang-en">

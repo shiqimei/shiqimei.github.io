@@ -44,6 +44,14 @@ function parseDate(dateStr) {
   return new Date(dateStr);
 }
 
+function escapeAttribute(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 // Fix CommonMark emphasis edge case: **text ending with punctuation**followed-by-non-whitespace
 // fails because the closing ** doesn't form a valid right-flanking delimiter run.
 // Pre-convert these to <strong> HTML tags so marked passes them through correctly.
@@ -108,6 +116,7 @@ function readMarkdownFiles(dir) {
       title: data.title,
       date: data.date,
       excerpt: data.excerpt || '',
+      ogImage: data.ogImage || '',
       content: body,
       html: processMarkdown(body)
     });
@@ -134,8 +143,36 @@ function generatePosts(posts) {
   }
 
   for (const post of posts) {
+    const postUrl = `${SITE_URL}/posts/${post.slug}`;
+    const title = escapeAttribute(post.title);
+    const description = escapeAttribute(post.excerpt);
+    const socialMeta = post.ogImage ? (() => {
+      const ogImageUrl = new URL(post.ogImage, SITE_URL).href;
+      return `  <meta name="description" content="${description}">
+  <link rel="canonical" href="${postUrl}">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Shiqi Mei">
+  <meta property="og:title" content="${title}">
+  <meta property="og:description" content="${description}">
+  <meta property="og:url" content="${postUrl}">
+  <meta property="og:image" content="${ogImageUrl}">
+  <meta property="og:image:secure_url" content="${ogImageUrl}">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="${title}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${title}">
+  <meta name="twitter:description" content="${description}">
+  <meta name="twitter:image" content="${ogImageUrl}">
+  <meta name="twitter:image:alt" content="${title}">
+`;
+    })() : '';
     const html = template
-      .replace(/\{\{TITLE\}\}/g, post.title)
+      .replace(/\{\{TITLE\}\}/g, title)
+      .replace(/\{\{DESCRIPTION\}\}/g, description)
+      .replace(/\{\{URL\}\}/g, postUrl)
+      .replace(/\{\{SOCIAL_META\}\}/g, socialMeta)
       .replace(/\{\{DATE\}\}/g, formatDate(post.date))
       .replace(/\{\{CONTENT\}\}/g, post.html);
 
